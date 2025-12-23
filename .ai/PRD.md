@@ -152,15 +152,6 @@ Acceptance Criteria:
 2. Distances aggregate only included cycling activity types.
 3. Joined-late icons display for relevant users.
 
-US-005 Late join indicator
-Title: Late join badge
-Description: As a visitor, I want to understand that some participants’ stats count from their join date.
-Acceptance Criteria:
-
-1. Participants who could not be backfilled to the challenge start display a joined-late icon.
-2. Hovering or tapping the icon shows a tooltip explaining the rule.
-3. Badge presence is determined by ingestion metadata and persists across syncs.
-
 US-006 Team creation
 Title: Create a team
 Description: As a participant, I want to create a team to compete with colleagues.
