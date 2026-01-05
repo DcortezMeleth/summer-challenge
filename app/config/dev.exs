@@ -24,7 +24,10 @@ config :summer_challenge, SummerChallengeWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "Ne3eYHXSAUm8pCwtoQfLn/LZTEALbRgWvnHwMOPE+tCDcoeIR93UqBXpy6gqaSUt",
-  watchers: []
+  watchers: [
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+  ]
 
 # ## SSL Support
 #

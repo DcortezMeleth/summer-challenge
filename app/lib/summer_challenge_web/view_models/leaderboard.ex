@@ -77,7 +77,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
     %{
       rank: rank,
       display_name: display_name,
-      team_name: team_name || "—",
+      team_name: normalize_team_name(team_name),
       joined_late: joined_late,
       distance_label: SummerChallengeWeb.Formatters.format_km(distance),
       moving_time_label: SummerChallengeWeb.Formatters.format_duration(time),
@@ -85,6 +85,12 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
       activity_count_label: Integer.to_string(count)
     }
   end
+
+  defp normalize_team_name(team_name) when is_binary(team_name) do
+    if String.trim(team_name) == "", do: "—", else: team_name
+  end
+
+  defp normalize_team_name(_), do: "—"
 
   @doc """
   Creates a complete leaderboard page view model.

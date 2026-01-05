@@ -39,7 +39,7 @@ defmodule SummerChallengeWeb.Layouts do
         <script defer phx-track-static src={~p"/assets/app.js"}>
         </script>
       </head>
-      <body class="bg-white antialiased">
+      <body class="min-h-screen bg-ui-50 text-ui-900 antialiased">
         <.flash_group flash={@flash} />
         <%= @inner_content %>
       </body>
@@ -83,18 +83,21 @@ defmodule SummerChallengeWeb.Layouts do
     <div
       :if={msg = Phoenix.Flash.get(@flash, @kind)}
       id={"flash-#{@kind}"}
-      class="fixed top-2 right-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1 bg-white shadow-md"
+      class={[
+        "fixed top-2 right-2 w-80 sm:w-96 z-50 rounded-xl p-3 ring-1 bg-white shadow-sport",
+        if(@kind == :info, do: "ring-brand-200", else: "ring-ui-200")
+      ]}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> JS.remove_class("fade-in-scale", transition: "fade-out-scale")}
       phx-hook="Phoenix.Flash"
       role="alert"
     >
-      <p class="flex items-center gap-1.5 text-sm font-semibold leading-6 text-zinc-900">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4 text-blue-500" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4 text-red-500" />
+      <p class="flex items-center gap-1.5 text-sm font-semibold leading-6 text-ui-900">
+        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4 text-brand-700" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4 text-red-600" />
         <.icon :if={@kind == :warning} name="hero-exclamation-triangle-mini" class="h-4 w-4 text-amber-500" />
         <%= @title %>
       </p>
-      <p class="mt-2 text-sm leading-5 text-zinc-600"><%= msg %></p>
+      <p class="mt-2 text-sm leading-5 text-ui-700"><%= msg %></p>
     </div>
     """
   end

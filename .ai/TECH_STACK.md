@@ -19,7 +19,7 @@
 
 ## HTTP & Integrations
 
-* **Tesla** (HTTP client) with **Finch** adapter and **Jason** (JSON) to call **Strava API**.
+* **Req** (HTTP client) to call **Strava API** (preferred in Phoenix projects).
 * Handle token refresh, pagination, and rate limits (`X-RateLimit-*`).
 
 ## Security & Secrets
@@ -73,3 +73,17 @@ OBAN_DB_QUEUE_INTERVAL (optional)
 * All DB writes via Ecto changesets.
 * Use Oban retries/backoff on 429/5xx; `{:snooze, seconds}` to respect limits.
 * Store only necessary fields; never log tokens or PII.
+
+## UI & Styling
+
+* **Tailwind CSS** via Phoenix’s `:tailwind` wrapper (no Node required).
+  * Source: `app/assets/css/app.css`
+  * Build output: `app/priv/static/assets/app.css`
+  * Theme tokens (greens/greys): `app/assets/tailwind.config.js` (`colors.brand`, `colors.ui`)
+* **JavaScript bundling** via Phoenix’s `:esbuild` wrapper.
+  * Source: `app/assets/js/app.js`
+  * Build output: `app/priv/static/assets/app.js`
+* **Local dev commands**
+  * `mix assets.setup`
+  * `mix assets.build`
+  * `mix phx.server` (runs watchers in dev)
