@@ -15,12 +15,12 @@ defmodule SummerChallenge.Model.Types do
   @typedoc """
   Valid sport types preserved in the `activities` table.
   """
-  @type sport_type :: "Run" | "TrailRun" | "Ride" | "GravelRide" | "MountainBikeRide"
+  @type sport_type :: :Run | :TrailRun | :Ride | :GravelRide | :MountainBikeRide
 
   @typedoc """
   Simplified sport categories derived by the generated column in `activities.sport_category`.
   """
-  @type sport_category :: "run" | "ride"
+  @type sport_category :: :run | :ride
 
   @typedoc "DTO that surfaces participant information to the leaderboard and profile APIs."
   @type user_dto :: %{

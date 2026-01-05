@@ -1,6 +1,8 @@
 defmodule SummerChallengeWeb.Router do
   use SummerChallengeWeb, :router
 
+  import Phoenix.LiveView.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -16,6 +18,7 @@ defmodule SummerChallengeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/leaderboard/:sport", LeaderboardLive, :index
   end
 
   scope "/api", SummerChallengeWeb do

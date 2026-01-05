@@ -47,12 +47,39 @@ defmodule SummerChallengeWeb do
     end
   end
 
+  def live do
+    quote do
+      use Phoenix.LiveView,
+        layout: {SummerChallengeWeb.Layouts, :app}
+
+      use Gettext, backend: SummerChallengeWeb.Gettext
+
+      unquote(html_helpers())
+      unquote(verified_routes())
+    end
+  end
+
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
         endpoint: SummerChallengeWeb.Endpoint,
         router: SummerChallengeWeb.Router,
         statics: SummerChallengeWeb.static_paths()
+    end
+  end
+
+  def html_helpers do
+    quote do
+      # HTML escaping functionality
+      import Phoenix.HTML
+      # Core UI components and translation
+      import SummerChallengeWeb.CoreComponents
+
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
+
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
     end
   end
 
