@@ -317,4 +317,354 @@ defmodule SummerChallengeWeb.CoreComponents do
     </span>
     """
   end
+
+  @doc """
+  Onboarding shell component - layout wrapper for onboarding pages.
+
+  Provides centered layout with consistent spacing for onboarding flow.
+  """
+  slot :inner_block, required: true
+
+  def onboarding_shell(assigns) do
+    ~H"""
+    <main role="main" class="flex min-h-screen items-center justify-center bg-gray-50 py-10">
+      <section class="w-full max-w-lg px-4">
+        <%= render_slot(@inner_block) %>
+      </section>
+    </main>
+    """
+  end
+
+  @doc """
+  Onboarding card component - styled container for onboarding content.
+
+  Provides a clean card UI with appropriate styling for the onboarding flow.
+  """
+  slot :inner_block, required: true
+
+  def onboarding_card(assigns) do
+    ~H"""
+    <div class="rounded-2xl bg-white/90 ring-1 ring-gray-200 shadow-sport p-6">
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  @doc """
+  Onboarding header component - primary copy for the onboarding flow.
+
+  Shows the main heading and helper text for the onboarding process.
+  """
+  def onboarding_header(assigns) do
+    ~H"""
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">
+        You are joining the challenge
+      </h1>
+      <p class="text-gray-600">
+        Choose a name that will appear on the public leaderboard.
+      </p>
+    </div>
+    """
+  end
+
+  @doc """
+  Display name form component - collects and validates the user's display name.
+
+  Handles form submission, validation, and error display for the display name input.
+  """
+  attr :form, Phoenix.HTML.Form, required: true
+  attr :saving?, :boolean, required: true
+  attr :submit_label, :string, default: "Continue"
+  attr :focus_field, :atom, default: nil
+
+  def display_name_form(assigns) do
+    ~H"""
+    <div class="mb-6">
+      <.form for={@form} phx-change="validate" phx-submit="submit" class="space-y-4">
+        <div>
+          <.input
+            type="text"
+            field={@form[:display_name]}
+            placeholder="Enter your display name"
+            required
+            disabled={@saving?}
+            class="w-full"
+            phx-mounted={@focus_field == :display_name && Phoenix.LiveView.JS.focus()}
+          />
+          <.error messages={Enum.map(@form[:display_name].errors, &translate_error/1)} />
+        </div>
+
+        <.button
+          type="submit"
+          disabled={@saving?}
+          loading?={@saving?}
+          class="w-full"
+        >
+          <%= if @saving?, do: "Setting up...", else: @submit_label %>
+        </.button>
+      </.form>
+    </div>
+    """
+  end
+
+  @doc """
+  Inline error component - displays field-level validation errors.
+
+  Shows error messages below form fields with consistent styling.
+  """
+  attr :messages, :list, required: true
+
+  def error(assigns) do
+    ~H"""
+    <p :for={msg <- @messages} class="mt-1 text-sm text-red-600">
+      <%= msg %>
+    </p>
+    """
+  end
+
+  @doc """
+  Primary button component - styled button for primary actions.
+
+  Provides consistent styling for primary buttons with loading states.
+  """
+  attr :type, :string, default: "button"
+  attr :disabled, :boolean, default: false
+  attr :loading?, :boolean, default: false
+  attr :class, :string, default: ""
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def button(assigns) do
+    ~H"""
+    <button
+      type={@type}
+      disabled={@disabled || @loading?}
+      class={[
+        "inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm",
+        "text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+        "disabled:bg-gray-400 disabled:cursor-not-allowed",
+        @loading? && "cursor-wait",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
+  @doc """
+  Renders an input with label and error messages.
+  """
+  attr :id, :any, default: nil
+  attr :name, :any
+  attr :label, :string, default: nil
+  attr :value, :any
+
+  attr :type, :string, default: "text", values: ~w(checkbox color date datetime-local email file hidden month number password
+                                           range radio search select tel text textarea time url week)
+
+  attr :field, Phoenix.HTML.FormField, doc: "a form field struct retrieved from the form, for example: @form[:email]"
+
+  attr :errors, :list, default: []
+  attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
+  attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
+  attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
+  attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+
+  attr :rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
+                                  multiple pattern placeholder readonly required rows size step)
+
+  slot :inner_block
+
+  def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    assigns
+    |> assign(field: nil, id: assigns.id || field.id)
+    |> assign(:errors, Enum.map(field.errors, &translate_error/1))
+    |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
+    |> assign_new(:value, fn -> field.value end)
+    |> input()
+  end
+
+  def input(%{type: "checkbox"} = assigns) do
+    assigns =
+      assign_new(assigns, :checked, fn ->
+        Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
+      end)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+        <input type="hidden" name={@name} value="false" />
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          {@rest}
+        />
+        <%= @label %>
+      </label>
+      <.error messages={@errors} />
+    </div>
+    """
+  end
+
+  def input(%{type: "select"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <select
+        id={@id}
+        name={@name}
+        class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5"
+        multiple={@multiple}
+        {@rest}
+      >
+        <option :if={@prompt} value=""><%= @prompt %></option>
+        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+      </select>
+      <.error messages={@errors} />
+    </div>
+    """
+  end
+
+  def input(%{type: "textarea"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <textarea
+        id={@id}
+        name={@name}
+        class={[
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
+        ]}
+        {@rest}
+      ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      <.error messages={@errors} />
+    </div>
+    """
+  end
+
+  # All other inputs text, datetime-local, url, password, etc. are handled here...
+  def input(assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <input
+        type={@type}
+        name={@name}
+        id={@id}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        class={[
+          "mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
+        ]}
+        {@rest}
+      />
+      <.error messages={@errors} />
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a label.
+  """
+  attr :for, :string, default: nil
+  slot :inner_block, required: true
+
+  def label(assigns) do
+    ~H"""
+    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+      <%= render_slot(@inner_block) %>
+    </label>
+    """
+  end
+
+  @doc """
+  Translates an error message using gettext.
+  """
+  def translate_error({msg, opts}) do
+    # Because the error messages we show in our forms and APIs
+    # are defined inside Ecto, we need to translate them dynamically.
+    Enum.reduce(opts, msg, fn {key, value}, acc ->
+      String.replace(acc, "%{#{key}}", fn _ -> to_string(value) end)
+    end)
+  end
+
+  @doc """
+  Authentication section component - shows auth UI based on user state.
+
+  Displays sign-in button for unauthenticated users, user menu for authenticated users.
+  """
+  attr :current_scope, :map, required: true
+  attr :current_user, :any, default: nil
+
+  def auth_section(assigns) do
+    ~H"""
+    <div class="flex items-center justify-end space-x-4 py-4">
+      <%= if @current_scope.authenticated? do %>
+        <!-- Future: User menu with profile options -->
+        <div class="text-sm text-gray-700">
+          Welcome, <%= @current_user.display_name %>!
+        </div>
+      <% else %>
+        <.sign_in_button />
+      <% end %>
+    </div>
+    """
+  end
+
+  @doc """
+  Sign in with Strava button - initiates OAuth flow.
+
+  Strava-branded button that redirects to OAuth authorization.
+  """
+  def sign_in_button(assigns) do
+    ~H"""
+    <a
+      href="/auth/strava"
+      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+    >
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.3 14.401h4.169"/>
+      </svg>
+      Sign in with Strava
+    </a>
+    """
+  end
+
+  @doc """
+  Terms and privacy notice component - displays legal notice.
+
+  Shows terms/privacy links with implied acceptance messaging.
+  """
+  attr :terms_href, :string, required: true
+  attr :privacy_href, :string, required: true
+
+  def terms_privacy_notice(assigns) do
+    ~H"""
+    <div class="text-center text-sm text-gray-500">
+      <p>
+        By continuing you agree to our
+        <.link navigate={@terms_href} class="text-blue-600 hover:text-blue-800 underline">
+          Terms
+        </.link>
+        and
+        <.link navigate={@privacy_href} class="text-blue-600 hover:text-blue-800 underline">
+          Privacy Policy
+        </.link>.
+      </p>
+    </div>
+    """
+  end
 end

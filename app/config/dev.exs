@@ -67,3 +67,9 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Strava OAuth configuration
+config :summer_challenge,
+  strava_client_id: System.get_env("STRAVA_CLIENT_ID") || "193891",
+  strava_client_secret: System.get_env("STRAVA_CLIENT_SECRET") || "dee04c6e37a632748635fd6973beddc56fc2a84e",
+  admin_emails: System.get_env("ADMIN_EMAILS") || ""

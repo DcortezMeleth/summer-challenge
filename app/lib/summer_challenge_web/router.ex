@@ -3,9 +3,12 @@ defmodule SummerChallengeWeb.Router do
 
   import Phoenix.LiveView.Router
 
+  alias SummerChallengeWeb.Hooks.Auth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -14,11 +17,24 @@ defmodule SummerChallengeWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Public routes - no authentication required
   scope "/", SummerChallengeWeb do
     pipe_through :browser
 
     get "/", PageController, :home
-    live "/leaderboard/:sport", LeaderboardLive, :index
+
+    # OAuth routes
+    get "/auth/strava", OAuthController, :request
+    get "/auth/strava/callback", OAuthController, :callback
+
+    live_session :public, on_mount: {Auth, :optional} do
+      live "/leaderboard/:sport", LeaderboardLive, :index
+    end
+
+    live_session :authenticated, on_mount: {Auth, :require_authenticated_user} do
+      live "/onboarding", OnboardingLive, :index
+      # TODO: Add other authenticated routes here (my/activities, teams, admin, etc.)
+    end
   end
 
   scope "/api", SummerChallengeWeb do

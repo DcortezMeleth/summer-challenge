@@ -55,6 +55,8 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   def render(assigns) do
     ~H"""
     <.app_shell>
+      <.auth_section current_scope={@current_scope} current_user={@current_user} />
+
       <.sport_switch tabs={@page.tabs} />
 
       <.sync_status_line last_sync_label={@page.last_sync_label} />

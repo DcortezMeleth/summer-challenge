@@ -127,41 +127,4 @@ defmodule SummerChallengeWeb.Layouts do
   end
 
 
-  @doc """
-  Generates tag for inlined form input errors.
-  """
-  def error(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
-    assigns = assign(assigns, :errors, Enum.map(field.errors, &translate_error(&1)))
-
-    ~H"""
-    <.error :for={msg <- @errors}><%= msg %></.error>
-    """
-  end
-
-  def error(%{} = assigns) do
-    ~H"""
-    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600 phx-no-feedback:hidden">
-      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
-      <%= render_slot(@inner_block) %>
-    </p>
-    """
-  end
-
-  @doc """
-  Translates an error message.
-  """
-  def translate_error({msg, opts}) do
-    # Because the error messages we show in our forms and APIs
-    # are defined inside Ecto, we need to translate them dynamically.
-    Enum.reduce(opts, msg, fn {key, value}, acc ->
-      String.replace(acc, "%{#{key}}", fn _ -> to_string(value) end)
-    end)
-  end
-
-  @doc """
-  Translates the errors for a field from a keyword list of errors.
-  """
-  def translate_errors(errors, field) when is_list(errors) do
-    for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
-  end
 end
