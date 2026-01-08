@@ -9,16 +9,12 @@ defmodule SummerChallengeWeb.Layouts do
   use Phoenix.Component
 
   import SummerChallengeWeb.CoreComponents
-  import SummerChallengeWeb.Gettext
 
   # Routes generation with the ~p sigil
   use Phoenix.VerifiedRoutes,
     endpoint: SummerChallengeWeb.Endpoint,
     router: SummerChallengeWeb.Router,
     statics: SummerChallengeWeb.static_paths()
-
-  # Shortcut for generating JS commands
-  alias Phoenix.LiveView.JS
 
   @doc """
   The app layout renders the main application structure with

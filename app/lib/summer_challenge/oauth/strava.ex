@@ -35,7 +35,7 @@ defmodule SummerChallenge.OAuth.Strava do
   @doc """
   Exchanges authorization code for access token.
   """
-  def get_token!(params \\ [], headers \\ []) do
+  def get_token!(params \\ []) do
     # Use custom implementation to ensure proper form-encoded request
     exchange_token(params[:code])
   end
