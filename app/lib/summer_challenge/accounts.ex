@@ -137,6 +137,7 @@ defmodule SummerChallenge.Accounts do
   defp get_user_by_strava_id(strava_id) do
     SummerChallenge.Model.User
     |> where([u], u.strava_athlete_id == ^strava_id)
+    |> preload(:team)
     |> Repo.one()
     |> case do
       nil -> nil
@@ -157,7 +158,10 @@ defmodule SummerChallenge.Accounts do
     })
     |> Repo.insert()
     |> case do
-      {:ok, user} -> {:ok, user_to_dto(user)}
+      {:ok, user} ->
+        # Preload team association for consistency
+        user = Repo.preload(user, :team)
+        {:ok, user_to_dto(user)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -200,12 +204,18 @@ defmodule SummerChallenge.Accounts do
 
   @spec user_to_dto(User.t()) :: Types.user_dto()
   defp user_to_dto(user) do
+    team_name = case user.team do
+      %Ecto.Association.NotLoaded{} -> nil
+      nil -> nil
+      team -> team.name
+    end
+
     %{
       id: user.id,
       display_name: user.display_name,
       is_admin: user.is_admin,
       team_id: user.team_id,
-      team_name: user.team && user.team.name,
+      team_name: team_name,
       joined_at: user.joined_at,
       counting_started_at: user.counting_started_at,
       last_synced_at: user.last_synced_at,

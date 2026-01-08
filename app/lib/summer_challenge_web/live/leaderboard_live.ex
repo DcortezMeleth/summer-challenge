@@ -13,8 +13,14 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   alias SummerChallengeWeb.ViewModels.Leaderboard, as: LeaderboardVM
 
   @impl true
-  def mount(_params, _session, socket) do
-    # Initialize with empty state - data will be loaded in handle_params
+  def mount(_params, session, socket) do
+    # Check for auth error from session and put it in flash
+    socket = if auth_error = session["auth_error"] do
+      put_flash(socket, :error, auth_error)
+    else
+      socket
+    end
+
     {:ok, socket}
   end
 

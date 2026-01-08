@@ -15,8 +15,12 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   @spec on_mount(atom(), map(), map(), Phoenix.LiveView.Socket.t()) ::
           {:cont, Phoenix.LiveView.Socket.t()} | {:halt, Phoenix.LiveView.Socket.t()}
   def on_mount(:require_authenticated_user, _params, %{"user_id" => user_id}, socket) do
+    require Logger
+    Logger.info("Auth hook: user_id from session: #{inspect(user_id)}")
+
     case Accounts.get_user(user_id) do
       nil ->
+        Logger.error("Auth hook: User not found for user_id: #{inspect(user_id)}")
         # User not found, redirect to leaderboard with error
         socket =
           socket
@@ -26,6 +30,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
         {:halt, socket}
 
       user ->
+        Logger.info("Auth hook: User found: #{inspect(user.id)}")
         # User found, assign to socket
         assign(socket, current_user: user, current_scope: %{authenticated?: true, user_id: user.id})
 

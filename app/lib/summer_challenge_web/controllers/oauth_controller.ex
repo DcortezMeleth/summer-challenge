@@ -56,6 +56,12 @@ defmodule SummerChallengeWeb.OAuthController do
   @spec exchange_code_for_token(String.t()) :: {:ok, map()} | {:error, term()}
   defp exchange_code_for_token(code) do
     try do
+      # Debug: Log the configuration being used
+      client_id = Application.get_env(:summer_challenge, :strava_client_id)
+      client_secret = Application.get_env(:summer_challenge, :strava_client_secret)
+      require Logger
+      Logger.info("OAuth Debug - Client ID: #{client_id}, Secret length: #{String.length(client_secret)}")
+
       # Exchange authorization code for access token
       token = Strava.get_token!(code: code)
 
@@ -105,7 +111,7 @@ defmodule SummerChallengeWeb.OAuthController do
   @spec handle_auth_error(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
   defp handle_auth_error(conn, message) do
     conn
-    |> put_flash(:error, "Authentication failed: #{message}")
+    |> put_session(:auth_error, "Authentication failed: #{message}")
     |> redirect(to: "/leaderboard/running")
   end
 

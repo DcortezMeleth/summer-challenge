@@ -87,8 +87,8 @@ defmodule SummerChallengeWeb.Layouts do
         "fixed top-2 right-2 w-80 sm:w-96 z-50 rounded-xl p-3 ring-1 bg-white shadow-sport",
         if(@kind == :info, do: "ring-brand-200", else: "ring-ui-200")
       ]}
-      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> JS.remove_class("fade-in-scale", transition: "fade-out-scale")}
-      phx-hook="Phoenix.Flash"
+      phx-hook="Flash"
+      data-flash-key={@kind}
       role="alert"
     >
       <p class="flex items-center gap-1.5 text-sm font-semibold leading-6 text-ui-900">
