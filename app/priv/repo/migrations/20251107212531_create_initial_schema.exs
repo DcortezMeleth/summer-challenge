@@ -101,38 +101,38 @@ defmodule SummerChallenge.Repo.Migrations.CreateInitialSchema do
 
     # Teams constraints
     create constraint(:teams, :teams_name_length_check,
-      check: "char_length(name) between 1 and 80"
-    )
+             check: "char_length(name) between 1 and 80"
+           )
 
     # Users constraints
     create constraint(:users, :users_display_name_length_check,
-      check: "char_length(display_name) between 1 and 80"
-    )
+             check: "char_length(display_name) between 1 and 80"
+           )
 
     create constraint(:users, :users_distance_positive_check,
-      check: "distance_m >= 0",
-      table: :activities
-    )
+             check: "distance_m >= 0",
+             table: :activities
+           )
 
     create constraint(:users, :users_moving_time_positive_check,
-      check: "moving_time_s >= 0",
-      table: :activities
-    )
+             check: "moving_time_s >= 0",
+             table: :activities
+           )
 
     create constraint(:users, :users_elev_gain_positive_check,
-      check: "elev_gain_m >= 0",
-      table: :activities
-    )
+             check: "elev_gain_m >= 0",
+             table: :activities
+           )
 
     # Activities constraints
     create constraint(:activities, :activities_sport_type_check,
-      check: "sport_type in ('Run','TrailRun','Ride','GravelRide','MountainBikeRide')"
-    )
+             check: "sport_type in ('Run','TrailRun','Ride','GravelRide','MountainBikeRide')"
+           )
 
     # Sync runs constraints
     create constraint(:sync_runs, :sync_runs_status_check,
-      check: "status in ('running','success','error','cancelled')"
-    )
+             check: "status in ('running','success','error','cancelled')"
+           )
 
     # Add foreign key constraints
     # Note: Ecto automatically creates FK constraints when using references(),
@@ -164,9 +164,7 @@ defmodule SummerChallenge.Repo.Migrations.CreateInitialSchema do
     create index(:users, [:team_id])
     create index(:teams, [:owner_user_id])
     create index(:activities, [:user_id, :start_at])
-    create index(:activities, [:user_id, :sport_category, :start_at],
-      where: "excluded = false"
-    )
+    create index(:activities, [:user_id, :sport_category, :start_at], where: "excluded = false")
     create index(:sync_runs, [:started_at])
 
     # Note: Row-Level Security (RLS) policies are intentionally NOT created

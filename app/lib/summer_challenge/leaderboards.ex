@@ -33,10 +33,12 @@ defmodule SummerChallenge.Leaderboards do
           | {:error, term()}
   def get_public_leaderboard(sport_category) when sport_category in [:running, :cycling] do
     # Convert UI atoms to database atoms
-    db_category = case sport_category do
-      :running -> :run
-      :cycling -> :ride
-    end
+    db_category =
+      case sport_category do
+        :running -> :run
+        :cycling -> :ride
+      end
+
     # For now, return mock data until we implement the actual query
     # TODO: Implement actual database query
     mock_entries = [
@@ -56,8 +58,10 @@ defmodule SummerChallenge.Leaderboards do
           joined_late: false
         },
         totals: %{
-          distance_m: 150_000, # 150km
-          moving_time_s: 36_000, # 10 hours
+          # 150km
+          distance_m: 150_000,
+          # 10 hours
+          moving_time_s: 36_000,
           elev_gain_m: 2_500,
           activity_count: 15
         },
@@ -79,8 +83,10 @@ defmodule SummerChallenge.Leaderboards do
           joined_late: false
         },
         totals: %{
-          distance_m: 120_000, # 120km
-          moving_time_s: 28_800, # 8 hours
+          # 120km
+          distance_m: 120_000,
+          # 8 hours
+          moving_time_s: 28_800,
           elev_gain_m: 1_800,
           activity_count: 12
         },

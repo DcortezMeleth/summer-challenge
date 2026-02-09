@@ -2,7 +2,9 @@ defmodule SummerChallengeWeb.ErrorJSONTest do
   use SummerChallengeWeb.ConnCase, async: true
 
   test "renders 404" do
-    assert SummerChallengeWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
+    assert SummerChallengeWeb.ErrorJSON.render("404.json", %{}) == %{
+             errors: %{detail: "Not Found"}
+           }
   end
 
   test "renders 500" do

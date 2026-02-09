@@ -32,7 +32,10 @@ defmodule SummerChallengeWeb.Hooks.Auth do
       user ->
         Logger.info("Auth hook: User found: #{inspect(user.id)}")
         # User found, assign to socket
-        assign(socket, current_user: user, current_scope: %{authenticated?: true, user_id: user.id})
+        assign(socket,
+          current_user: user,
+          current_scope: %{authenticated?: true, user_id: user.id}
+        )
 
         {:cont, socket}
     end
@@ -64,7 +67,8 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   ## Returns
   - `{:cont, socket}` always
   """
-  @spec on_mount(:optional, map(), map(), Phoenix.LiveView.Socket.t()) :: {:cont, Phoenix.LiveView.Socket.t()}
+  @spec on_mount(:optional, map(), map(), Phoenix.LiveView.Socket.t()) ::
+          {:cont, Phoenix.LiveView.Socket.t()}
   def on_mount(:optional, _params, %{"user_id" => user_id}, socket) do
     case Accounts.get_user(user_id) do
       nil ->
@@ -75,7 +79,10 @@ defmodule SummerChallengeWeb.Hooks.Auth do
 
       user ->
         # User found, assign to socket
-        assign(socket, current_user: user, current_scope: %{authenticated?: true, user_id: user.id})
+        assign(socket,
+          current_user: user,
+          current_scope: %{authenticated?: true, user_id: user.id}
+        )
 
         {:cont, socket}
     end

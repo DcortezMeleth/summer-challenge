@@ -35,6 +35,7 @@ defmodule SummerChallenge.Model.Team do
     |> validate_length(:name, min: 1, max: 80)
     |> validate_change(:name, fn :name, value ->
       trimmed = String.trim(value)
+
       if trimmed == "" do
         [name: "Team name cannot be blank"]
       else
@@ -57,6 +58,7 @@ defmodule SummerChallenge.Model.Team do
     |> validate_length(:name, min: 1, max: 80)
     |> validate_change(:name, fn :name, value ->
       trimmed = String.trim(value)
+
       if trimmed == "" do
         [name: "Team name cannot be blank"]
       else

@@ -68,18 +68,27 @@ defmodule SummerChallengeWeb.OnboardingLive do
         {:ok, updated_user} ->
           # Update socket with new user data and navigate to safe return destination
           return_path = socket.assigns.return_to || "/leaderboard/running"
+
           socket =
             socket
             |> assign(:current_user, updated_user)
+
           {:noreply, push_navigate(socket, to: return_path)}
 
         {:error, %Ecto.Changeset{} = error_changeset} ->
           # Validation error from domain layer
-          page = OnboardingVM.build_page(error_changeset, "Unable to complete onboarding. Please check your input.", :display_name)
+          page =
+            OnboardingVM.build_page(
+              error_changeset,
+              "Unable to complete onboarding. Please check your input.",
+              :display_name
+            )
+
           socket =
             socket
             |> assign(:saving?, false)
             |> assign(:page, page)
+
           {:noreply, socket}
 
         {:error, :user_not_found} ->
@@ -88,25 +97,35 @@ defmodule SummerChallengeWeb.OnboardingLive do
             socket
             |> assign(:saving?, false)
             |> put_flash(:error, "Session expired. Please sign in again.")
+
           {:noreply, push_navigate(socket, to: "/leaderboard/running")}
 
         {:error, reason} ->
           # Unexpected error
-          page = OnboardingVM.build_page(changeset, "An unexpected error occurred. Please try again.", nil)
+          page =
+            OnboardingVM.build_page(
+              changeset,
+              "An unexpected error occurred. Please try again.",
+              nil
+            )
+
           socket =
             socket
             |> assign(:saving?, false)
             |> assign(:page, page)
             |> put_flash(:error, "Failed to complete onboarding: #{inspect(reason)}")
+
           {:noreply, socket}
       end
     else
       # Client-side validation failed
       page = OnboardingVM.build_page(changeset, nil, :display_name)
+
       socket =
         socket
         |> assign(:saving?, false)
         |> assign(:page, page)
+
       {:noreply, socket}
     end
   end
@@ -116,7 +135,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
   @spec build_initial_changeset(Types.user_dto() | nil) :: Ecto.Changeset.t()
   defp build_initial_changeset(current_user) do
     # Create a simple changeset for display name validation
-    data = %{display_name: current_user && current_user.display_name || ""}
+    data = %{display_name: (current_user && current_user.display_name) || ""}
     types = %{display_name: :string}
 
     {data, types}
@@ -134,6 +153,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
     |> Ecto.Changeset.validate_length(:display_name, min: 1, max: 80)
     |> Ecto.Changeset.validate_change(:display_name, fn :display_name, value ->
       trimmed = String.trim(value)
+
       if trimmed == "" do
         [display_name: "Display name cannot be blank"]
       else
@@ -141,7 +161,6 @@ defmodule SummerChallengeWeb.OnboardingLive do
       end
     end)
   end
-
 
   @impl true
   def render(assigns) do

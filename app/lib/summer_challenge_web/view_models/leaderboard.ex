@@ -50,10 +50,11 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
   def tab(id, to, active?) do
     %{
       id: id,
-      label: case id do
-        :running -> "Running"
-        :cycling -> "Cycling"
-      end,
+      label:
+        case id do
+          :running -> "Running"
+          :cycling -> "Cycling"
+        end,
       to: to,
       active: active?
     }
@@ -72,7 +73,12 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
   def row(%{
         rank: rank,
         user: %{display_name: display_name, team_name: team_name, joined_late: joined_late},
-        totals: %{distance_m: distance, moving_time_s: time, elev_gain_m: elevation, activity_count: count}
+        totals: %{
+          distance_m: distance,
+          moving_time_s: time,
+          elev_gain_m: elevation,
+          activity_count: count
+        }
       }) do
     %{
       rank: rank,
@@ -100,7 +106,14 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
       iex> page(:running, "Running", tabs, "Last sync: 12:00", rows, nil)
       %{sport: :running, sport_label: "Running", tabs: tabs, ...}
   """
-  @spec page(:running | :cycling, String.t(), [sport_tab()], String.t(), [row()], String.t() | nil) :: page()
+  @spec page(
+          :running | :cycling,
+          String.t(),
+          [sport_tab()],
+          String.t(),
+          [row()],
+          String.t() | nil
+        ) :: page()
   def page(sport, sport_label, tabs, last_sync_label, rows, error_message) do
     %{
       sport: sport,
@@ -124,10 +137,11 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
   """
   @spec error_page(:running | :cycling, String.t()) :: page()
   def error_page(sport, error_message) do
-    sport_label = case sport do
-      :running -> "Running"
-      :cycling -> "Cycling"
-    end
+    sport_label =
+      case sport do
+        :running -> "Running"
+        :cycling -> "Cycling"
+      end
 
     tabs = [
       tab(:running, "/leaderboard/running", sport == :running),

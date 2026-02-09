@@ -52,13 +52,15 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
   ## Returns
   - `onboarding_page_vm()`
   """
-  @spec build_page(Ecto.Changeset.t(), String.t() | nil, :display_name | nil) :: onboarding_page_vm()
+  @spec build_page(Ecto.Changeset.t(), String.t() | nil, :display_name | nil) ::
+          onboarding_page_vm()
   def build_page(changeset, submit_error, focus_field \\ nil) do
     form = Phoenix.Component.to_form(changeset, as: :onboarding)
 
     %{
       page_title: "Join the Challenge",
-      return_to: "/leaderboard/running", # Default fallback
+      # Default fallback
+      return_to: "/leaderboard/running",
       form: %{
         form: form,
         saving?: false,
@@ -66,8 +68,10 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
         focus_field: focus_field
       },
       terms: %{
-        terms_href: "/terms", # TODO: Update when terms page exists
-        privacy_href: "/privacy" # TODO: Update when privacy page exists
+        # TODO: Update when terms page exists
+        terms_href: "/terms",
+        # TODO: Update when privacy page exists
+        privacy_href: "/privacy"
       }
     }
   end
@@ -86,6 +90,7 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
   """
   @spec sanitize_return_to(String.t() | nil) :: safe_return_to_path()
   def sanitize_return_to(nil), do: "/leaderboard/running"
+
   def sanitize_return_to(return_to) when is_binary(return_to) do
     return_to = URI.decode(return_to)
 
@@ -119,7 +124,8 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
   ## Returns
   - Updated `onboarding_form_vm()`
   """
-  @spec update_form_state(onboarding_form_vm(), boolean(), :display_name | nil) :: onboarding_form_vm()
+  @spec update_form_state(onboarding_form_vm(), boolean(), :display_name | nil) ::
+          onboarding_form_vm()
   def update_form_state(form_vm, saving?, focus_field \\ nil) do
     %{form_vm | saving?: saving?, focus_field: focus_field}
   end

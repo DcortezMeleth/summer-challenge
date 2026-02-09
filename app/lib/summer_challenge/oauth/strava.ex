@@ -10,6 +10,7 @@ defmodule SummerChallenge.OAuth.Strava do
 
   # Define logic for mocking
   defmodule API do
+    @moduledoc false
     @callback authorize_url!(keyword()) :: String.t()
     @callback get_token!(keyword()) :: OAuth2.AccessToken.t()
     @callback get_athlete(OAuth2.AccessToken.t()) :: {:ok, map()} | {:error, term()}

@@ -56,7 +56,8 @@ defmodule SummerChallenge.MixProject do
       {:bandit, "~> 1.5"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
-      {:mox, "~> 1.0", only: :test}
+      {:mox, "~> 1.0", only: :test},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -75,7 +76,8 @@ defmodule SummerChallenge.MixProject do
       precommit: ["compile --warning-as-errors", "deps.unlock --unused", "format", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      check: ["format", "credo"]
     ]
   end
 end

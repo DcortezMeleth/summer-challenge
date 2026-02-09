@@ -132,6 +132,4 @@ defmodule SummerChallengeWeb.Layouts do
     </div>
     """
   end
-
-
 end

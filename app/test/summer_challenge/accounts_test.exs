@@ -6,7 +6,7 @@ defmodule SummerChallenge.AccountsTest do
   describe "find_or_create_user_from_strava/1" do
     test "creates new user when one doesn't exist" do
       athlete_data = %{
-        "id" => 12345,
+        "id" => 12_345,
         "firstname" => "John",
         "lastname" => "Doe",
         "email" => "john@example.com"
@@ -21,7 +21,7 @@ defmodule SummerChallenge.AccountsTest do
 
     test "updates existing user" do
       athlete_data = %{
-        "id" => 12345,
+        "id" => 12_345,
         "firstname" => "John",
         "lastname" => "Doe"
       }
@@ -37,7 +37,7 @@ defmodule SummerChallenge.AccountsTest do
 
   describe "complete_onboarding/2" do
     test "updates user display name and sets joined_at" do
-      athlete_data = %{"id" => 55555, "firstname" => "New", "lastname" => "User"}
+      athlete_data = %{"id" => 55_555, "firstname" => "New", "lastname" => "User"}
       {:ok, user} = Accounts.find_or_create_user_from_strava(athlete_data)
 
       assert user.joined_at == nil
@@ -49,7 +49,7 @@ defmodule SummerChallenge.AccountsTest do
     end
 
     test "does not update if display name is invalid" do
-      athlete_data = %{"id" => 66666, "firstname" => "Another", "lastname" => "User"}
+      athlete_data = %{"id" => 66_666, "firstname" => "Another", "lastname" => "User"}
       {:ok, user} = Accounts.find_or_create_user_from_strava(athlete_data)
 
       {:error, changeset} = Accounts.complete_onboarding(user.id, "")
@@ -60,7 +60,7 @@ defmodule SummerChallenge.AccountsTest do
   describe "get_user/1" do
     test "returns user with unloaded team association handled correctly" do
       # Create a user directly to bypass Accounts logic if needed, but here we use Accounts
-      athlete_data = %{"id" => 98765, "firstname" => "Jane", "lastname" => "Doe"}
+      athlete_data = %{"id" => 98_765, "firstname" => "Jane", "lastname" => "Doe"}
       {:ok, user} = Accounts.find_or_create_user_from_strava(athlete_data)
 
       # Reload from DB ensuring we test the retrieval logic

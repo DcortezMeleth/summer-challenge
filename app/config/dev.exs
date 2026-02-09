@@ -71,6 +71,8 @@ config :swoosh, :api_client, false
 # Strava OAuth configuration
 config :summer_challenge,
   strava_client_id: System.get_env("STRAVA_CLIENT_ID") || "193891",
-  strava_client_secret: System.get_env("STRAVA_CLIENT_SECRET") || "dee04c6e37a632748635fd6973beddc56fc2a84e",
-  strava_redirect_uri: System.get_env("STRAVA_REDIRECT_URI") || "http://localhost:4000/auth/strava/callback",
+  strava_client_secret:
+    System.get_env("STRAVA_CLIENT_SECRET") || "dee04c6e37a632748635fd6973beddc56fc2a84e",
+  strava_redirect_uri:
+    System.get_env("STRAVA_REDIRECT_URI") || "http://localhost:4000/auth/strava/callback",
   admin_emails: System.get_env("ADMIN_EMAILS") || ""
