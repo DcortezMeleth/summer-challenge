@@ -8,33 +8,48 @@ defmodule SummerChallenge.OAuth.Strava do
 
   use OAuth2.Strategy
 
+  # Define logic for mocking
+  defmodule API do
+    @callback authorize_url!(keyword()) :: String.t()
+    @callback get_token!(keyword()) :: OAuth2.AccessToken.t()
+    @callback get_athlete(OAuth2.AccessToken.t()) :: {:ok, map()} | {:error, term()}
+  end
+
+  @behaviour API
+
   @doc """
   Returns the authorize URL for Strava OAuth.
   """
   def client do
-    OAuth2.Client.new([
+    OAuth2.Client.new(
       strategy: __MODULE__,
       client_id: Application.get_env(:summer_challenge, :strava_client_id),
       client_secret: Application.get_env(:summer_challenge, :strava_client_secret),
-      redirect_uri: Application.get_env(:summer_challenge, :strava_redirect_uri) || "http://localhost:4000/auth/strava/callback",
+      redirect_uri:
+        Application.get_env(:summer_challenge, :strava_redirect_uri) ||
+          "http://localhost:4000/auth/strava/callback",
       site: "https://www.strava.com",
       authorize_url: "/oauth/authorize",
       token_url: "/oauth/token"
-    ])
+    )
     |> OAuth2.Client.put_serializer("application/json", Jason)
   end
 
   @doc """
   Returns the authorization URL with required scopes.
   """
+  @impl true
   def authorize_url!(params \\ []) do
     client()
-    |> OAuth2.Client.authorize_url!(Keyword.merge(params, scope: "read,read_all,profile:read_all"))
+    |> OAuth2.Client.authorize_url!(
+      Keyword.merge(params, scope: "read,read_all,profile:read_all")
+    )
   end
 
   @doc """
   Exchanges authorization code for access token.
   """
+  @impl true
   def get_token!(params \\ []) do
     # Use custom implementation to ensure proper form-encoded request
     exchange_token(params[:code])
@@ -80,6 +95,7 @@ defmodule SummerChallenge.OAuth.Strava do
   @doc """
   Fetches athlete profile from Strava API.
   """
+  @impl true
   def get_athlete(token) do
     client = client()
     url = "#{client.site}/api/v3/athlete"
@@ -112,7 +128,10 @@ defmodule SummerChallenge.OAuth.Strava do
   def get_token(client, params, headers) do
     require Logger
     Logger.info("OAuth Debug - Token request params: #{inspect(params)}")
-    Logger.info("OAuth Debug - Client config: #{inspect(%{client_id: client.client_id, client_secret: String.length(client.client_secret), redirect_uri: client.redirect_uri})}")
+
+    Logger.info(
+      "OAuth Debug - Client config: #{inspect(%{client_id: client.client_id, client_secret: String.length(client.client_secret), redirect_uri: client.redirect_uri})}"
+    )
 
     # Strava expects form-encoded data for token exchange, not JSON
     # Remove JSON serializer and use form-encoded instead

@@ -9,7 +9,11 @@ import Config
 
 config :summer_challenge,
   ecto_repos: [SummerChallenge.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  strava_client_id: System.get_env("STRAVA_CLIENT_ID"),
+  strava_client_secret: System.get_env("STRAVA_CLIENT_SECRET"),
+  strava_redirect_uri: System.get_env("STRAVA_REDIRECT_URI"),
+  strava_client: SummerChallenge.OAuth.Strava
 
 # Configure Tailwind CSS and esbuild for asset compilation.
 #
@@ -28,8 +32,7 @@ config :tailwind,
 config :esbuild,
   version: "0.24.2",
   default: [
-    args:
-      ~w(
+    args: ~w(
         js/app.js
         --bundle
         --target=es2020

@@ -6,8 +6,8 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :summer_challenge, SummerChallenge.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "bsadel",
+  password: "",
   hostname: "localhost",
   database: "summer_challenge_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
@@ -31,3 +31,10 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Use mock for Strava client in tests
+config :summer_challenge, :strava_client, SummerChallenge.OAuth.StravaMock
+
+config :phoenix_live_view,
+  # Enable helpful, but potentially expensive runtime checks
+  enable_expensive_runtime_checks: true

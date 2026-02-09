@@ -39,13 +39,14 @@ defmodule SummerChallenge.Model.User do
     |> validate_length(:display_name, min: 1, max: 80)
     |> validate_change(:display_name, fn :display_name, value ->
       trimmed = String.trim(value)
+
       if trimmed == "" do
         [display_name: "Display name cannot be blank"]
       else
         []
       end
     end)
-    |> put_change(:display_name, String.trim(get_field(user, :display_name) || ""))
+    |> update_change(:display_name, &String.trim/1)
   end
 
   @doc """
@@ -56,6 +57,12 @@ defmodule SummerChallenge.Model.User do
   def complete_onboarding_changeset(user, attrs) do
     user
     |> display_name_changeset(attrs)
-    |> put_change(:joined_at, get_field(user, :joined_at) || DateTime.utc_now())
+    |> then(fn changeset ->
+      if get_field(changeset, :joined_at) do
+        changeset
+      else
+        put_change(changeset, :joined_at, DateTime.utc_now())
+      end
+    end)
   end
 end

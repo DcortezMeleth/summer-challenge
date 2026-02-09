@@ -55,7 +55,8 @@ defmodule SummerChallenge.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 

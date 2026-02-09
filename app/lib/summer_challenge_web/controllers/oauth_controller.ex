@@ -8,8 +8,9 @@ defmodule SummerChallengeWeb.OAuthController do
 
   use SummerChallengeWeb, :controller
 
-  alias SummerChallenge.OAuth.Strava
   alias SummerChallenge.Accounts
+
+  defp strava_client, do: Application.get_env(:summer_challenge, :strava_client)
 
   @doc """
   Initiates the Strava OAuth authorization flow.
@@ -17,7 +18,7 @@ defmodule SummerChallengeWeb.OAuthController do
   Redirects the user to Strava's authorization page.
   """
   def request(conn, _params) do
-    redirect(conn, external: Strava.authorize_url!(state: generate_state()))
+    redirect(conn, external: strava_client().authorize_url!(state: generate_state()))
   end
 
   @doc """
@@ -66,10 +67,10 @@ defmodule SummerChallengeWeb.OAuthController do
       )
 
       # Exchange authorization code for access token
-      token = Strava.get_token!(code: code)
+      token = strava_client().get_token!(code: code)
 
       # Fetch athlete profile
-      case Strava.get_athlete(token) do
+      case strava_client().get_athlete(token) do
         {:ok, athlete} ->
           {:ok, %{token: token, athlete: athlete}}
 
