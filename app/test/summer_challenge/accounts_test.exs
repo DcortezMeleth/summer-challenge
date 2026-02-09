@@ -35,6 +35,28 @@ defmodule SummerChallenge.AccountsTest do
     end
   end
 
+  describe "complete_onboarding/2" do
+    test "updates user display name and sets joined_at" do
+      athlete_data = %{"id" => 55555, "firstname" => "New", "lastname" => "User"}
+      {:ok, user} = Accounts.find_or_create_user_from_strava(athlete_data)
+
+      assert user.joined_at == nil
+
+      {:ok, updated_user} = Accounts.complete_onboarding(user.id, "Brand New Name")
+
+      assert updated_user.display_name == "Brand New Name"
+      assert updated_user.joined_at != nil
+    end
+
+    test "does not update if display name is invalid" do
+      athlete_data = %{"id" => 66666, "firstname" => "Another", "lastname" => "User"}
+      {:ok, user} = Accounts.find_or_create_user_from_strava(athlete_data)
+
+      {:error, changeset} = Accounts.complete_onboarding(user.id, "")
+      assert "can't be blank" in errors_on(changeset).display_name
+    end
+  end
+
   describe "get_user/1" do
     test "returns user with unloaded team association handled correctly" do
       # Create a user directly to bypass Accounts logic if needed, but here we use Accounts
