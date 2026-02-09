@@ -9,6 +9,7 @@ defmodule SummerChallenge.Application do
   def start(_type, _args) do
     children = [
       SummerChallengeWeb.Telemetry,
+      SummerChallenge.Vault,
       SummerChallenge.Repo,
       {DNSCluster, query: Application.get_env(:summer_challenge, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SummerChallenge.PubSub},

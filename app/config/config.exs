@@ -65,9 +65,17 @@ config :summer_challenge, SummerChallengeWeb.Endpoint,
 config :summer_challenge, SummerChallenge.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configures Elixir's Logger
-config :logger, :default_formatter,
+config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+# Configure Vault for encryption
+config :summer_challenge, SummerChallenge.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM,
+       tag: "AES.GCM.V1", key: Base.decode64!("3Jhb/h4/5j7+Q3/h4/5j7+Q3/h4/5j7+Q3/h4/5j7+Q=")}
+  ]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

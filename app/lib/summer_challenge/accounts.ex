@@ -9,10 +9,11 @@ defmodule SummerChallenge.Accounts do
   import Ecto.Query
   require Logger
   alias SummerChallenge.Repo
-  alias SummerChallenge.Model.{User, Types}
+  alias SummerChallenge.Model.{User, Types, UserCredential}
 
   @doc """
   Retrieves a user by their ID.
+
 
   Returns the user as a user_dto or nil if not found.
   """
@@ -121,16 +122,25 @@ defmodule SummerChallenge.Accounts do
   """
   @spec store_credentials(Types.uuid(), map()) :: :ok | {:error, term()}
   def store_credentials(user_id, token_data) do
-    # For MVP, we'll store credentials in a simple way
-    # In production, these should be encrypted
-    # TODO: Implement proper encryption with Cloak or similar
+    # Prepare credential attributes
+    attrs = %{
+      user_id: user_id,
+      access_token: token_data.access_token,
+      refresh_token: token_data.refresh_token,
+      expires_at: DateTime.from_unix!(token_data.expires_at)
+    }
 
-    # For now, just log the credentials (don't store them)
-    # This is a placeholder until proper credential storage is implemented
-    Logger.info("OAuth credentials received for user #{user_id}: #{inspect(token_data)}")
-
-    # Return success for now
-    :ok
+    # Use upsert to handle both creation and update
+    %UserCredential{}
+    |> UserCredential.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: {:replace_all_except, [:inserted_at]},
+      conflict_target: :user_id
+    )
+    |> case do
+      {:ok, _credential} -> :ok
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   # Private functions

@@ -23,6 +23,7 @@ defmodule SummerChallenge.Model.User do
     field :is_admin, :boolean, default: false
 
     belongs_to :team, SummerChallenge.Model.Team
+    has_one :credential, SummerChallenge.Model.UserCredential, foreign_key: :user_id
 
     timestamps(type: :utc_datetime_usec)
   end

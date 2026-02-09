@@ -57,7 +57,8 @@ defmodule SummerChallenge.MixProject do
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:mox, "~> 1.0", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:cloak_ecto, "~> 1.3"}
     ]
   end
 

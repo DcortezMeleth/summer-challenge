@@ -8,7 +8,13 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
   describe "GET /auth/strava/callback" do
     test "redirects to onboarding for new user", %{conn: conn} do
       code = "valid_code"
-      token = %OAuth2.AccessToken{access_token: "access_token"}
+
+      token = %OAuth2.AccessToken{
+        access_token: "access_token",
+        refresh_token: "refresh_token",
+        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
+      }
+
       athlete = %{"id" => 111, "firstname" => "New", "lastname" => "User"}
 
       SummerChallenge.OAuth.StravaMock
@@ -28,7 +34,12 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
       SummerChallenge.Accounts.complete_onboarding(user.id, "Old User")
 
       code = "valid_code"
-      token = %OAuth2.AccessToken{access_token: "access_token"}
+
+      token = %OAuth2.AccessToken{
+        access_token: "access_token",
+        refresh_token: "refresh_token",
+        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
+      }
 
       SummerChallenge.OAuth.StravaMock
       |> expect(:get_token!, fn [code: ^code] -> token end)
