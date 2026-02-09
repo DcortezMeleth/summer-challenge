@@ -87,12 +87,23 @@ defmodule SummerChallengeWeb.Layouts do
       data-flash-key={@kind}
       role="alert"
     >
-      <p class="flex items-center gap-1.5 text-sm font-semibold leading-6 text-ui-900">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4 text-brand-700" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4 text-red-600" />
-        <.icon :if={@kind == :warning} name="hero-exclamation-triangle-mini" class="h-4 w-4 text-amber-500" />
-        <%= @title %>
-      </p>
+      <div class="flex items-start justify-between">
+        <p class="flex items-center gap-1.5 text-sm font-semibold leading-6 text-ui-900 flex-1">
+          <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4 text-brand-700" />
+          <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4 text-red-600" />
+          <.icon :if={@kind == :warning} name="hero-exclamation-triangle-mini" class="h-4 w-4 text-amber-500" />
+          <%= @title %>
+        </p>
+        <button
+          type="button"
+          class="flex-shrink-0 ml-2 text-ui-400 hover:text-ui-600 transition-colors"
+          phx-click="lv:clear-flash"
+          phx-value-key={@kind}
+          aria-label="Close flash message"
+        >
+          <.icon name="hero-x-mark-solid" class="h-4 w-4" />
+        </button>
+      </div>
       <p class="mt-2 text-sm leading-5 text-ui-700"><%= msg %></p>
     </div>
     """

@@ -13,13 +13,15 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   alias SummerChallengeWeb.ViewModels.Leaderboard, as: LeaderboardVM
 
   @impl true
-  def mount(_params, session, socket) do
-    # Check for auth error from session and put it in flash
-    socket = if auth_error = session["auth_error"] do
-      put_flash(socket, :error, auth_error)
-    else
+  def mount(_params, _session, socket) do
+    # Ensure auth context is available (should be set by auth hook, but provide defaults)
+    socket =
       socket
-    end
+      |> assign_new(:current_scope, fn -> %{authenticated?: false, user_id: nil} end)
+      |> assign_new(:current_user, fn -> nil end)
+
+    # Initialize with default sport if not set
+    socket = assign(socket, :sport, :running)
 
     {:ok, socket}
   end
@@ -30,14 +32,14 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       {:ok, sport_category} ->
         case load_leaderboard_data(sport_category) do
           {:ok, page_data} ->
-        socket =
-          socket
-          |> assign(:page, page_data)
-          |> assign(:sport, sport_category)
+            socket =
+              socket
+              |> assign(:page, page_data)
+              |> assign(:sport, sport_category)
 
             {:noreply, socket}
 
-            {:error, reason} ->
+          {:error, reason} ->
             socket =
               socket
               |> assign(:page, build_error_page(sport_category, reason))
@@ -115,9 +117,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   @spec build_error_page(:running | :cycling, term()) :: LeaderboardVM.page()
   defp build_error_page(sport_category, _reason) do
-    LeaderboardVM.error_page(sport_category, "Unable to load leaderboard right now. Please try again later.")
+    LeaderboardVM.error_page(
+      sport_category,
+      "Unable to load leaderboard right now. Please try again later."
+    )
   end
-
-
-
 end

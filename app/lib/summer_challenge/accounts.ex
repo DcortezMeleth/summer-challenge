@@ -74,6 +74,7 @@ defmodule SummerChallenge.Accounts do
   def user_onboarded?(%{display_name: display_name, joined_at: joined_at})
       when is_binary(display_name) and display_name != "" and not is_nil(joined_at),
       do: true
+
   def user_onboarded?(_), do: false
 
   @doc """
@@ -89,7 +90,8 @@ defmodule SummerChallenge.Accounts do
   - `{:ok, user_dto}` on success
   - `{:error, changeset}` on validation failure
   """
-  @spec find_or_create_user_from_strava(map()) :: {:ok, Types.user_dto()} | {:error, Ecto.Changeset.t()}
+  @spec find_or_create_user_from_strava(map()) ::
+          {:ok, Types.user_dto()} | {:error, Ecto.Changeset.t()}
   def find_or_create_user_from_strava(athlete) do
     strava_id = athlete["id"]
 
@@ -162,7 +164,9 @@ defmodule SummerChallenge.Accounts do
         # Preload team association for consistency
         user = Repo.preload(user, :team)
         {:ok, user_to_dto(user)}
-      {:error, changeset} -> {:error, changeset}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -193,9 +197,10 @@ defmodule SummerChallenge.Accounts do
 
   @spec check_admin_status(map()) :: boolean()
   defp check_admin_status(athlete) do
-    admin_emails = Application.get_env(:summer_challenge, :admin_emails, "")
-                  |> String.split(",", trim: true)
-                  |> Enum.map(&String.trim/1)
+    admin_emails =
+      Application.get_env(:summer_challenge, :admin_emails, "")
+      |> String.split(",", trim: true)
+      |> Enum.map(&String.trim/1)
 
     athlete["email"] in admin_emails
   end
@@ -204,17 +209,28 @@ defmodule SummerChallenge.Accounts do
 
   @spec user_to_dto(User.t()) :: Types.user_dto()
   defp user_to_dto(user) do
-    team_name = case user.team do
-      %Ecto.Association.NotLoaded{} -> nil
-      nil -> nil
-      team -> team.name
-    end
+    # Ensure team association is loaded before accessing it
+    user = Repo.preload(user, :team)
+
+    team_name =
+      case user.team do
+        %Ecto.Association.NotLoaded{} -> nil
+        nil -> nil
+        team -> team.name
+      end
+
+    team_id =
+      case user.team do
+        %Ecto.Association.NotLoaded{} -> user.team_id
+        nil -> user.team_id
+        team -> team.id
+      end
 
     %{
       id: user.id,
       display_name: user.display_name,
       is_admin: user.is_admin,
-      team_id: user.team_id,
+      team_id: team_id,
       team_name: team_name,
       joined_at: user.joined_at,
       counting_started_at: user.counting_started_at,

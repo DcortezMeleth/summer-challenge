@@ -18,11 +18,6 @@ const Hooks = {
       this.timer = setTimeout(() => {
         this.dismiss();
       }, 10000);
-
-      // Handle click to dismiss immediately
-      this.el.addEventListener("click", () => {
-        this.dismiss();
-      });
     },
 
     destroyed() {
