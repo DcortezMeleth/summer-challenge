@@ -90,7 +90,7 @@ defmodule SummerChallengeWeb.Layouts do
       <div class="flex items-start justify-between">
         <p class="flex items-center gap-1.5 text-sm font-semibold leading-6 text-ui-900 flex-1">
           <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4 text-brand-700" />
-          <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4 text-red-600" />
+          <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4 text-rose-600" />
           <.icon :if={@kind == :warning} name="hero-exclamation-triangle-mini" class="h-4 w-4 text-amber-500" />
           <%= @title %>
         </p>
@@ -124,7 +124,7 @@ defmodule SummerChallengeWeb.Layouts do
     <div class="mt-16">
       <.link
         navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+        class="text-sm font-semibold leading-6 text-ui-900 hover:text-ui-700"
       >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>

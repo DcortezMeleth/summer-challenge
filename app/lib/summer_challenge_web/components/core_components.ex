@@ -177,15 +177,15 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def error_banner(assigns) do
     ~H"""
-    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 shadow-sport" role="alert" aria-live="assertive">
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6 shadow-sport" role="alert" aria-live="assertive">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
           </svg>
         </div>
         <div class="ml-3">
-          <p class="text-sm text-red-800 font-medium">
+          <p class="text-sm text-rose-800 font-medium">
             <%= @error_message %>
           </p>
         </div>
@@ -327,7 +327,7 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def onboarding_shell(assigns) do
     ~H"""
-    <main role="main" class="flex min-h-screen items-center justify-center bg-gray-50 py-10">
+    <main role="main" class="flex min-h-screen items-center justify-center bg-ui-50 py-10">
       <section class="w-full max-w-lg px-4">
         <%= render_slot(@inner_block) %>
       </section>
@@ -344,7 +344,7 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def onboarding_card(assigns) do
     ~H"""
-    <div class="rounded-2xl bg-white/90 ring-1 ring-gray-200 shadow-sport p-6">
+    <div class="rounded-2xl bg-white/90 ring-1 ring-ui-200 shadow-sport p-6">
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -358,10 +358,10 @@ defmodule SummerChallengeWeb.CoreComponents do
   def onboarding_header(assigns) do
     ~H"""
     <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-2">
+      <h1 class="text-2xl font-bold text-ui-900 mb-2">
         You are joining the challenge
       </h1>
-      <p class="text-gray-600">
+      <p class="text-ui-600">
         Choose a name that will appear on the public leaderboard.
       </p>
     </div>
@@ -417,7 +417,7 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p :for={msg <- @messages} class="mt-1 text-sm text-red-600">
+    <p :for={msg <- @messages} class="mt-1 text-sm text-rose-600">
       <%= msg %>
     </p>
     """
@@ -443,8 +443,8 @@ defmodule SummerChallengeWeb.CoreComponents do
       disabled={@disabled || @loading?}
       class={[
         "inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm",
-        "text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
-        "disabled:bg-gray-400 disabled:cursor-not-allowed",
+        "text-white bg-brand-700 hover:bg-brand-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500",
+        "disabled:bg-ui-400 disabled:cursor-not-allowed",
         @loading? && "cursor-wait",
         @class
       ]}
@@ -501,7 +501,7 @@ defmodule SummerChallengeWeb.CoreComponents do
 
     ~H"""
     <div phx-feedback-for={@name}>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+      <label class="flex items-center gap-4 text-sm leading-6 text-ui-600">
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
@@ -509,7 +509,7 @@ defmodule SummerChallengeWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          class="rounded border-ui-300 text-ui-900 focus:ring-0"
           {@rest}
         />
         <%= @label %>
@@ -526,7 +526,7 @@ defmodule SummerChallengeWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5"
+        class="mt-2 block w-full rounded-md border border-ui-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ui-400 focus:outline-none focus:ring-4 focus:ring-ui-800/5"
         multiple={@multiple}
         {@rest}
       >
@@ -546,9 +546,9 @@ defmodule SummerChallengeWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          "mt-2 block w-full rounded-lg text-ui-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "min-h-[6rem] phx-no-feedback:border-ui-300 phx-no-feedback:focus:border-ui-400",
+          @errors == [] && "border-ui-300 focus:border-ui-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -569,9 +569,9 @@ defmodule SummerChallengeWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          "mt-2 block w-full rounded-md border border-ui-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ui-400 focus:outline-none focus:ring-4 focus:ring-ui-800/5",
+          "phx-no-feedback:border-ui-300 phx-no-feedback:focus:border-ui-400",
+          @errors == [] && "border-ui-300 focus:border-ui-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -589,7 +589,7 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm font-semibold leading-6 text-ui-800">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -619,7 +619,7 @@ defmodule SummerChallengeWeb.CoreComponents do
     <div class="flex items-center justify-end space-x-4 py-4">
       <%= if @current_scope.authenticated? do %>
         <!-- Future: User menu with profile options -->
-        <div class="text-sm text-gray-700">
+        <div class="text-sm text-ui-700">
           Welcome, <%= @current_user.display_name %>!
         </div>
       <% else %>
@@ -636,14 +636,12 @@ defmodule SummerChallengeWeb.CoreComponents do
   """
   def sign_in_button(assigns) do
     ~H"""
-    <a
-      href="/auth/strava"
-      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
-    >
-      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.3 14.401h4.169"/>
-      </svg>
-      Sign in with Strava
+    <a href="/auth/strava" class="hover:opacity-90 transition-opacity">
+      <img
+        src="/images/btn_strava_connect_with_orange.svg"
+        alt="Connect with Strava"
+        class="h-12 w-auto"
+      />
     </a>
     """
   end
@@ -658,14 +656,14 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def terms_privacy_notice(assigns) do
     ~H"""
-    <div class="text-center text-sm text-gray-500">
+    <div class="text-center text-sm text-ui-500">
       <p>
         By continuing you agree to our
-        <.link navigate={@terms_href} class="text-blue-600 hover:text-blue-800 underline">
+        <.link navigate={@terms_href} class="text-brand-700 hover:text-brand-900 underline">
           Terms
         </.link>
         and
-        <.link navigate={@privacy_href} class="text-blue-600 hover:text-blue-800 underline">
+        <.link navigate={@privacy_href} class="text-brand-700 hover:text-brand-900 underline">
           Privacy Policy
         </.link>.
       </p>
