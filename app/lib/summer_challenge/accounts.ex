@@ -11,6 +11,8 @@ defmodule SummerChallenge.Accounts do
   alias SummerChallenge.Repo
   alias SummerChallenge.Model.{User, Types, UserCredential}
 
+  defp strava_client, do: Application.get_env(:summer_challenge, :strava_client)
+
   @doc """
   Retrieves a user by their ID.
 
@@ -140,6 +142,51 @@ defmodule SummerChallenge.Accounts do
     |> case do
       {:ok, _credential} -> :ok
       {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Returns a list of all users who have Strava credentials.
+  Preloads the credential association.
+  """
+  @spec list_syncable_users() :: [User.t()]
+  def list_syncable_users do
+    User
+    |> join(:inner, [u], c in assoc(u, :credential))
+    |> preload([u], [:credential, :team])
+    |> Repo.all()
+  end
+
+  @doc """
+  Retrieves a user by ID with credentials and team preloaded.
+  """
+  @spec get_syncable_user(Types.uuid()) :: User.t() | nil
+  def get_syncable_user(user_id) do
+    User
+    |> where([u], u.id == ^user_id)
+    |> preload([:credential, :team])
+    |> Repo.one()
+  end
+
+  @doc """
+  Refreshes the Strava access token for a user.
+  """
+  @spec refresh_token(User.t()) :: {:ok, map()} | {:error, term()}
+  def refresh_token(%User{credential: %UserCredential{refresh_token: refresh_token}} = user) do
+    case strava_client().refresh_token(refresh_token) do
+      {:ok, token_data} ->
+        # Update stored credentials
+        case store_credentials(user.id, %{
+               access_token: token_data["access_token"],
+               refresh_token: token_data["refresh_token"],
+               expires_at: token_data["expires_at"]
+             }) do
+          :ok -> {:ok, token_data}
+          {:error, reason} -> {:error, reason}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

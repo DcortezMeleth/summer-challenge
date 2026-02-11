@@ -24,6 +24,7 @@ defmodule SummerChallenge.Model.User do
 
     belongs_to :team, SummerChallenge.Model.Team
     has_one :credential, SummerChallenge.Model.UserCredential, foreign_key: :user_id
+    has_many :activities, SummerChallenge.Model.Activity
 
     timestamps(type: :utc_datetime_usec)
   end

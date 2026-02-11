@@ -35,69 +35,61 @@ defmodule SummerChallenge.Leaderboards do
     # Convert UI atoms to database atoms
     db_category =
       case sport_category do
-        :running -> :run
-        :cycling -> :ride
+        :running -> "run"
+        :cycling -> "ride"
       end
 
-    # For now, return mock data until we implement the actual query
-    # TODO: Implement actual database query
-    mock_entries = [
-      %{
-        rank: 1,
-        sport_category: db_category,
-        user: %{
-          id: "550e8400-e29b-41d4-a716-446655440000",
-          display_name: "Alice Runner",
-          is_admin: false,
-          team_id: "550e8400-e29b-41d4-a716-446655440001",
-          team_name: "Fast Team",
-          joined_at: ~U[2024-06-01 10:00:00Z],
-          counting_started_at: ~U[2024-06-01 10:00:00Z],
-          last_synced_at: ~U[2024-12-20 12:00:00Z],
-          last_sync_error: nil,
-          joined_late: false
-        },
-        totals: %{
-          # 150km
-          distance_m: 150_000,
-          # 10 hours
-          moving_time_s: 36_000,
-          elev_gain_m: 2_500,
-          activity_count: 15
-        },
-        last_activity_at: ~U[2024-12-20 08:00:00Z]
-      },
-      %{
-        rank: 2,
-        sport_category: db_category,
-        user: %{
-          id: "550e8400-e29b-41d4-a716-446655440002",
-          display_name: "Bob Cyclist",
-          is_admin: false,
-          team_id: nil,
-          team_name: nil,
-          joined_at: ~U[2024-06-15 14:30:00Z],
-          counting_started_at: ~U[2024-06-15 14:30:00Z],
-          last_synced_at: ~U[2024-12-20 12:00:00Z],
-          last_sync_error: nil,
-          joined_late: false
-        },
-        totals: %{
-          # 120km
-          distance_m: 120_000,
-          # 8 hours
-          moving_time_s: 28_800,
-          elev_gain_m: 1_800,
-          activity_count: 12
-        },
-        last_activity_at: ~U[2024-12-19 16:00:00Z]
-      }
-    ]
+    import Ecto.Query
+    alias SummerChallenge.Repo
+    alias SummerChallenge.Model.{Activity, User}
 
-    # Mock last sync time
-    last_sync_at = ~U[2024-12-20 12:00:00Z]
+    # Query to aggregate activities per user
+    query =
+      from u in User,
+        join: a in Activity,
+        on: a.user_id == u.id,
+        where: a.sport_category == ^db_category and a.excluded == false,
+        group_by: [u.id],
+        select: %{
+          user_id: u.id,
+          distance_m: sum(a.distance_m),
+          moving_time_s: sum(a.moving_time_s),
+          elev_gain_m: sum(a.elev_gain_m),
+          activity_count: count(a.id),
+          last_activity_at: max(a.start_at)
+        },
+        order_by: [desc: sum(a.distance_m)]
 
-    {:ok, %{entries: mock_entries, last_sync_at: last_sync_at}}
+    results = Repo.all(query)
+
+    # Convert results to leaderboard_entry_dto
+    entries =
+      results
+      |> Enum.with_index(1)
+      |> Enum.map(fn {row, rank} ->
+        user = SummerChallenge.Accounts.get_user(row.user_id)
+
+        %{
+          rank: rank,
+          sport_category: sport_category,
+          user: user,
+          totals: %{
+            distance_m: row.distance_m,
+            moving_time_s: row.moving_time_s,
+            elev_gain_m: row.elev_gain_m,
+            activity_count: row.activity_count
+          },
+          last_activity_at: row.last_activity_at
+        }
+      end)
+
+    # Get the overall last sync time
+    last_sync_at =
+      User
+      |> select([u], max(u.last_synced_at))
+      |> Repo.one()
+
+    {:ok, %{entries: entries, last_sync_at: last_sync_at}}
   end
 
   def get_public_leaderboard(_invalid_category) do

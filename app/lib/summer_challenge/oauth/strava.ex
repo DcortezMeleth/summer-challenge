@@ -14,6 +14,8 @@ defmodule SummerChallenge.OAuth.Strava do
     @callback authorize_url!(keyword()) :: String.t()
     @callback get_token!(keyword()) :: OAuth2.AccessToken.t()
     @callback get_athlete(OAuth2.AccessToken.t()) :: {:ok, map()} | {:error, term()}
+    @callback list_activities(OAuth2.AccessToken.t(), map()) :: {:ok, [map()]} | {:error, term()}
+    @callback refresh_token(String.t()) :: {:ok, map()} | {:error, term()}
   end
 
   @behaviour API
@@ -112,6 +114,64 @@ defmodule SummerChallenge.OAuth.Strava do
 
       {:ok, %Req.Response{body: %{"message" => message}}} ->
         {:error, message}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @doc """
+  Fetches athlete activities from Strava API.
+
+  Parameters:
+  - `token`: OAuth2 access token
+  - `params`: Query parameters (e.g., `after`, `before`, `page`, `per_page`)
+  """
+  @impl true
+  def list_activities(token, params \\ %{}) do
+    client = client()
+    url = "#{client.site}/api/v3/athlete/activities"
+
+    headers = [
+      {"Authorization", "Bearer #{token.access_token}"},
+      {"Accept", "application/json"}
+    ]
+
+    case Req.get(url, headers: headers, params: params) do
+      {:ok, %Req.Response{status: 200, body: activities}} ->
+        {:ok, activities}
+
+      {:ok, %Req.Response{body: %{"message" => message}}} ->
+        {:error, message}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @impl true
+  def refresh_token(refresh_token) do
+    client = client()
+    url = "#{client.site}#{client.token_url}"
+
+    body = %{
+      client_id: client.client_id,
+      client_secret: client.client_secret,
+      refresh_token: refresh_token,
+      grant_type: "refresh_token"
+    }
+
+    headers = [
+      {"Accept", "application/json"},
+      {"Content-Type", "application/x-www-form-urlencoded"}
+    ]
+
+    case Req.post(url, form: body, headers: headers) do
+      {:ok, %Req.Response{status: 200, body: token_data}} ->
+        {:ok, token_data}
+
+      {:ok, %Req.Response{body: error_data}} ->
+        {:error, error_data}
 
       {:error, error} ->
         {:error, error}

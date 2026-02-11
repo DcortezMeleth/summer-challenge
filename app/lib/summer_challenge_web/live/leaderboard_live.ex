@@ -69,7 +69,17 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
       <.sport_switch tabs={@page.tabs} />
 
-      <.sync_status_line last_sync_label={@page.last_sync_label} />
+      <div class="flex justify-between items-center px-4 py-2 bg-brand-50 border-b border-brand-100">
+        <.sync_status_line last_sync_label={@page.last_sync_label} />
+        <button
+          :if={@current_scope.authenticated?}
+          phx-click="refresh"
+          class="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1"
+        >
+          <.icon name="hero-arrow-path" class="w-4 h-4" />
+          Refresh Data
+        </button>
+      </div>
 
       <.error_banner :if={@page.error_message} error_message={@page.error_message} />
 
@@ -80,6 +90,31 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       />
     </.app_shell>
     """
+  end
+
+  @impl true
+  def handle_event("refresh", _params, socket) do
+    if socket.assigns.current_scope.authenticated? do
+      user_id = socket.assigns.current_scope.user_id
+      require Logger
+      Logger.info("Manual refresh triggered for user #{user_id}")
+
+      case SummerChallenge.SyncService.sync_user(user_id) do
+        {:ok, _} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Activities refreshed!")
+           |> push_patch(to: "/leaderboard/#{socket.assigns.sport}")}
+
+        {:error, reason} ->
+          Logger.error("Manual refresh failed for user #{user_id}: #{inspect(reason)}")
+
+          {:noreply,
+           put_flash(socket, :error, "Failed to refresh activities: #{inspect(reason)}")}
+      end
+    else
+      {:noreply, socket}
+    end
   end
 
   # Private functions
