@@ -63,7 +63,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   def render(assigns) do
     ~H"""
     <.app_shell>
-      <.auth_section current_scope={@current_scope} current_user={@current_user} />
+      <:top_bar>
+        <.auth_section current_scope={@current_scope} current_user={@current_user} />
+      </:top_bar>
 
       <.sport_switch tabs={@page.tabs} />
 

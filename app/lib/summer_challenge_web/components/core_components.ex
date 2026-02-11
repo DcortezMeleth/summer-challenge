@@ -99,6 +99,7 @@ defmodule SummerChallengeWeb.CoreComponents do
   App shell component providing consistent page layout.
   """
   slot :inner_block, required: true
+  slot :top_bar
 
   def app_shell(assigns) do
     ~H"""
@@ -110,6 +111,11 @@ defmodule SummerChallengeWeb.CoreComponents do
       class="min-h-screen bg-gradient-to-b from-brand-50 via-ui-50 to-ui-50"
       role="main"
     >
+      <div class="bg-brand-900 w-full shadow-sm">
+        <div class="mx-auto max-w-5xl px-4">
+          <%= render_slot(@top_bar) %>
+        </div>
+      </div>
       <div class="mx-auto max-w-5xl px-4 py-10">
         <header class="mb-8">
           <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
@@ -615,10 +621,10 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   def auth_section(assigns) do
     ~H"""
-    <div class="flex items-center justify-end space-x-4 py-4">
+    <div class="flex items-center justify-start space-x-4 py-3">
       <%= if @current_scope.authenticated? do %>
         <!-- Future: User menu with profile options -->
-        <div class="text-sm text-ui-700">
+        <div class="text-sm text-brand-50 font-medium">
           Welcome, <%= @current_user.display_name %>!
         </div>
       <% else %>
@@ -639,7 +645,7 @@ defmodule SummerChallengeWeb.CoreComponents do
       <img
         src="/images/btn_strava_connect_with_orange.svg"
         alt="Connect with Strava"
-        class="h-12 w-auto"
+        class="h-10 w-auto"
       />
     </a>
     """
