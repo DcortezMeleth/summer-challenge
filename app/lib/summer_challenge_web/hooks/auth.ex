@@ -32,10 +32,11 @@ defmodule SummerChallengeWeb.Hooks.Auth do
       user ->
         Logger.info("Auth hook: User found: #{inspect(user.id)}")
         # User found, assign to socket
-        assign(socket,
-          current_user: user,
-          current_scope: %{authenticated?: true, user_id: user.id}
-        )
+        socket =
+          assign(socket,
+            current_user: user,
+            current_scope: %{authenticated?: true, user_id: user.id}
+          )
 
         {:cont, socket}
     end
@@ -79,10 +80,11 @@ defmodule SummerChallengeWeb.Hooks.Auth do
 
       user ->
         # User found, assign to socket
-        assign(socket,
-          current_user: user,
-          current_scope: %{authenticated?: true, user_id: user.id}
-        )
+        socket =
+          assign(socket,
+            current_user: user,
+            current_scope: %{authenticated?: true, user_id: user.id}
+          )
 
         {:cont, socket}
     end

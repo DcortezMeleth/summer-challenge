@@ -47,7 +47,10 @@ defmodule SummerChallengeWeb.OnboardingLive do
 
   @impl true
   def handle_event("validate", %{"onboarding" => params}, socket) do
-    changeset = validate_display_name(params)
+    changeset =
+      validate_display_name(params)
+      |> Map.put(:action, :validate)
+
     page = OnboardingVM.build_page(changeset, nil, nil)
 
     {:noreply, assign(socket, :page, page)}
@@ -144,12 +147,12 @@ defmodule SummerChallengeWeb.OnboardingLive do
 
   @spec validate_display_name(map()) :: Ecto.Changeset.t()
   defp validate_display_name(params) do
-    data = %{display_name: ""}
+    data = %{display_name: nil}
     types = %{display_name: :string}
 
     {data, types}
     |> Ecto.Changeset.cast(params, [:display_name])
-    |> Ecto.Changeset.validate_required([:display_name])
+    |> Ecto.Changeset.validate_required([:display_name], message: "Display name cannot be blank")
     |> Ecto.Changeset.validate_length(:display_name, min: 1, max: 80)
     |> Ecto.Changeset.validate_change(:display_name, fn :display_name, value ->
       trimmed = String.trim(value)
@@ -171,7 +174,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
           <.onboarding_header />
 
           <.display_name_form
-            form={@page.form}
+            form={@page.form.form}
             saving?={@saving?}
             focus_field={@page.form.focus_field}
           />

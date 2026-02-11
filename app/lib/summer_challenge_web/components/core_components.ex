@@ -381,7 +381,7 @@ defmodule SummerChallengeWeb.CoreComponents do
   def display_name_form(assigns) do
     ~H"""
     <div class="mb-6">
-      <.form for={@form} phx-change="validate" phx-submit="submit" class="space-y-4">
+      <.form for={@form} id="onboarding-form" phx-change="validate" phx-submit="submit" class="space-y-4">
         <div>
           <.input
             type="text"
@@ -392,7 +392,6 @@ defmodule SummerChallengeWeb.CoreComponents do
             class="w-full"
             phx-mounted={@focus_field == :display_name && Phoenix.LiveView.JS.focus()}
           />
-          <.error messages={Enum.map(@form[:display_name].errors, &translate_error/1)} />
         </div>
 
         <.button

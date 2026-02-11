@@ -219,21 +219,11 @@ defmodule SummerChallenge.Accounts do
 
   @spec user_to_dto(User.t()) :: Types.user_dto()
   defp user_to_dto(user) do
-    # Ensure team association is loaded before accessing it
-    user = Repo.preload(user, :team)
-
-    team_name =
-      case user.team do
-        %Ecto.Association.NotLoaded{} -> nil
-        nil -> nil
-        team -> team.name
-      end
-
-    team_id =
-      case user.team do
-        %Ecto.Association.NotLoaded{} -> user.team_id
-        nil -> user.team_id
-        team -> team.id
+    {team_id, team_name} =
+      if Ecto.assoc_loaded?(user.team) && user.team do
+        {user.team.id, user.team.name}
+      else
+        {user.team_id, nil}
       end
 
     %{
