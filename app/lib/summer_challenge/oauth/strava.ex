@@ -45,7 +45,9 @@ defmodule SummerChallenge.OAuth.Strava do
   def authorize_url!(params \\ []) do
     client()
     |> OAuth2.Client.authorize_url!(
-      Keyword.merge(params, scope: "read,read_all,profile:read_all")
+      Keyword.merge(params,
+        scope: "read,read_all,profile:read_all,activity:read,activity:read_all"
+      )
     )
   end
 

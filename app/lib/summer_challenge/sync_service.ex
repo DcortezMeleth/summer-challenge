@@ -81,7 +81,17 @@ defmodule SummerChallenge.SyncService do
         DateTime.utc_now() |> DateTime.add(-30, :day) |> DateTime.to_unix()
       end
 
-    strava_client().list_activities(token, %{after: after_timestamp})
+    Logger.info("Fetching activities for user #{user.id} since #{after_timestamp}")
+
+    case strava_client().list_activities(token, %{after: after_timestamp}) do
+      {:ok, activities} ->
+        Logger.info("Successfully fetched #{length(activities)} activities for user #{user.id}")
+        {:ok, activities}
+
+      {:error, reason} ->
+        Logger.error("Failed to fetch activities for user #{user.id}: #{inspect(reason)}")
+        {:error, reason}
+    end
   end
 
   defp upsert_activities(user, activities) do

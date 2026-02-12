@@ -173,19 +173,30 @@ defmodule SummerChallenge.Accounts do
   """
   @spec refresh_token(User.t()) :: {:ok, map()} | {:error, term()}
   def refresh_token(%User{credential: %UserCredential{refresh_token: refresh_token}} = user) do
+    Logger.info("Refreshing token for user #{user.id} using Strava API")
+
     case strava_client().refresh_token(refresh_token) do
       {:ok, token_data} ->
+        Logger.info("Token refreshed successfully for user #{user.id}")
         # Update stored credentials
         case store_credentials(user.id, %{
                access_token: token_data["access_token"],
                refresh_token: token_data["refresh_token"],
                expires_at: token_data["expires_at"]
              }) do
-          :ok -> {:ok, token_data}
-          {:error, reason} -> {:error, reason}
+          :ok ->
+            {:ok, token_data}
+
+          {:error, reason} ->
+            Logger.error(
+              "Failed to store refreshed credentials for user #{user.id}: #{inspect(reason)}"
+            )
+
+            {:error, reason}
         end
 
       {:error, reason} ->
+        Logger.error("Strava token refresh failed for user #{user.id}: #{inspect(reason)}")
         {:error, reason}
     end
   end
