@@ -2,13 +2,13 @@
 
 ## 1. Product Overview
 
-The Strava-based Company Sports Challenge is a lightweight web application that powers a summer sports competition for employees. Participants authenticate with Strava, and the app ingests their outdoor running and cycling activities to produce transparent per-sport leaderboards and a time-based milestone list. The product emphasizes simplicity, daily batch sync, outdoor-only activities, and minimal admin tooling. It is desktop-first, public by default for viewing leaderboards, and requires login only for personal activity management, team participation, and admin operations.
+The Strava-based Company Sports Challenge is a lightweight web application that powers multiple sports competitions for employees. Participants authenticate with Strava once, and the app ingests their activities to produce transparent per-sport leaderboards and time-based milestone lists across multiple challenges. Each challenge can be configured with specific date ranges, allowed sport types, and activity groupings. The product emphasizes simplicity, daily batch sync, flexible sport type configuration, and minimal admin tooling. It is desktop-first, public by default for viewing leaderboards, and requires login only for personal activity management, team participation, and admin operations.
 
 Primary stakeholders:
 
-* Participants: employees who join the challenge (expected up to 100).
-* Organizing committee: 4–5 people who set dates and prizes outside the app.
-* Admin users: a small allowlist for essential recovery and moderation actions.
+* Participants: employees who join challenges (expected up to 100 per challenge).
+* Organizing committee: 4–5 people who create challenges, set dates, configure sport types, and manage prizes outside the app.
+* Admin users: a small allowlist for challenge management, essential recovery, and moderation actions.
 
 Timeline and delivery:
 
@@ -39,67 +39,102 @@ The MVP solves these pain points by providing: Strava login, daily data ingestio
 
 * Daily batch synchronization at midnight Europe/Warsaw; no strict SLA.
 * Ingest activities for connected users; incremental fetch since last sync.
-* Activity inclusion window is determined by activity start time between 00:00 on the first day and 23:59 on the last day of the challenge; exact dates to be configured later.
-* Outdoor-only enforcement via whitelist/blacklist of Strava sport types:
-
-  * Include: Run, TrailRun, Ride, GravelRide, MountainBikeRide.
-  * Exclude: VirtualRun, VirtualRide, EBikeRide, EMountainBikeRide, Workout, Hike, Walk, Handcycle, Wheelchair.
-* Late join handling: if backfill to challenge start is not available, count only from the authorization time; display a small joined-late icon with tooltip.
+* Activities are fetched for all connected users and filtered per-challenge based on:
+  * Activity start time between 00:00 on the first day and 23:59 on the last day of each challenge (Europe/Warsaw timezone).
+  * Sport types allowed in each challenge (configured per challenge).
+* Sport type groups are predefined in configuration:
+  * **Running (Outdoor)**: Run, TrailRun
+  * **Cycling (Outdoor)**: Ride, GravelRide, MountainBikeRide
+  * **Running (Virtual)**: VirtualRun
+  * **Cycling (Virtual)**: VirtualRide
+  * **Excluded by default**: EBikeRide, EMountainBikeRide, Workout, Hike, Walk, Handcycle, Wheelchair
+* Each challenge can include any combination of sport types; leaderboard tabs are dynamically created based on the sport type groups present in the challenge.
 * Store required activity fields: Strava activity ID, user ID, sport type, start time, distance, moving_time, total_elevation_gain, and excluded flag.
 
-### 3.3 Leaderboards and milestone
+### 3.3 Challenge selection and display
 
-* Two separate public leaderboards: Running and Cycling.
-* Default landing shows the Running leaderboard; toggle to switch to Cycling.
-* Columns: position, display name, team, total distance, total moving time, total elevation gain, number of activities, joined-late icon where applicable.
-* Milestone view for 40 hours: list of participants who reached 40 hours moving time; no top ranking or prizes for time.
+* Users can view any non-archived challenge via a dropdown selector.
+* Default challenge shown on first visit: the active challenge with the latest start date, or the most recent inactive challenge if no active challenges exist.
+* Challenge selector shows: challenge name, start date, and active/inactive status.
+* Challenges are ordered in the selector: active challenges first (sorted by start date descending), then inactive challenges (sorted by start date descending).
+* Archived challenges are hidden from non-admin users.
 
-### 3.4 Teams
+### 3.4 Leaderboards and milestone
 
+* Leaderboard tabs are dynamically created based on sport type groups included in the selected challenge.
+* Each tab aggregates activities for all sport types in that group (e.g., Running tab includes Run + TrailRun).
+* Columns: position, display name, team, total distance, total moving time, total elevation gain, number of activities.
+* Only participants with at least one qualifying activity in the selected challenge are shown.
+* Milestone view for 40 hours: list of participants who reached 40 hours moving time in the selected challenge; no top ranking or prizes for time.
+
+### 3.5 Teams
+
+* Teams are global across all challenges.
 * Participants may create a team or join an existing team; one team per user at any time.
 * Hardcoded team size cap (e.g., 5). Team creators and admins can rename or delete teams.
-* Team name appears in leaderboards; team-based ranking uses per-sport aggregation consistent with the selected leaderboard.
+* Team name appears in leaderboards; team-based ranking uses per-sport aggregation consistent with the selected leaderboard and challenge.
 
-### 3.5 Participant self-service
+### 3.6 Participant self-service
 
 * My Activities page accessible after login via a menu.
+* Activities are shown for the currently selected challenge.
 * Users can exclude or re-include specific activities; exclusions persist across re-syncs and Strava edits.
 * No bulk actions, no reason entry required.
 * Last sync timestamp is displayed.
+* Users can delete their account, which disconnects Strava and marks them as deleted (historical data preserved for leaderboard integrity).
 
-### 3.6 Admin tools
+### 3.7 Admin challenge management
+
+* Admins can create, edit, and archive challenges.
+* Challenge creation requires:
+  * Name (required)
+  * Start date and end date (minimum 7 calendar days duration)
+  * Selection of allowed sport types (presented grouped by category)
+* Challenges can be edited at any time.
+* Challenges can be deleted only if not yet started (start date in the future).
+* Challenges can be archived only if they are past (end date in the past); archived challenges are hidden from non-admin users and cannot be unarchived.
+* Admins can clone an existing challenge as a template for a new challenge.
+* Admins can view archived challenges.
+
+### 3.8 Admin tools
 
 * Admin-only manual force sync button.
 * Admin options for team rename/delete and basic moderation.
 * Display last sync time; show a small log snippet or status to aid manual recovery.
 
-### 3.7 Privacy, identity, and retention
+### 3.9 Privacy, identity, and retention
 
 * Default display name is first name + initial; user can edit display name.
 * No avatars in MVP.
 * Store only minimal personal data: user ID and display name; encrypt tokens at rest.
-* Purge all data 90 days after the challenge ends.
+* Users can delete their account at any time; deletion disconnects Strava and marks the user as deleted while preserving historical activity data.
+* Purge all data 90 days after the last challenge ends.
 
-### 3.8 Non-functional
+### 3.10 Non-functional
 
 * Desktop-first, simple responsive layout; support latest Chrome, Firefox, Opera, Safari.
-* No pagination required for the expected number of participants.
+* No pagination required for the expected number of participants per challenge.
 * No real-time sync; once-daily updates are acceptable.
 * No formal monitoring or error-rate dashboards in MVP.
+* Challenges can have overlapping date ranges; multiple challenges can be active simultaneously.
 
 ## 4. Product Boundaries
 
 In scope:
 
 * Strava-only OAuth and ingestion.
-* Running and cycling leaderboards with defined sport-type filters.
-* 40-hour moving-time milestone list.
+* Multiple challenges with configurable date ranges and sport types.
+* Dynamic leaderboard tabs based on sport type groups in each challenge.
+* 40-hour moving-time milestone list per challenge.
 * Public leaderboards and simple logged-in views.
-* My Activities with per-activity exclude/include.
-* Teams with create/join, one team per user, hard cap.
+* Challenge selection dropdown with active/inactive filtering.
+* My Activities with per-activity exclude/include (scoped to selected challenge).
+* Teams with create/join, one team per user, hard cap (global across challenges).
+* Admin challenge management: create, edit, delete (pre-start only), archive (post-end only), clone.
 * Admin allowlist, force sync, simple team moderation.
 * Terms/Privacy banner and minimal identity controls.
-* Data purge 90 days post-challenge.
+* Account deletion (disconnect + mark deleted).
+* Data purge 90 days after last challenge ends.
 
 Out of scope for MVP:
 
@@ -110,7 +145,10 @@ Out of scope for MVP:
 * Leaderboard snapshots, exports, and advanced auditing.
 * Mobile-optimized UX past basic responsiveness.
 * Complex sorting/filtering beyond sport toggle.
-* Late-join badge and tooltip.
+* Per-challenge teams (teams are global).
+* Challenge analytics dashboard (participant counts, activity stats).
+* Unarchiving archived challenges.
+* Custom milestone thresholds per challenge (40 hours is hardcoded).
 
 ## 5. User Stories
 
@@ -139,7 +177,7 @@ Title: View running leaderboard by default
 Description: As any visitor, I want to see the running leaderboard without logging in.
 Acceptance Criteria:
 
-1. Default page shows Running leaderboard with columns: position, display name, team, total distance, total moving time, total elevation gain, number of activities, and any joined-late icon.
+1. Default page shows Running leaderboard with columns: position, display name, team, total distance, total moving time, total elevation gain, number of activities.
 2. Toggle to switch to Cycling leaderboard is available and functional.
 3. Data reflects the most recent completed daily sync; last sync time is displayed.
 
@@ -150,7 +188,6 @@ Acceptance Criteria:
 
 1. Cycling leaderboard shows the same columns as Running.
 2. Distances aggregate only included cycling activity types.
-3. Joined-late icons display for relevant users.
 
 US-006 Team creation
 Title: Create a team
@@ -217,15 +254,6 @@ Acceptance Criteria:
 1. Activities with start time on or after 00:00 first day and on or before 23:59 last day (Europe/Warsaw) are eligible.
 2. Activities outside the window are excluded from all totals.
 3. Window dates are configurable.
-
-US-013 Late join counting rule
-Title: Count from join date when backfill unavailable
-Description: As the system, I must count late joiners’ activities only from their authorization time if backfill is not possible.
-Acceptance Criteria:
-
-1. If backfill to challenge start fails, the system marks the user as joined-late and sets the counting start at authorization time.
-2. The joined-late icon appears consistently on leaderboards.
-3. Documentation text in the tooltip matches the rule.
 
 US-014 Daily synchronization
 Title: Nightly data sync
@@ -452,6 +480,133 @@ Acceptance Criteria:
 1. A single user’s failure does not block others.
 2. Failures are recorded in minimal logs.
 3. Next nightly sync retries failed users.
+
+US-039 Challenge selection
+Title: View and select challenges
+Description: As any user, I want to view different challenges and see their leaderboards.
+Acceptance Criteria:
+
+1. A challenge dropdown selector is visible on all leaderboard and milestone pages.
+2. The selector shows challenge name, start date, and active/inactive status.
+3. Challenges are ordered: active challenges first (by start date descending), then inactive challenges (by start date descending).
+4. Archived challenges are hidden from non-admin users.
+5. The default challenge shown is the active challenge with the latest start date, or the most recent inactive challenge if none are active.
+6. Selecting a challenge updates the leaderboard and milestone data to show only that challenge's results.
+
+US-040 Create challenge
+Title: Admin creates a new challenge
+Description: As an admin, I want to create a new challenge with specific dates and sport types.
+Acceptance Criteria:
+
+1. Admin can access a "Create Challenge" form.
+2. Form requires: challenge name, start date, end date (minimum 7 calendar days apart).
+3. Form presents sport types grouped by category (Running Outdoor, Cycling Outdoor, Running Virtual, Cycling Virtual) for selection.
+4. Admin can select any combination of sport types.
+5. After creation, the challenge appears in the challenge selector.
+6. Validation prevents creating challenges with duration less than 7 days.
+
+US-041 Edit challenge
+Title: Admin edits an existing challenge
+Description: As an admin, I want to edit challenge details at any time.
+Acceptance Criteria:
+
+1. Admin can edit any challenge (active, inactive, or future).
+2. Editable fields: name, start date, end date, allowed sport types.
+3. Validation enforces minimum 7-day duration.
+4. Changes take effect immediately for subsequent syncs and leaderboard calculations.
+
+US-042 Delete challenge
+Title: Admin deletes a future challenge
+Description: As an admin, I want to delete a challenge that hasn't started yet.
+Acceptance Criteria:
+
+1. Delete option is available only for challenges where start date is in the future.
+2. Delete requires confirmation.
+3. After deletion, the challenge is removed from the system entirely.
+4. Delete is not available for started or past challenges.
+
+US-043 Archive challenge
+Title: Admin archives a past challenge
+Description: As an admin, I want to archive old challenges to keep the selector clean.
+Acceptance Criteria:
+
+1. Archive option is available only for challenges where end date is in the past.
+2. Archive requires confirmation.
+3. Archived challenges are hidden from non-admin users in the challenge selector.
+4. Admins can still view and select archived challenges.
+5. Archived challenges cannot be unarchived.
+
+US-044 Clone challenge
+Title: Admin clones an existing challenge
+Description: As an admin, I want to clone an existing challenge as a template for a new one.
+Acceptance Criteria:
+
+1. Clone option is available for any challenge.
+2. Cloning creates a new challenge with the same sport type configuration.
+3. The new challenge has a default name (e.g., "Copy of [Original Name]") that can be edited.
+4. Admin must set new start and end dates before saving.
+5. The cloned challenge appears as a new, separate challenge.
+
+US-045 Dynamic leaderboard tabs
+Title: Leaderboard tabs based on challenge sport types
+Description: As any user, I want to see leaderboard tabs that match the selected challenge's sport types.
+Acceptance Criteria:
+
+1. Leaderboard tabs are dynamically created based on sport type groups in the selected challenge.
+2. Each tab shows only activities from sport types in that group (e.g., Running tab shows Run + TrailRun).
+3. If a challenge has no running types, no running tab is shown.
+4. If a challenge has no cycling types, no cycling tab is shown.
+5. Tabs are labeled clearly (e.g., "Running (Outdoor)", "Cycling (Virtual)").
+
+US-046 Challenge-scoped leaderboards
+Title: Leaderboards show only challenge participants
+Description: As any user, I want to see only participants who have activities in the selected challenge.
+Acceptance Criteria:
+
+1. Leaderboards show only users with at least one qualifying activity in the selected challenge.
+2. Qualifying activities must: be within the challenge date range, match allowed sport types, and not be excluded.
+3. Users without qualifying activities do not appear on the leaderboard.
+4. Switching challenges updates the participant list accordingly.
+
+US-047 Challenge-scoped My Activities
+Title: View activities for selected challenge
+Description: As a logged-in participant, I want to see my activities for the currently selected challenge.
+Acceptance Criteria:
+
+1. My Activities page shows only activities within the selected challenge's date range and allowed sport types.
+2. Switching challenges updates the activity list.
+3. Activity exclusions are challenge-independent (excluding an activity in one view excludes it everywhere).
+
+US-048 Delete account
+Title: User deletes their account
+Description: As a participant, I want to delete my account and disconnect from Strava.
+Acceptance Criteria:
+
+1. Delete account option is available in Settings at any time.
+2. Delete requires confirmation with clear warning about consequences.
+3. Deletion disconnects Strava (removes tokens) and marks the user as deleted.
+4. Historical activity data is preserved for leaderboard integrity.
+5. Deleted users cannot log in again unless they reconnect via Strava OAuth.
+6. Deleted users' display names and team memberships remain visible on historical leaderboards.
+
+US-049 Global teams across challenges
+Title: Teams work across all challenges
+Description: As a participant, I want my team membership to apply to all challenges.
+Acceptance Criteria:
+
+1. Teams are global; joining a team applies to all challenges.
+2. Team rankings are calculated per-challenge based on that challenge's sport types and date range.
+3. A user's team name appears consistently across all challenge leaderboards.
+
+US-050 Sport type group configuration
+Title: Predefined sport type groups
+Description: As the system, I must group sport types consistently for leaderboard tabs.
+Acceptance Criteria:
+
+1. Sport type groups are defined in configuration: Running (Outdoor), Cycling (Outdoor), Running (Virtual), Cycling (Virtual).
+2. Each group maps to specific Strava sport types (e.g., Running Outdoor = Run + TrailRun).
+3. Leaderboard tabs are created based on which groups have at least one sport type selected in the challenge.
+4. Unknown sport types are excluded and logged.
 
 ## 6. Success Metrics
 

@@ -16,7 +16,8 @@
   - Authenticated: Public pages + My Activities + Teams + Settings + Sign out
   - Admin: Authenticated + Admin
 - **Stable nav ordering**:
-  - Leaderboards (Running, Cycling)
+  - Challenge selector (dropdown, always visible)
+  - Leaderboards (dynamic tabs based on selected challenge's sport types)
   - Milestone (40 hours)
   - (authed) My Activities
   - (authed) Teams
@@ -73,6 +74,8 @@
 
 - Admin-only **force sync** with UI status/progress and errors surfaced minimally (US-015, US-031).
 - Admin can rename/delete teams (US-002, US-036).
+- **Admin challenge management**: create, edit, delete (pre-start only), archive (post-end only), clone challenges (US-040, US-041, US-042, US-043, US-044).
+- Admins can view archived challenges; non-admins cannot (US-043).
 - Errors shown without exposing sensitive data (US-022, US-031).
 
 #### Privacy & retention (UI implications)
@@ -96,14 +99,14 @@
 
 #### Public data (read-only)
 
-- **GET `/leaderboard/running`**: renders running leaderboard page using `leaderboard_entry_dto[]` filtered to `sport_category = "run"`.
-- **GET `/leaderboard/cycling`**: renders cycling leaderboard page using `leaderboard_entry_dto[]` filtered to `sport_category = "ride"`.
-- **GET `/milestone`**: renders milestone list using `milestone_entry_dto[]`.
+- **GET `/challenges`**: returns list of non-archived challenges (or all challenges for admins) with metadata (name, dates, active status).
+- **GET `/leaderboard/:challenge_id/:sport_group`**: renders leaderboard page for the specified challenge and sport group using `leaderboard_entry_dto[]`.
+- **GET `/milestone/:challenge_id`**: renders milestone list for the specified challenge using `milestone_entry_dto[]`.
 - **GET `/meta/sync`** (or include on each page payload): returns last sync timestamp and status (from latest `sync_run_dto`).
 
 #### Authenticated user actions
 
-- **GET `/my/activities`**: returns `activity_dto[]` for current user within challenge window (both sport categories), plus last sync metadata.
+- **GET `/my/activities/:challenge_id`**: returns `activity_dto[]` for current user within the specified challenge's date range and allowed sport types, plus last sync metadata.
 - **PATCH `/my/activities/:activity_id`**: toggles exclusion; accepts `toggle_activity_exclusion_command`; returns `activity_exclusion_dto`.
 - **GET `/teams`**: returns `team_dto[]` (list) + current user’s team membership state.
 - **POST `/teams`**: creates a team; accepts `create_team_command`; returns `team_dto`.
@@ -112,6 +115,7 @@
 - **GET `/settings`**: returns current user settings (display name, admin flag, connected state).
 - **PATCH `/settings/display_name`**: updates display name; accepts `update_display_name_command`.
 - **POST `/settings/disconnect`**: disconnects Strava (removes credentials, stops sync); confirm destructive action (US-035).
+- **DELETE `/settings/account`**: deletes account (disconnects Strava, marks user as deleted, preserves historical data); confirm destructive action (US-048).
 
 #### Admin actions
 
@@ -119,6 +123,12 @@
 - **POST `/admin/sync_runs`**: triggers force sync; accepts `force_sync_command`; returns `sync_run_dto` (or id).
 - **PATCH `/admin/teams/:team_id`**: rename team; accepts `rename_team_command`.
 - **DELETE `/admin/teams/:team_id`**: delete team; accepts `delete_team_command` (nullifies memberships in transaction).
+- **GET `/admin/challenges`**: returns all challenges including archived ones.
+- **POST `/admin/challenges`**: creates a new challenge; accepts `create_challenge_command`; returns `challenge_dto`.
+- **PATCH `/admin/challenges/:challenge_id`**: edits a challenge; accepts `update_challenge_command`.
+- **DELETE `/admin/challenges/:challenge_id`**: deletes a future challenge; validation enforces pre-start only.
+- **POST `/admin/challenges/:challenge_id/archive`**: archives a past challenge; validation enforces post-end only.
+- **POST `/admin/challenges/:challenge_id/clone`**: clones a challenge; accepts `clone_challenge_command`; returns new `challenge_dto`.
 - **GET `/admin/purge`**: shows configured purge effective date/status (US-020).
 
 ---
