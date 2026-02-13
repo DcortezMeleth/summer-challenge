@@ -52,13 +52,6 @@ defmodule SummerChallenge.Model.Activity do
       :moving_time_s,
       :elev_gain_m
     ])
-    |> validate_inclusion(:sport_type, [
-      "Run",
-      "TrailRun",
-      "Ride",
-      "GravelRide",
-      "MountainBikeRide"
-    ])
     |> unique_constraint(:strava_id)
     |> foreign_key_constraint(:user_id)
   end
