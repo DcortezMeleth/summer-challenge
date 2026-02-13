@@ -30,10 +30,8 @@ defmodule SummerChallenge.Model.Types do
           team_id: uuid() | nil,
           team_name: String.t() | nil,
           joined_at: timestamp() | nil,
-          counting_started_at: timestamp() | nil,
           last_synced_at: timestamp() | nil,
-          last_sync_error: String.t() | nil,
-          joined_late: boolean()
+          last_sync_error: String.t() | nil
         }
 
   @typedoc """

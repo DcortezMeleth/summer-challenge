@@ -93,17 +93,12 @@ defmodule SummerChallenge.SyncService do
   end
 
   defp fetch_activities(user, token, %Challenge{} = challenge) do
-    # Fetch since last_synced_at or max(challenge.start_date, user.counting_started_at)
+    # Fetch since last_synced_at or challenge.start_date
     after_timestamp =
-      cond do
-        user.last_synced_at ->
-          DateTime.to_unix(user.last_synced_at)
-
-        user.counting_started_at ->
-          max_date(user.counting_started_at, challenge.start_date) |> DateTime.to_unix()
-
-        true ->
-          challenge.start_date |> DateTime.to_unix()
+      if user.last_synced_at do
+        DateTime.to_unix(user.last_synced_at)
+      else
+        challenge.start_date |> DateTime.to_unix()
       end
 
     Logger.info("Fetching activities for user #{user.id} since #{after_timestamp}")
@@ -119,16 +114,9 @@ defmodule SummerChallenge.SyncService do
     end
   end
 
-  defp max_date(dt1, dt2) do
-    if DateTime.compare(dt1, dt2) == :gt, do: dt1, else: dt2
-  end
-
   defp upsert_activities(user, activities, %Challenge{} = challenge) do
-    start_threshold =
-      cond do
-        user.counting_started_at -> max_date(user.counting_started_at, challenge.start_date)
-        true -> challenge.start_date
-      end
+    # Filter activities to only include those within the challenge window
+    start_threshold = challenge.start_date
 
     activities
     |> Enum.filter(fn activity_data ->

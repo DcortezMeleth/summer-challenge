@@ -279,10 +279,7 @@ defmodule SummerChallengeWeb.CoreComponents do
         </span>
       </td>
       <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900">
-        <div class="flex items-center">
-          <span class="font-semibold"><%= @row.display_name %></span>
-          <.joined_late_badge :if={@row.joined_late} joined_late={@row.joined_late} />
-        </div>
+        <span class="font-semibold"><%= @row.display_name %></span>
       </td>
       <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700">
         <%= @row.team_name %>
@@ -300,27 +297,6 @@ defmodule SummerChallengeWeb.CoreComponents do
         <%= @row.activity_count_label %>
       </td>
     </tr>
-    """
-  end
-
-  @doc """
-  Badge component indicating late joiners.
-  """
-  attr :joined_late, :boolean, required: true
-
-  def joined_late_badge(assigns) do
-    ~H"""
-    <span
-      class="ml-2 inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-brand-100 text-brand-900 ring-1 ring-brand-200"
-      role="status"
-      aria-label="Late joiner: Counting starts from authorization time when backfill is unavailable"
-      title="Counting starts from authorization time when backfill is unavailable."
-    >
-      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-      </svg>
-      <span aria-hidden="true">Late Join</span>
-    </span>
     """
   end
 

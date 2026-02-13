@@ -19,7 +19,6 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
           rank: non_neg_integer(),
           display_name: String.t(),
           team_name: String.t(),
-          joined_late: boolean(),
           distance_label: String.t(),
           moving_time_label: String.t(),
           elev_gain_label: String.t(),
@@ -65,14 +64,14 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
 
   ## Examples
 
-      iex> dto = %{rank: 1, user: %{display_name: "Alice", team_name: "Team A", joined_late: false}, totals: %{distance_m: 10000, moving_time_s: 3600, elev_gain_m: 100, activity_count: 5}}
+      iex> dto = %{rank: 1, user: %{display_name: "Alice", team_name: "Team A"}, totals: %{distance_m: 10000, moving_time_s: 3600, elev_gain_m: 100, activity_count: 5}}
       iex> row(dto)
-      %{rank: 1, display_name: "Alice", team_name: "Team A", joined_late: false, ...}
+      %{rank: 1, display_name: "Alice", team_name: "Team A", ...}
   """
   @spec row(map()) :: row()
   def row(%{
         rank: rank,
-        user: %{display_name: display_name, team_name: team_name, joined_late: joined_late},
+        user: %{display_name: display_name, team_name: team_name},
         totals: %{
           distance_m: distance,
           moving_time_s: time,
@@ -84,7 +83,6 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
       rank: rank,
       display_name: display_name,
       team_name: normalize_team_name(team_name),
-      joined_late: joined_late,
       distance_label: SummerChallengeWeb.Formatters.format_km(distance),
       moving_time_label: SummerChallengeWeb.Formatters.format_duration(time),
       elev_gain_label: SummerChallengeWeb.Formatters.format_meters(elevation),

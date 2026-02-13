@@ -17,7 +17,6 @@ defmodule SummerChallenge.Model.User do
     field :display_name, :string
     field :strava_athlete_id, :integer
     field :joined_at, :utc_datetime_usec
-    field :counting_started_at, :utc_datetime_usec
     field :last_synced_at, :utc_datetime_usec
     field :last_sync_error, :string
     field :is_admin, :boolean, default: false

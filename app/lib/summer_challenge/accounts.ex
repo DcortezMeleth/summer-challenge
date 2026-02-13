@@ -9,8 +9,7 @@ defmodule SummerChallenge.Accounts do
   import Ecto.Query
   require Logger
   alias SummerChallenge.Repo
-  alias SummerChallenge.Challenges
-  alias SummerChallenge.Model.{User, Types, UserCredential, Challenge}
+  alias SummerChallenge.Model.{User, Types, UserCredential}
 
   defp strava_client, do: Application.get_env(:summer_challenge, :strava_client)
 
@@ -220,15 +219,12 @@ defmodule SummerChallenge.Accounts do
   defp create_user_from_strava(athlete) do
     display_name = generate_display_name(athlete)
     is_admin = check_admin_status(athlete)
-    # Set counting_started_at to now for late joiners (US-013)
-    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     %SummerChallenge.Model.User{}
     |> Ecto.Changeset.change(%{
       strava_athlete_id: athlete["id"],
       display_name: display_name,
-      is_admin: is_admin,
-      counting_started_at: now
+      is_admin: is_admin
     })
     |> Repo.insert()
     |> case do
@@ -295,23 +291,8 @@ defmodule SummerChallenge.Accounts do
       team_id: team_id,
       team_name: team_name,
       joined_at: user.joined_at,
-      counting_started_at: user.counting_started_at,
       last_synced_at: user.last_synced_at,
-      last_sync_error: user.last_sync_error,
-      joined_late: calculate_joined_late(user)
+      last_sync_error: user.last_sync_error
     }
-  end
-
-  @spec calculate_joined_late(User.t()) :: boolean()
-  defp calculate_joined_late(%{joined_at: joined_at, counting_started_at: counting_started_at}) do
-    # A user joined late if their counting_started_at is after the challenge start date
-    case Challenges.get_challenge(1) do
-      {:ok, %Challenge{start_date: challenge_start}} ->
-        not is_nil(counting_started_at) and
-          DateTime.compare(counting_started_at, challenge_start) == :gt
-
-      _ ->
-        false
-    end
   end
 end
