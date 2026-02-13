@@ -102,23 +102,6 @@ defmodule SummerChallengeWeb.OnboardingLive do
             |> put_flash(:error, "Session expired. Please sign in again.")
 
           {:noreply, push_navigate(socket, to: "/leaderboard/running")}
-
-        {:error, reason} ->
-          # Unexpected error
-          page =
-            OnboardingVM.build_page(
-              changeset,
-              "An unexpected error occurred. Please try again.",
-              nil
-            )
-
-          socket =
-            socket
-            |> assign(:saving?, false)
-            |> assign(:page, page)
-            |> put_flash(:error, "Failed to complete onboarding: #{inspect(reason)}")
-
-          {:noreply, socket}
       end
     else
       # Client-side validation failed
@@ -138,7 +121,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
   @spec build_initial_changeset(Types.user_dto() | nil) :: Ecto.Changeset.t()
   defp build_initial_changeset(current_user) do
     # Create a simple changeset for display name validation
-    data = %{display_name: (current_user && current_user.display_name) || ""}
+    data = %{display_name: current_user.display_name || ""}
     types = %{display_name: :string}
 
     {data, types}

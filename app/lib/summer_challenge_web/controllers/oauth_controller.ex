@@ -27,18 +27,13 @@ defmodule SummerChallengeWeb.OAuthController do
   Exchanges the authorization code for access tokens, creates/updates the user,
   and redirects appropriately.
   """
-  def callback(conn, %{"code" => code, "state" => state}) do
-    # Verify state for CSRF protection
-    if verify_state(state) do
-      case exchange_code_for_token(code) do
-        {:ok, token_data} ->
-          handle_successful_auth(conn, token_data)
+  def callback(conn, %{"code" => code, "state" => _state}) do
+    case exchange_code_for_token(code) do
+      {:ok, token_data} ->
+        handle_successful_auth(conn, token_data)
 
-        {:error, reason} ->
-          handle_auth_error(conn, reason)
-      end
-    else
-      handle_auth_error(conn, "Invalid state parameter")
+      {:error, reason} ->
+        handle_auth_error(conn, reason)
     end
   end
 
@@ -156,12 +151,5 @@ defmodule SummerChallengeWeb.OAuthController do
     # Generate a random state for CSRF protection
     # In production, store this in session and verify
     :crypto.strong_rand_bytes(32) |> Base.encode64()
-  end
-
-  @spec verify_state(String.t()) :: boolean()
-  defp verify_state(_state) do
-    # For MVP, we'll skip strict state verification
-    # In production, compare with session-stored state
-    true
   end
 end

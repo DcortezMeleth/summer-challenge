@@ -73,7 +73,7 @@ defmodule SummerChallenge.Accounts do
 
   A user is considered onboarded if they have a display_name and joined_at timestamp.
   """
-  @spec user_onboarded?(Types.user_dto()) :: boolean()
+  @spec user_onboarded?(Types.user_dto() | nil) :: boolean()
   def user_onboarded?(%{display_name: display_name, joined_at: joined_at})
       when is_binary(display_name) and display_name != "" and not is_nil(joined_at),
       do: true
