@@ -80,6 +80,18 @@ config :summer_challenge, SummerChallenge.Vault,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Configure Timezone Database
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
+# Configure Quantum Scheduler
+config :summer_challenge, SummerChallenge.Scheduler,
+  jobs: [
+    # Nightly sync at midnight Europe/Warsaw
+    # Cron format: minute hour day_of_month month day_of_week
+    {"0 0 * * *", {SummerChallenge.SyncService, :sync_all, []}}
+  ],
+  timezone: "Europe/Warsaw"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

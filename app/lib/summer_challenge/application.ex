@@ -15,6 +15,8 @@ defmodule SummerChallenge.Application do
       {Phoenix.PubSub, name: SummerChallenge.PubSub},
       # Start a worker by calling: SummerChallenge.Worker.start_link(arg)
       # {SummerChallenge.Worker, arg},
+      # Start the Quantum scheduler
+      SummerChallenge.Scheduler,
       # Start to serve requests, typically the last entry
       SummerChallengeWeb.Endpoint
     ]

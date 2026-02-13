@@ -33,7 +33,7 @@ defmodule SummerChallenge.SyncServiceTest do
            %{
              "id" => 1001,
              "type" => "Run",
-             "start_date" => "2024-06-01T10:00:00Z",
+             "start_date" => "2026-06-01T10:00:00Z",
              "distance" => 5000.5,
              "moving_time" => 1800,
              "total_elevation_gain" => 100.2
@@ -82,15 +82,105 @@ defmodule SummerChallenge.SyncServiceTest do
       assert updated_user.credential.access_token == "new_access_token"
     end
 
-    test "syncs activities if DTO map is passed", %{user: user} do
-      user_dto = %{id: user.id}
+    test "filters activities by dates and sport types", %{user: user} do
+      user = Repo.preload(user, :credential)
 
       SummerChallenge.OAuth.StravaMock
       |> expect(:list_activities, fn %{access_token: "old_access_token"}, _params ->
-        {:ok, []}
+        {:ok,
+         [
+           # Valid
+           %{
+             "id" => 1001,
+             "type" => "Run",
+             "start_date" => "2026-06-01T10:00:00Z",
+             "distance" => 5000,
+             "moving_time" => 1800,
+             "total_elevation_gain" => 0
+           },
+           # Too early
+           %{
+             "id" => 1002,
+             "type" => "Run",
+             "start_date" => "2025-12-31T23:59:59Z",
+             "distance" => 5000,
+             "moving_time" => 1800,
+             "total_elevation_gain" => 0
+           },
+           # Too late
+           %{
+             "id" => 1003,
+             "type" => "Run",
+             "start_date" => "2027-01-01T00:00:00Z",
+             "distance" => 5000,
+             "moving_time" => 1800,
+             "total_elevation_gain" => 0
+           },
+           # Disallowed sport type (Walk)
+           %{
+             "id" => 1004,
+             "type" => "Walk",
+             "start_date" => "2026-06-02T10:00:00Z",
+             "distance" => 3000,
+             "moving_time" => 3600,
+             "total_elevation_gain" => 0
+           }
+         ]}
       end)
 
-      assert {:ok, _} = SyncService.sync_user(user_dto)
+      assert {:ok, _} = SyncService.sync_user(user)
+
+      assert Repo.get_by(Activity, strava_id: 1001)
+      refute Repo.get_by(Activity, strava_id: 1002)
+      refute Repo.get_by(Activity, strava_id: 1003)
+      refute Repo.get_by(Activity, strava_id: 1004)
+    end
+
+    test "respects counting_started_at for late joiners", %{user: user} do
+      # Set user as late joiner
+      join_date = DateTime.from_naive!(~N[2026-07-01 12:00:00.000000], "Etc/UTC")
+
+      user
+      |> Ecto.Changeset.change(%{counting_started_at: join_date})
+      |> Repo.update!()
+
+      user = Repo.get(User, user.id) |> Repo.preload(:credential)
+
+      SummerChallenge.OAuth.StravaMock
+      |> expect(:list_activities, fn %{access_token: "old_access_token"}, params ->
+        # Verify the 'after' param logic in fetch_activities:
+        # after should be 2026-07-01 12:00:00 (Unix: 1782907200)
+        assert params.after == DateTime.to_unix(join_date)
+
+        {:ok,
+         [
+           # Before join date (should be filtered by strava query but we verify logic anyway)
+           %{
+             "id" => 1005,
+             "type" => "Run",
+             "start_date" => "2026-06-30T10:00:00Z",
+             "distance" => 5000,
+             "moving_time" => 1800,
+             "total_elevation_gain" => 0
+           },
+           # After join date
+           %{
+             "id" => 1006,
+             "type" => "Run",
+             "start_date" => "2026-07-02T10:00:00Z",
+             "distance" => 5000,
+             "moving_time" => 1800,
+             "total_elevation_gain" => 0
+           }
+         ]}
+      end)
+
+      assert {:ok, _} = SyncService.sync_user(user)
+
+      # 1005 should be filtered out by upsert_activities (even if returned by Strava)
+      # 1006 should be saved
+      refute Repo.get_by(Activity, strava_id: 1005)
+      assert Repo.get_by(Activity, strava_id: 1006)
     end
   end
 end
