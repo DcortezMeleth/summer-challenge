@@ -52,6 +52,16 @@ defmodule SummerChallengeWeb.OAuthController do
     handle_auth_error(conn, "Invalid OAuth response")
   end
 
+  @doc """
+  Logs out the user by clearing the session.
+  """
+  def delete(conn, _params) do
+    conn
+    |> clear_session()
+    |> put_flash(:info, "Successfully signed out.")
+    |> redirect(to: "/leaderboard/running")
+  end
+
   # Private functions
 
   @spec exchange_code_for_token(String.t()) :: {:ok, map()} | {:error, term()}

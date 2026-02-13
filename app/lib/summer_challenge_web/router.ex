@@ -26,6 +26,7 @@ defmodule SummerChallengeWeb.Router do
     # OAuth routes
     get "/auth/strava", OAuthController, :request
     get "/auth/strava/callback", OAuthController, :callback
+    delete "/auth/logout", OAuthController, :delete
 
     live_session :public, on_mount: {Auth, :optional} do
       live "/leaderboard/:sport", LeaderboardLive, :index

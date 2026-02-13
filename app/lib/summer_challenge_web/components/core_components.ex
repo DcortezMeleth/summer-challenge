@@ -624,8 +624,17 @@ defmodule SummerChallengeWeb.CoreComponents do
     <div class="flex items-center justify-start space-x-4 py-3">
       <%= if @current_scope.authenticated? do %>
         <!-- Future: User menu with profile options -->
-        <div class="text-sm text-brand-50 font-medium">
-          Welcome, <%= @current_user.display_name %>!
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-brand-50 font-medium">
+            Welcome, <%= @current_user.display_name %>!
+          </div>
+          <.link
+            href="/auth/logout"
+            method="delete"
+            class="text-xs text-brand-200 hover:text-white underline transition-colors"
+          >
+            Sign out
+          </.link>
         </div>
       <% else %>
         <.sign_in_button />

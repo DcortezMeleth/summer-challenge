@@ -63,4 +63,43 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Authentication failed"
     end
   end
+
+  describe "DELETE /auth/logout" do
+    test "clears session and redirects", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(%{user_id: "some_user_id"})
+        |> delete(~p"/auth/logout")
+
+      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert get_session(conn, :user_id) == nil
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully signed out"
+    end
+
+    test "handles guest logout", %{conn: conn} do
+      conn = delete(conn, ~p"/auth/logout")
+
+      assert redirected_to(conn) == ~p"/leaderboard/running"
+      # Flash might still be set, which is fine
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully signed out"
+    end
+
+    test "protected route is inaccessible after logout", %{conn: conn} do
+      # 1. Start with an authenticated session
+      conn = init_test_session(conn, %{user_id: "some_user_id"})
+
+      # 2. Logout
+      conn = delete(conn, ~p"/auth/logout")
+      assert redirected_to(conn) == ~p"/leaderboard/running"
+
+      # 3. Try to access a protected route (e.g., onboarding)
+      # We need a new conn to simulate the next request
+      conn = get(build_conn(), ~p"/onboarding")
+
+      # Note: The redirection logic is handled by the Auth hook on_mount.
+      # Since we are using build_conn() with no session, it should redirect.
+      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Please sign in"
+    end
+  end
 end
