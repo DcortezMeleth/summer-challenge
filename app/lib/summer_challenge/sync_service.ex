@@ -125,11 +125,12 @@ defmodule SummerChallenge.SyncService do
       # Filter by challenge window and activity type
       DateTime.compare(start_at, challenge.end_date) != :gt and
         DateTime.compare(start_at, start_threshold) != :lt and
-        activity_data["type"] in challenge.included_activity_types
+        activity_data["type"] in challenge.allowed_sport_types
     end)
     |> Enum.each(fn activity_data ->
       attrs = %{
         user_id: user.id,
+        challenge_id: challenge.id,
         strava_id: activity_data["id"],
         sport_type: activity_data["type"],
         start_at: activity_data["start_date"] |> parse_iso8601!(),

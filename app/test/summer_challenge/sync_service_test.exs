@@ -3,12 +3,22 @@ defmodule SummerChallenge.SyncServiceTest do
   import Mox
 
   alias SummerChallenge.SyncService
+  alias SummerChallenge.Challenges
   alias SummerChallenge.Model.{User, UserCredential, Activity}
 
   setup :verify_on_exit!
 
   describe "sync_user/1" do
     setup do
+      # Create a challenge for testing
+      {:ok, challenge} = Challenges.create_challenge(%{
+        name: "Test Challenge",
+        start_date: ~U[2026-01-01 00:00:00Z],
+        end_date: ~U[2026-12-31 23:59:59Z],
+        allowed_sport_types: ["Run", "TrailRun", "Ride", "GravelRide", "MountainBikeRide"],
+        status: "active"
+      })
+
       user = Repo.insert!(%User{display_name: "Test User", strava_athlete_id: 123})
 
       # Insert credential expiring in 1 hour
@@ -20,10 +30,10 @@ defmodule SummerChallenge.SyncServiceTest do
           DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:microsecond)
       })
 
-      {:ok, user: user}
+      {:ok, user: user, challenge: challenge}
     end
 
-    test "syncs activities if token is valid", %{user: user} do
+    test "syncs activities if token is valid", %{user: user, challenge: challenge} do
       user = Repo.preload(user, :credential)
 
       SummerChallenge.OAuth.StravaMock
@@ -41,18 +51,19 @@ defmodule SummerChallenge.SyncServiceTest do
          ]}
       end)
 
-      assert {:ok, _} = SyncService.sync_user(user)
+      assert {:ok, _} = SyncService.sync_user(user, challenge)
 
       activity = Repo.get_by(Activity, strava_id: 1001)
       assert activity
       assert activity.distance_m == 5001
       assert activity.sport_type == "Run"
+      assert activity.challenge_id == challenge.id
 
       updated_user = Repo.get(User, user.id)
       assert updated_user.last_synced_at
     end
 
-    test "refreshes token if expired", %{user: user} do
+    test "refreshes token if expired", %{user: user, challenge: challenge} do
       # Set token to expired
       user = Repo.preload(user, :credential)
 
@@ -76,13 +87,13 @@ defmodule SummerChallenge.SyncServiceTest do
         {:ok, []}
       end)
 
-      assert {:ok, _} = SyncService.sync_user(user)
+      assert {:ok, _} = SyncService.sync_user(user, challenge)
 
       updated_user = Repo.preload(user, :credential, force: true)
       assert updated_user.credential.access_token == "new_access_token"
     end
 
-    test "filters activities by dates and sport types", %{user: user} do
+    test "filters activities by dates and sport types", %{user: user, challenge: challenge} do
       user = Repo.preload(user, :credential)
 
       SummerChallenge.OAuth.StravaMock
@@ -128,7 +139,7 @@ defmodule SummerChallenge.SyncServiceTest do
          ]}
       end)
 
-      assert {:ok, _} = SyncService.sync_user(user)
+      assert {:ok, _} = SyncService.sync_user(user, challenge)
 
       assert Repo.get_by(Activity, strava_id: 1001)
       refute Repo.get_by(Activity, strava_id: 1002)

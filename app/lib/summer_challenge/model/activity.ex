@@ -24,6 +24,7 @@ defmodule SummerChallenge.Model.Activity do
     field :sport_category, :string
 
     belongs_to :user, SummerChallenge.Model.User
+    belongs_to :challenge, SummerChallenge.Model.Challenge
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -35,6 +36,7 @@ defmodule SummerChallenge.Model.Activity do
     activity
     |> cast(attrs, [
       :user_id,
+      :challenge_id,
       :strava_id,
       :sport_type,
       :start_at,
@@ -54,5 +56,6 @@ defmodule SummerChallenge.Model.Activity do
     ])
     |> unique_constraint(:strava_id)
     |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:challenge_id)
   end
 end

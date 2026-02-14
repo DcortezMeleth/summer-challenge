@@ -173,4 +173,105 @@ defmodule SummerChallenge.Model.Types do
           initiated_by: uuid(),
           effective_at: timestamp()
         }
+
+  @typedoc """
+  Valid challenge status values.
+  - active: Challenge is currently selectable and may be ongoing
+  - inactive: Challenge is selectable but not currently running
+  - archived: Challenge is hidden from non-admin users
+  """
+  @type challenge_status :: :active | :inactive | :archived
+
+  @typedoc """
+  Sport type group keys used for organizing leaderboard tabs.
+  """
+  @type sport_group :: :running_outdoor | :cycling_outdoor | :running_virtual | :cycling_virtual
+
+  @typedoc """
+  Full challenge DTO with all fields from the challenges table.
+  """
+  @type challenge_dto :: %{
+          id: uuid(),
+          name: String.t(),
+          start_date: timestamp(),
+          end_date: timestamp(),
+          allowed_sport_types: [String.t()],
+          status: challenge_status(),
+          active_sport_groups: [sport_group()],
+          is_active: boolean(),
+          can_delete: boolean(),
+          can_archive: boolean(),
+          inserted_at: timestamp(),
+          updated_at: timestamp()
+        }
+
+  @typedoc """
+  Lightweight challenge summary for the challenge selector dropdown.
+  Includes computed display fields and ordering metadata.
+  """
+  @type challenge_summary_dto :: %{
+          id: uuid(),
+          name: String.t(),
+          start_date: timestamp(),
+          end_date: timestamp(),
+          status: challenge_status(),
+          is_active: boolean(),
+          display_label: String.t()
+        }
+
+  @typedoc """
+  Command for creating a new challenge.
+  Requires name, date range (min 7 days), and at least one sport type.
+  """
+  @type create_challenge_command :: %{
+          name: String.t(),
+          start_date: timestamp(),
+          end_date: timestamp(),
+          allowed_sport_types: [String.t()],
+          status: challenge_status() | nil
+        }
+
+  @typedoc """
+  Command for updating an existing challenge.
+  All fields can be modified at any time by admins.
+  """
+  @type update_challenge_command :: %{
+          challenge_id: uuid(),
+          name: String.t() | nil,
+          start_date: timestamp() | nil,
+          end_date: timestamp() | nil,
+          allowed_sport_types: [String.t()] | nil,
+          status: challenge_status() | nil,
+          requested_by: uuid()
+        }
+
+  @typedoc """
+  Command for cloning an existing challenge with new dates and optional new name.
+  Sport type configuration is copied from the source challenge.
+  """
+  @type clone_challenge_command :: %{
+          source_challenge_id: uuid(),
+          new_name: String.t(),
+          new_start_date: timestamp(),
+          new_end_date: timestamp(),
+          requested_by: uuid()
+        }
+
+  @typedoc """
+  Command for archiving a past challenge.
+  Can only be executed on challenges where end_date is in the past.
+  """
+  @type archive_challenge_command :: %{
+          challenge_id: uuid(),
+          requested_by: uuid()
+        }
+
+  @typedoc """
+  Command for deleting a future challenge.
+  Can only be executed on challenges where start_date is in the future.
+  """
+  @type delete_challenge_command :: %{
+          challenge_id: uuid(),
+          requested_by: uuid()
+        }
 end
