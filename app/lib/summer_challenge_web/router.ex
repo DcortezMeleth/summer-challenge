@@ -34,7 +34,14 @@ defmodule SummerChallengeWeb.Router do
 
     live_session :authenticated, on_mount: {Auth, :require_authenticated_user} do
       live "/onboarding", OnboardingLive, :index
-      # TODO: Add other authenticated routes here (my/activities, teams, admin, etc.)
+      # TODO: Add other authenticated routes here (my/activities, teams, etc.)
+    end
+
+    live_session :admin, on_mount: {Auth, :require_authenticated_user} do
+      live "/admin/challenges", Admin.ChallengesLive, :index
+      live "/admin/challenges/new", Admin.ChallengesLive, :new
+      live "/admin/challenges/:id/edit", Admin.ChallengesLive, :edit
+      live "/admin/challenges/:id/clone", Admin.ChallengesLive, :clone
     end
   end
 
