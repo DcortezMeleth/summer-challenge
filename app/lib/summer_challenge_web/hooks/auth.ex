@@ -35,7 +35,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
         socket =
           assign(socket,
             current_user: user,
-            current_scope: %{authenticated?: true, user_id: user.id}
+            current_scope: %{authenticated?: true, user_id: user.id, is_admin: user.is_admin}
           )
 
         {:cont, socket}
@@ -74,7 +74,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
     case Accounts.get_user(user_id) do
       nil ->
         # No valid user, assign empty auth context
-        assign(socket, current_user: nil, current_scope: %{authenticated?: false, user_id: nil})
+        assign(socket, current_user: nil, current_scope: %{authenticated?: false, user_id: nil, is_admin: false})
 
         {:cont, socket}
 
@@ -83,7 +83,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
         socket =
           assign(socket,
             current_user: user,
-            current_scope: %{authenticated?: true, user_id: user.id}
+            current_scope: %{authenticated?: true, user_id: user.id, is_admin: user.is_admin}
           )
 
         {:cont, socket}
@@ -95,7 +95,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
     socket =
       socket
       |> assign(:current_user, nil)
-      |> assign(:current_scope, %{authenticated?: false, user_id: nil})
+      |> assign(:current_scope, %{authenticated?: false, user_id: nil, is_admin: false})
 
     {:cont, socket}
   end

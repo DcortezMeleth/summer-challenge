@@ -15,23 +15,32 @@ defmodule SummerChallenge.Leaderboards do
   the timestamp of the most recent sync operation.
 
   ## Parameters
-  - `sport_category`: Either "run" or "ride"
+  - `sport_category`: Either `:running` or `:cycling`
+  - `opts`: Optional keyword list with:
+    - `:challenge_id` - Filter activities by challenge (default: nil, returns all)
 
   ## Returns
   - `{:ok, %{entries: [Types.leaderboard_entry_dto()], last_sync_at: DateTime.t() | nil}}`
   - `{:error, reason}`
 
   ## Examples
-      iex> get_public_leaderboard("run")
+      iex> get_public_leaderboard(:running)
       {:ok, %{entries: [...], last_sync_at: ~U[2024-01-01 12:00:00Z]}}
 
-      iex> get_public_leaderboard("invalid")
+      iex> get_public_leaderboard(:running, challenge_id: "uuid")
+      {:ok, %{entries: [...], last_sync_at: ~U[2024-01-01 12:00:00Z]}}
+
+      iex> get_public_leaderboard(:invalid)
       {:error, :invalid_sport_category}
   """
-  @spec get_public_leaderboard(:running | :cycling) ::
+  @spec get_public_leaderboard(:running | :cycling, keyword()) ::
           {:ok, %{entries: [Types.leaderboard_entry_dto()], last_sync_at: DateTime.t() | nil}}
           | {:error, term()}
-  def get_public_leaderboard(sport_category) when sport_category in [:running, :cycling] do
+  def get_public_leaderboard(sport_category, opts \\ [])
+  
+  def get_public_leaderboard(sport_category, opts) when sport_category in [:running, :cycling] do
+    challenge_id = Keyword.get(opts, :challenge_id)
+
     # Convert UI atoms to database atoms
     db_category =
       case sport_category do
@@ -59,6 +68,14 @@ defmodule SummerChallenge.Leaderboards do
           last_activity_at: max(a.start_at)
         },
         order_by: [desc: sum(a.distance_m)]
+
+    # Add challenge filter if provided
+    query =
+      if challenge_id do
+        where(query, [_u, a], a.challenge_id == ^challenge_id)
+      else
+        query
+      end
 
     results = Repo.all(query)
 
@@ -92,7 +109,7 @@ defmodule SummerChallenge.Leaderboards do
     {:ok, %{entries: entries, last_sync_at: last_sync_at}}
   end
 
-  def get_public_leaderboard(_invalid_category) do
+  def get_public_leaderboard(_invalid_category, _opts) do
     {:error, :invalid_sport_category}
   end
 

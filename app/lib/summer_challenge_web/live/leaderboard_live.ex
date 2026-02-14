@@ -9,8 +9,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   use SummerChallengeWeb, :live
 
-  alias SummerChallenge.Leaderboards
+  alias SummerChallenge.{Leaderboards, Challenges}
   alias SummerChallengeWeb.ViewModels.Leaderboard, as: LeaderboardVM
+  alias SummerChallengeWeb.Live.Components.ChallengeSelector
 
   @impl true
   def mount(_params, _session, socket) do
@@ -23,14 +24,28 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     # Initialize with default sport if not set
     socket = assign(socket, :sport, :running)
 
+    # Load default challenge
+    selected_challenge_id =
+      case Challenges.get_default_challenge() do
+        {:ok, challenge} -> challenge.id
+        {:error, :no_challenges} -> nil
+      end
+
+    socket = assign(socket, :selected_challenge_id, selected_challenge_id)
+
     {:ok, socket}
   end
 
   @impl true
-  def handle_params(%{"sport" => sport_param}, _uri, socket) do
+  def handle_params(%{"sport" => sport_param} = params, _uri, socket) do
+    # Handle optional challenge_id from URL params
+    challenge_id = Map.get(params, "challenge_id", socket.assigns.selected_challenge_id)
+    
+    socket = assign(socket, :selected_challenge_id, challenge_id)
+
     case validate_sport_param(sport_param) do
       {:ok, sport_category} ->
-        case load_leaderboard_data(sport_category) do
+        case load_leaderboard_data(sport_category, challenge_id) do
           {:ok, page_data} ->
             socket =
               socket
@@ -66,6 +81,15 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       <:top_bar>
         <.auth_section current_scope={@current_scope} current_user={@current_user} />
       </:top_bar>
+
+      <:challenge_selector>
+        <.live_component
+          module={ChallengeSelector}
+          id="challenge-selector"
+          selected_challenge_id={@selected_challenge_id}
+          is_admin={@current_scope.is_admin}
+        />
+      </:challenge_selector>
 
       <.sport_switch tabs={@page.tabs} />
 
@@ -117,6 +141,15 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     end
   end
 
+  @impl true
+  def handle_info({:challenge_selected, challenge_id}, socket) do
+    # Reload page with new challenge
+    {:noreply,
+     socket
+     |> assign(:selected_challenge_id, challenge_id)
+     |> push_patch(to: "/leaderboard/#{socket.assigns.sport}")}
+  end
+
   # Private functions
 
   @spec validate_sport_param(String.t()) :: {:ok, :running | :cycling} | {:error, :invalid_sport}
@@ -128,10 +161,10 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   defp sport_category_to_label(:running), do: "Running"
   defp sport_category_to_label(:cycling), do: "Cycling"
 
-  @spec load_leaderboard_data(:running | :cycling) ::
+  @spec load_leaderboard_data(:running | :cycling, binary() | nil) ::
           {:ok, LeaderboardVM.page()} | {:error, term()}
-  defp load_leaderboard_data(sport_category) do
-    case Leaderboards.get_public_leaderboard(sport_category) do
+  defp load_leaderboard_data(sport_category, challenge_id) do
+    case Leaderboards.get_public_leaderboard(sport_category, challenge_id: challenge_id) do
       {:ok, %{entries: entries, last_sync_at: last_sync_at}} ->
         # Map DTOs to view models and build page data
         rows = Enum.map(entries, &LeaderboardVM.row/1)

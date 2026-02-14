@@ -89,6 +89,38 @@ defmodule SummerChallengeWeb.CoreComponents do
     """
   end
 
+  def icon(%{name: "hero-calendar"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+    </svg>
+    """
+  end
+
+  def icon(%{name: "hero-chevron-down"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+    </svg>
+    """
+  end
+
+  def icon(%{name: "hero-chevron-up"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+    </svg>
+    """
+  end
+
+  def icon(%{name: "hero-check"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+    """
+  end
+
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
@@ -100,6 +132,7 @@ defmodule SummerChallengeWeb.CoreComponents do
   """
   slot :inner_block, required: true
   slot :top_bar
+  slot :challenge_selector
 
   def app_shell(assigns) do
     ~H"""
@@ -118,15 +151,22 @@ defmodule SummerChallengeWeb.CoreComponents do
       </div>
       <div class="mx-auto max-w-5xl px-4 py-10">
         <header class="mb-8">
-          <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
-            Summer Challenge
-          </p>
-          <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
-            Leaderboards
-          </h1>
-          <p class="mt-2 text-sm text-ui-700 max-w-prose">
-            Outdoor-only totals for running and cycling. Compete hard, move smart.
-          </p>
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+                Summer Challenge
+              </p>
+              <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
+                Leaderboards
+              </h1>
+              <p class="mt-2 text-sm text-ui-700 max-w-prose">
+                Outdoor-only totals for running and cycling. Compete hard, move smart.
+              </p>
+            </div>
+            <div :if={@challenge_selector != []} class="flex-shrink-0 min-w-[20rem]">
+              <%= render_slot(@challenge_selector) %>
+            </div>
+          </div>
         </header>
 
         <%= render_slot(@inner_block) %>
