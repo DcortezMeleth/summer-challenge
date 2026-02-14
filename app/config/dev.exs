@@ -69,10 +69,15 @@ config :phoenix, :plug_init_mode, :runtime
 config :swoosh, :api_client, false
 
 # Strava OAuth configuration
+# Secrets are loaded from environment variables or dev.secret.exs (gitignored)
 config :summer_challenge,
-  strava_client_id: System.get_env("STRAVA_CLIENT_ID") || "193891",
-  strava_client_secret:
-    System.get_env("STRAVA_CLIENT_SECRET") || "dee04c6e37a632748635fd6973beddc56fc2a84e",
+  strava_client_id: System.get_env("STRAVA_CLIENT_ID"),
+  strava_client_secret: System.get_env("STRAVA_CLIENT_SECRET"),
   strava_redirect_uri:
     System.get_env("STRAVA_REDIRECT_URI") || "http://localhost:4000/auth/strava/callback",
   admin_emails: System.get_env("ADMIN_EMAILS") || ""
+
+# Import secret configuration file if it exists (gitignored)
+if File.exists?("config/dev.secret.exs") do
+  import_config "dev.secret.exs"
+end
