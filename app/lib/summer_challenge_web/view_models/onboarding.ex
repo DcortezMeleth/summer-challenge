@@ -32,8 +32,11 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
         }
 
   @allowed_return_paths [
-    "/leaderboard/running",
-    "/leaderboard/cycling",
+    "/leaderboard",
+    "/leaderboard/running_outdoor",
+    "/leaderboard/cycling_outdoor",
+    "/leaderboard/running_virtual",
+    "/leaderboard/cycling_virtual",
     "/milestone",
     "/my/activities",
     "/teams",
@@ -60,7 +63,7 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
     %{
       page_title: "Join the Challenge",
       # Default fallback
-      return_to: "/leaderboard/running",
+      return_to: "/leaderboard",
       form: %{
         form: form,
         saving?: false,
@@ -89,7 +92,7 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
   - Safe return path or default fallback
   """
   @spec sanitize_return_to(String.t() | nil) :: safe_return_to_path()
-  def sanitize_return_to(nil), do: "/leaderboard/running"
+  def sanitize_return_to(nil), do: "/leaderboard"
 
   def sanitize_return_to(return_to) when is_binary(return_to) do
     return_to = URI.decode(return_to)
@@ -97,11 +100,11 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
     cond do
       # Must be relative path starting with "/"
       not String.starts_with?(return_to, "/") ->
-        "/leaderboard/running"
+        "/leaderboard"
 
       # Reject protocol-relative URLs
       String.contains?(return_to, "//") ->
-        "/leaderboard/running"
+        "/leaderboard"
 
       # Check against allowlist
       return_to in @allowed_return_paths ->
@@ -109,7 +112,7 @@ defmodule SummerChallengeWeb.ViewModels.Onboarding do
 
       # Default fallback
       true ->
-        "/leaderboard/running"
+        "/leaderboard"
     end
   end
 

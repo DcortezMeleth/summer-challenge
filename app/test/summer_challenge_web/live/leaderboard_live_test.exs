@@ -4,7 +4,7 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
 
   describe "Leaderboard UI authentication" do
     test "shows sign in button for guests", %{conn: conn} do
-      {:ok, _view, html} = live(conn, ~p"/leaderboard/running")
+      {:ok, _view, html} = live(conn, ~p"/leaderboard/running_outdoor")
 
       assert html =~ "Connect with Strava"
       refute html =~ "Sign out"
@@ -30,7 +30,7 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
       # Let's ensure the user exists in the DB for the hook to find it.
       _user = SummerChallenge.Repo.insert!(user)
 
-      {:ok, _view, html} = live(conn, ~p"/leaderboard/running")
+      {:ok, _view, html} = live(conn, ~p"/leaderboard/running_outdoor")
 
       assert html =~ "Welcome, Test Athlete!"
       assert html =~ "Sign out"

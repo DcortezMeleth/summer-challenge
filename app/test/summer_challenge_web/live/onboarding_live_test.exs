@@ -31,7 +31,7 @@ defmodule SummerChallengeWeb.OnboardingLiveTest do
         |> init_test_session(%{user_id: user.id})
         |> get(~p"/onboarding")
 
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
     end
 
     test "validates display name", %{conn: conn, user: user} do
@@ -57,7 +57,7 @@ defmodule SummerChallengeWeb.OnboardingLiveTest do
       |> form("#onboarding-form", onboarding: %{display_name: "New Name"})
       |> render_submit()
 
-      assert_redirected(view, ~p"/leaderboard/running")
+      assert_redirected(view, ~p"/leaderboard")
 
       # Verify user is updated
       updated_user = Accounts.get_user(user.id)

@@ -25,7 +25,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
         socket =
           socket
           |> put_flash(:error, "Session expired. Please sign in again.")
-          |> redirect(to: "/leaderboard/running")
+          |> redirect(to: "/leaderboard")
 
         {:halt, socket}
 
@@ -47,7 +47,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
     socket =
       socket
       |> put_flash(:error, "Please sign in to continue.")
-      |> redirect(to: "/leaderboard/running")
+      |> redirect(to: "/leaderboard")
 
     {:halt, socket}
   end
@@ -115,7 +115,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
         socket =
           socket
           |> put_flash(:error, "Session expired. Please sign in again.")
-          |> redirect(to: "/leaderboard/running")
+          |> redirect(to: "/leaderboard")
 
         {:halt, socket}
 
@@ -136,7 +136,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
         socket =
           socket
           |> put_flash(:error, "You do not have permission to access this page.")
-          |> redirect(to: "/leaderboard/running")
+          |> redirect(to: "/leaderboard")
 
         {:halt, socket}
     end
@@ -147,7 +147,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
     socket =
       socket
       |> put_flash(:error, "Please sign in to continue.")
-      |> redirect(to: "/leaderboard/running")
+      |> redirect(to: "/leaderboard")
 
     {:halt, socket}
   end

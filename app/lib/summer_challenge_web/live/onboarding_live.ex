@@ -19,7 +19,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
 
     if Accounts.user_onboarded?(current_user) do
       # User is already onboarded, redirect to leaderboard
-      {:ok, push_navigate(socket, to: "/leaderboard/running")}
+      {:ok, push_navigate(socket, to: "/leaderboard")}
     else
       # Initialize onboarding form
       changeset = build_initial_changeset(current_user)
@@ -70,7 +70,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
       case Accounts.complete_onboarding(socket.assigns.current_user.id, display_name) do
         {:ok, updated_user} ->
           # Update socket with new user data and navigate to safe return destination
-          return_path = socket.assigns.return_to || "/leaderboard/running"
+          return_path = socket.assigns.return_to || "/leaderboard"
 
           socket =
             socket
@@ -101,7 +101,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
             |> assign(:saving?, false)
             |> put_flash(:error, "Session expired. Please sign in again.")
 
-          {:noreply, push_navigate(socket, to: "/leaderboard/running")}
+          {:noreply, push_navigate(socket, to: "/leaderboard")}
       end
     else
       # Client-side validation failed

@@ -29,6 +29,7 @@ defmodule SummerChallengeWeb.Router do
     delete "/auth/logout", OAuthController, :delete
 
     live_session :public, on_mount: {Auth, :optional} do
+      live "/leaderboard", LeaderboardLive, :index
       live "/leaderboard/:sport", LeaderboardLive, :index
       live "/milestone", MilestoneLive, :index
     end

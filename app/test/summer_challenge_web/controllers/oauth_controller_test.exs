@@ -47,7 +47,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
 
       conn = get(conn, ~p"/auth/strava/callback", code: code, state: "ignored_in_mvp")
 
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully signed in"
     end
 
@@ -59,7 +59,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
 
       conn = get(conn, ~p"/auth/strava/callback", code: code, state: "ignored_in_mvp")
 
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Authentication failed"
     end
   end
@@ -71,7 +71,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
         |> init_test_session(%{user_id: "some_user_id"})
         |> delete(~p"/auth/logout")
 
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
       assert get_session(conn, :user_id) == nil
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully signed out"
     end
@@ -79,7 +79,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
     test "handles guest logout", %{conn: conn} do
       conn = delete(conn, ~p"/auth/logout")
 
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
       # Flash might still be set, which is fine
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully signed out"
     end
@@ -90,7 +90,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
 
       # 2. Logout
       conn = delete(conn, ~p"/auth/logout")
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
 
       # 3. Try to access a protected route (e.g., onboarding)
       # We need a new conn to simulate the next request
@@ -98,7 +98,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
 
       # Note: The redirection logic is handled by the Auth hook on_mount.
       # Since we are using build_conn() with no session, it should redirect.
-      assert redirected_to(conn) == ~p"/leaderboard/running"
+      assert redirected_to(conn) == ~p"/leaderboard"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Please sign in"
     end
   end

@@ -40,7 +40,7 @@ defmodule SummerChallengeWeb.OAuthController do
   def callback(conn, %{"error" => "access_denied"}) do
     conn
     |> put_flash(:error, "Authentication was cancelled.")
-    |> redirect(to: "/leaderboard/running")
+    |> redirect(to: "/leaderboard")
   end
 
   def callback(conn, _params) do
@@ -54,7 +54,7 @@ defmodule SummerChallengeWeb.OAuthController do
     conn
     |> clear_session()
     |> put_flash(:info, "Successfully signed out.")
-    |> redirect(to: "/leaderboard/running")
+    |> redirect(to: "/leaderboard")
   end
 
   # Private functions
@@ -121,7 +121,7 @@ defmodule SummerChallengeWeb.OAuthController do
   defp handle_auth_error(conn, message) do
     conn
     |> put_flash(:error, "Authentication failed: #{message}")
-    |> redirect(to: "/leaderboard/running")
+    |> redirect(to: "/leaderboard")
   end
 
   @spec determine_redirect_path(map()) :: String.t()
@@ -129,7 +129,7 @@ defmodule SummerChallengeWeb.OAuthController do
     # Check if user has completed onboarding
     if Accounts.user_onboarded?(user) do
       # Return to leaderboard
-      "/leaderboard/running"
+      "/leaderboard"
     else
       # First-time user, go to onboarding
       "/onboarding"

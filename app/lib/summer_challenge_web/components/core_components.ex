@@ -717,7 +717,7 @@ defmodule SummerChallengeWeb.CoreComponents do
             Welcome, <%= @current_user.display_name %>!
           </div>
           <.link
-            navigate="/leaderboard/running_outdoor"
+            navigate="/leaderboard"
             class="text-xs text-brand-200 hover:text-white underline transition-colors"
           >
             Leaderboard

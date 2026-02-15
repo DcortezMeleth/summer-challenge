@@ -37,6 +37,28 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   end
 
   @impl true
+  def handle_params(params, _uri, socket) when not is_map_key(params, "sport") do
+    # No sport parameter provided - redirect to first available sport
+    challenge_id = Map.get(params, "challenge_id", socket.assigns.selected_challenge_id)
+
+    case load_challenge_sports(challenge_id) do
+      {:ok, available_sports} ->
+        first_sport = hd(available_sports)
+        {:noreply, push_patch(socket, to: "/leaderboard/#{first_sport}")}
+
+      {:error, :no_challenge} ->
+        # No challenge available, still show page with error
+        socket =
+          socket
+          |> assign(:page, build_no_challenge_page())
+          |> assign(:sport, :running_outdoor)
+          |> assign(:available_sports, [:running_outdoor, :cycling_outdoor])
+
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
   def handle_params(%{"sport" => sport_param} = params, _uri, socket) do
     # Handle optional challenge_id from URL params
     challenge_id = Map.get(params, "challenge_id", socket.assigns.selected_challenge_id)

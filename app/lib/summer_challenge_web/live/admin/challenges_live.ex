@@ -218,7 +218,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
     <div class="min-h-screen bg-gradient-to-b from-brand-50 via-ui-50 to-ui-50">
       <div class="mx-auto max-w-7xl px-4 py-10">
         <div class="mb-8">
-          <.link navigate={~p"/leaderboard/running"} class="text-sm text-brand-600 hover:text-brand-700 font-medium">
+          <.link navigate={~p"/leaderboard"} class="text-sm text-brand-600 hover:text-brand-700 font-medium">
             ← Back to Leaderboards
           </.link>
         </div>

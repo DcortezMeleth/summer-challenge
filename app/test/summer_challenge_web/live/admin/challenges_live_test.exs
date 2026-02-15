@@ -13,7 +13,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
 
   describe "Admin Challenges LiveView - Authorization" do
     test "redirects non-authenticated users to leaderboard", %{conn: conn} do
-      assert {:error, {:redirect, %{to: "/leaderboard/running"}}} =
+      assert {:error, {:redirect, %{to: "/leaderboard"}}} =
                live(conn, ~p"/admin")
     end
 
@@ -36,7 +36,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       conn = authenticate_conn(conn, regular_user)
 
       # Non-admin users should be redirected with an error message
-      assert {:error, {:redirect, %{to: "/leaderboard/running", flash: flash}}} =
+      assert {:error, {:redirect, %{to: "/leaderboard", flash: flash}}} =
                live(conn, ~p"/admin")
 
       assert flash["error"] == "You do not have permission to access this page."
