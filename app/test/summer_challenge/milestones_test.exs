@@ -33,7 +33,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 1,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -5, :day),
-        distance_m: 50000,
+        distance_m: 50_000,
         # Exactly 40 hours
         moving_time_s: 40 * 60 * 60,
         elev_gain_m: 500,
@@ -89,7 +89,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 1,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -5, :day),
-        distance_m: 40000,
+        distance_m: 40_000,
         # 39 hours
         moving_time_s: 39 * 60 * 60,
         elev_gain_m: 400,
@@ -117,7 +117,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 1,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -10, :day),
-        distance_m: 20000,
+        distance_m: 20_000,
         # 15 hours
         moving_time_s: 15 * 60 * 60,
         elev_gain_m: 200,
@@ -130,7 +130,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 2,
         sport_type: "Ride",
         start_at: DateTime.add(DateTime.utc_now(), -5, :day),
-        distance_m: 60000,
+        distance_m: 60_000,
         # 20 hours
         moving_time_s: 20 * 60 * 60,
         elev_gain_m: 500,
@@ -143,7 +143,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 3,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -2, :day),
-        distance_m: 10000,
+        distance_m: 10_000,
         # 6 hours
         moving_time_s: 6 * 60 * 60,
         elev_gain_m: 100,
@@ -174,7 +174,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 1,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -10, :day),
-        distance_m: 30000,
+        distance_m: 30_000,
         moving_time_s: 30 * 60 * 60,
         elev_gain_m: 300,
         excluded: false
@@ -187,7 +187,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 2,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -5, :day),
-        distance_m: 15000,
+        distance_m: 15_000,
         moving_time_s: 15 * 60 * 60,
         elev_gain_m: 150,
         # Excluded
@@ -226,7 +226,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 1,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -5, :day),
-        distance_m: 30000,
+        distance_m: 30_000,
         moving_time_s: 30 * 60 * 60,
         elev_gain_m: 300,
         excluded: false
@@ -239,7 +239,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 2,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -45, :day),
-        distance_m: 20000,
+        distance_m: 20_000,
         moving_time_s: 20 * 60 * 60,
         elev_gain_m: 200,
         excluded: false
@@ -282,7 +282,7 @@ defmodule SummerChallenge.MilestonesTest do
         strava_id: 1,
         sport_type: "Run",
         start_at: DateTime.add(DateTime.utc_now(), -5, :day),
-        distance_m: 50000,
+        distance_m: 50_000,
         moving_time_s: 45 * 60 * 60,
         elev_gain_m: 500,
         excluded: false

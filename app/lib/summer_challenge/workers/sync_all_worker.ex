@@ -19,10 +19,7 @@ defmodule SummerChallenge.Workers.SyncAllWorker do
 
     case SyncService.sync_all() do
       %{total: total, success: success, error: error} = result ->
-        Logger.info(
-          "Sync completed: #{success}/#{total} successful, #{error} errors",
-          result: result
-        )
+        Logger.info("Sync completed: #{success}/#{total} successful, #{error} errors")
 
         {:ok, result}
 

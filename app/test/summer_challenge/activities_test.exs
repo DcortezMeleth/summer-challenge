@@ -9,7 +9,7 @@ defmodule SummerChallenge.ActivitiesTest do
       user =
         Repo.insert!(%User{
           display_name: "Test User",
-          strava_athlete_id: 12345,
+          strava_athlete_id: 12_345,
           joined_at: DateTime.utc_now()
         })
 
@@ -47,7 +47,7 @@ defmodule SummerChallenge.ActivitiesTest do
           strava_id: 2,
           sport_type: "Ride",
           start_at: DateTime.add(DateTime.utc_now(), -3, :day),
-          distance_m: 20000,
+          distance_m: 20_000,
           moving_time_s: 3600,
           elev_gain_m: 200,
           excluded: false
@@ -175,14 +175,14 @@ defmodule SummerChallenge.ActivitiesTest do
       user =
         Repo.insert!(%User{
           display_name: "Test User",
-          strava_athlete_id: 12345,
+          strava_athlete_id: 12_345,
           joined_at: DateTime.utc_now()
         })
 
       other_user =
         Repo.insert!(%User{
           display_name: "Other User",
-          strava_athlete_id: 67890,
+          strava_athlete_id: 67_890,
           joined_at: DateTime.utc_now()
         })
 

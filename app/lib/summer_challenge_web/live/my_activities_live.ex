@@ -95,44 +95,49 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
     # Set the toggling state to disable the control
     socket = assign(socket, :toggling_activity_id, activity_id)
 
-    case Activities.toggle_activity_exclusion(activity_id, user_id) do
-      {:ok, %{excluded: excluded}} ->
-        # Update the activity in the page data
-        updated_activities =
-          Enum.map(socket.assigns.page.activities, fn activity ->
-            if activity.id == activity_id do
-              %{activity | excluded: excluded}
-            else
-              activity
-            end
-          end)
+    socket =
+      case Activities.toggle_activity_exclusion(activity_id, user_id) do
+        {:ok, %{excluded: excluded}} ->
+          handle_successful_toggle(socket, activity_id, excluded)
 
-        message = if excluded, do: "Activity excluded", else: "Activity included"
+        {:error, :unauthorized} ->
+          handle_unauthorized_toggle(socket)
 
-        socket =
-          socket
-          |> put_flash(:info, message)
-          |> assign(:toggling_activity_id, nil)
-          |> update(:page, fn page -> %{page | activities: updated_activities} end)
+        {:error, _reason} ->
+          handle_failed_toggle(socket)
+      end
 
-        {:noreply, socket}
+    {:noreply, socket}
+  end
 
-      {:error, :unauthorized} ->
-        socket =
-          socket
-          |> put_flash(:error, "You can only modify your own activities")
-          |> assign(:toggling_activity_id, nil)
+  defp handle_successful_toggle(socket, activity_id, excluded) do
+    updated_activities =
+      Enum.map(socket.assigns.page.activities, fn activity ->
+        if activity.id == activity_id do
+          %{activity | excluded: excluded}
+        else
+          activity
+        end
+      end)
 
-        {:noreply, socket}
+    message = if excluded, do: "Activity excluded", else: "Activity included"
 
-      {:error, _reason} ->
-        socket =
-          socket
-          |> put_flash(:error, "Failed to update activity")
-          |> assign(:toggling_activity_id, nil)
+    socket
+    |> put_flash(:info, message)
+    |> assign(:toggling_activity_id, nil)
+    |> update(:page, fn page -> %{page | activities: updated_activities} end)
+  end
 
-        {:noreply, socket}
-    end
+  defp handle_unauthorized_toggle(socket) do
+    socket
+    |> put_flash(:error, "You can only modify your own activities")
+    |> assign(:toggling_activity_id, nil)
+  end
+
+  defp handle_failed_toggle(socket) do
+    socket
+    |> put_flash(:error, "Failed to update activity")
+    |> assign(:toggling_activity_id, nil)
   end
 
   @impl true

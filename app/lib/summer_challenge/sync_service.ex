@@ -42,27 +42,15 @@ defmodule SummerChallenge.SyncService do
   def sync_user(user, challenge \\ nil)
 
   def sync_user(%User{} = user, challenge) do
-    # Ensure challenge is loaded
-    case maybe_get_challenge(challenge) do
-      {:ok, challenge} ->
-        # Ensure credential is preloaded
-        case Repo.preload(user, :credential) do
-          %User{credential: nil} ->
-            {:error, :no_credentials}
-
-          user ->
-            with {:ok, token} <- ensure_valid_token(user),
-                 {:ok, activities} <- fetch_activities(user, token, challenge) do
-              upsert_activities(user, activities, challenge)
-              update_last_synced(user)
-            else
-              {:error, reason} ->
-                Logger.error("Failed to sync user #{user.id}: #{inspect(reason)}")
-                {:error, reason}
-            end
-        end
-
+    with {:ok, challenge} <- maybe_get_challenge(challenge),
+         {:ok, user_with_credential} <- ensure_user_has_credential(user),
+         {:ok, token} <- ensure_valid_token(user_with_credential),
+         {:ok, activities} <- fetch_activities(user_with_credential, token, challenge) do
+      upsert_activities(user_with_credential, activities, challenge)
+      update_last_synced(user_with_credential)
+    else
       {:error, reason} ->
+        Logger.error("Failed to sync user #{user.id}: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -78,6 +66,16 @@ defmodule SummerChallenge.SyncService do
 
   defp maybe_get_challenge(%Challenge{} = challenge), do: {:ok, challenge}
   defp maybe_get_challenge(nil), do: Challenges.get_default_challenge()
+
+  defp ensure_user_has_credential(user) do
+    case Repo.preload(user, :credential) do
+      %User{credential: nil} ->
+        {:error, :no_credentials}
+
+      user_with_credential ->
+        {:ok, user_with_credential}
+    end
+  end
 
   defp ensure_valid_token(%User{credential: credential} = user) do
     # buffer of 5 minutes

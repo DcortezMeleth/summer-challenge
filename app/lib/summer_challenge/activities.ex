@@ -71,30 +71,32 @@ defmodule SummerChallenge.Activities do
   @spec toggle_activity_exclusion(binary(), binary()) ::
           {:ok, Types.activity_exclusion_dto()} | {:error, term()}
   def toggle_activity_exclusion(activity_id, user_id) do
-    case Repo.get(Activity, activity_id) do
-      nil ->
-        {:error, :not_found}
-
-      activity ->
-        if activity.user_id == user_id do
-          activity
-          |> Activity.changeset(%{excluded: !activity.excluded})
-          |> Repo.update()
-          |> case do
-            {:ok, updated_activity} ->
-              {:ok,
-               %{
-                 id: updated_activity.id,
-                 excluded: updated_activity.excluded
-               }}
-
-            {:error, changeset} ->
-              {:error, changeset}
-          end
-        else
-          {:error, :unauthorized}
-        end
+    with {:ok, activity} <- fetch_activity(activity_id),
+         :ok <- verify_ownership(activity, user_id),
+         {:ok, updated_activity} <- update_exclusion(activity) do
+      {:ok, %{id: updated_activity.id, excluded: updated_activity.excluded}}
     end
+  end
+
+  defp fetch_activity(activity_id) do
+    case Repo.get(Activity, activity_id) do
+      nil -> {:error, :not_found}
+      activity -> {:ok, activity}
+    end
+  end
+
+  defp verify_ownership(activity, user_id) do
+    if activity.user_id == user_id do
+      :ok
+    else
+      {:error, :unauthorized}
+    end
+  end
+
+  defp update_exclusion(activity) do
+    activity
+    |> Activity.changeset(%{excluded: !activity.excluded})
+    |> Repo.update()
   end
 
   # Private functions

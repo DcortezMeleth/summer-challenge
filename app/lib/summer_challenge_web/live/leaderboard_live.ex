@@ -66,68 +66,16 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     socket = assign(socket, :selected_challenge_id, challenge_id)
 
     # Load challenge to get available sport groups
-    case load_challenge_sports(challenge_id) do
-      {:ok, available_sports} ->
-        case validate_sport_param(sport_param, available_sports) do
-          {:ok, sport_category} ->
-            case load_leaderboard_data(sport_category, challenge_id, available_sports) do
-              {:ok, page_data} ->
-                socket =
-                  socket
-                  |> assign(:page, page_data)
-                  |> assign(:sport, sport_category)
-                  |> assign(:available_sports, available_sports)
+    socket =
+      case load_challenge_sports(challenge_id) do
+        {:ok, available_sports} ->
+          handle_sport_validation(socket, sport_param, challenge_id, available_sports)
 
-                {:noreply, socket}
+        {:error, :no_challenge} ->
+          handle_no_challenge(socket)
+      end
 
-              {:error, reason} ->
-                socket =
-                  socket
-                  |> assign(:page, build_error_page(sport_category, reason, available_sports))
-                  |> assign(:sport, sport_category)
-                  |> assign(:available_sports, available_sports)
-
-                {:noreply, socket}
-            end
-
-          {:error, :sport_not_available} ->
-            # Redirect to first available sport if current sport not available in challenge
-            first_sport = hd(available_sports)
-
-            socket =
-              socket
-              |> assign(:selected_challenge_id, challenge_id)
-              |> put_flash(
-                :info,
-                "Sport not available for this challenge; showing #{format_sport_name(first_sport)}."
-              )
-              |> push_patch(to: "/leaderboard/#{first_sport}")
-
-            {:noreply, socket}
-
-          {:error, :invalid_sport} ->
-            # Redirect to first available sport for invalid sport params
-            first_sport = hd(available_sports)
-
-            socket =
-              socket
-              |> assign(:selected_challenge_id, challenge_id)
-              |> put_flash(:info, "Unknown sport; showing #{format_sport_name(first_sport)}.")
-              |> push_patch(to: "/leaderboard/#{first_sport}")
-
-            {:noreply, socket}
-        end
-
-      {:error, :no_challenge} ->
-        # No challenge available, show error page
-        socket =
-          socket
-          |> assign(:page, build_no_challenge_page())
-          |> assign(:sport, :running_outdoor)
-          |> assign(:available_sports, [:running_outdoor, :cycling_outdoor])
-
-        {:noreply, socket}
-    end
+    {:noreply, socket}
   end
 
   @impl true
@@ -208,6 +156,64 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   # Private functions
 
+  defp handle_sport_validation(socket, sport_param, challenge_id, available_sports) do
+    case validate_sport_param(sport_param, available_sports) do
+      {:ok, sport_category} ->
+        handle_sport_loading(socket, sport_category, challenge_id, available_sports)
+
+      {:error, :sport_not_available} ->
+        redirect_to_first_sport(
+          socket,
+          challenge_id,
+          available_sports,
+          "Sport not available for this challenge"
+        )
+
+      {:error, :invalid_sport} ->
+        redirect_to_first_sport(socket, challenge_id, available_sports, "Unknown sport")
+    end
+  end
+
+  defp handle_sport_loading(socket, sport_category, challenge_id, available_sports) do
+    case load_leaderboard_data(sport_category, challenge_id, available_sports) do
+      {:ok, page_data} ->
+        assign_sport_page(socket, page_data, sport_category, available_sports)
+
+      {:error, reason} ->
+        assign_error_page(socket, sport_category, reason, available_sports)
+    end
+  end
+
+  defp redirect_to_first_sport(socket, challenge_id, available_sports, message) do
+    first_sport = hd(available_sports)
+
+    socket
+    |> assign(:selected_challenge_id, challenge_id)
+    |> put_flash(:info, "#{message}; showing #{format_sport_name(first_sport)}.")
+    |> push_patch(to: "/leaderboard/#{first_sport}")
+  end
+
+  defp assign_sport_page(socket, page_data, sport_category, available_sports) do
+    socket
+    |> assign(:page, page_data)
+    |> assign(:sport, sport_category)
+    |> assign(:available_sports, available_sports)
+  end
+
+  defp assign_error_page(socket, sport_category, reason, available_sports) do
+    socket
+    |> assign(:page, build_error_page(sport_category, reason, available_sports))
+    |> assign(:sport, sport_category)
+    |> assign(:available_sports, available_sports)
+  end
+
+  defp handle_no_challenge(socket) do
+    socket
+    |> assign(:page, build_no_challenge_page())
+    |> assign(:sport, :running_outdoor)
+    |> assign(:available_sports, [:running_outdoor, :cycling_outdoor])
+  end
+
   @spec load_challenge_sports(binary() | nil) :: {:ok, [atom()]} | {:error, :no_challenge}
   defp load_challenge_sports(nil), do: {:error, :no_challenge}
 
@@ -253,8 +259,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       sport
       |> to_string()
       |> String.split("_")
-      |> Enum.map(&String.capitalize/1)
-      |> Enum.join(" ")
+      |> Enum.map_join(" ", &String.capitalize/1)
 
   @spec format_sport_name(atom()) :: String.t()
   defp format_sport_name(sport), do: sport_category_to_label(sport)

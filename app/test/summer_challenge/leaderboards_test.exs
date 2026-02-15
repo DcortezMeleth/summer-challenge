@@ -25,7 +25,7 @@ defmodule SummerChallenge.LeaderboardsTest do
         strava_id: 2,
         sport_type: "Run",
         start_at: ~U[2024-06-02 10:00:00.000000Z],
-        distance_m: 10000,
+        distance_m: 10_000,
         moving_time_s: 3600,
         elev_gain_m: 200
       })
@@ -47,7 +47,7 @@ defmodule SummerChallenge.LeaderboardsTest do
         strava_id: 4,
         sport_type: "Ride",
         start_at: ~U[2024-06-03 10:00:00.000000Z],
-        distance_m: 30000,
+        distance_m: 30_000,
         moving_time_s: 3600,
         elev_gain_m: 500
       })
@@ -64,7 +64,7 @@ defmodule SummerChallenge.LeaderboardsTest do
       [first, second] = entries
       assert first.rank == 1
       assert first.user.display_name == "User 1"
-      assert first.totals.distance_m == 15000
+      assert first.totals.distance_m == 15_000
       assert first.totals.activity_count == 2
 
       assert second.rank == 2
@@ -80,7 +80,7 @@ defmodule SummerChallenge.LeaderboardsTest do
       assert length(entries) == 1
       [entry] = entries
       assert entry.user.display_name == "User 2"
-      assert entry.totals.distance_m == 30000
+      assert entry.totals.distance_m == 30_000
     end
 
     test "separates virtual activities from outdoor activities" do
@@ -103,7 +103,7 @@ defmodule SummerChallenge.LeaderboardsTest do
         strava_id: 6,
         sport_type: "VirtualRide",
         start_at: ~U[2024-06-05 10:00:00.000000Z],
-        distance_m: 20000,
+        distance_m: 20_000,
         moving_time_s: 2400,
         elev_gain_m: 200
       })
@@ -114,7 +114,7 @@ defmodule SummerChallenge.LeaderboardsTest do
         strava_id: 7,
         sport_type: "EBikeRide",
         start_at: ~U[2024-06-06 10:00:00.000000Z],
-        distance_m: 15000,
+        distance_m: 15_000,
         moving_time_s: 1800,
         elev_gain_m: 100
       })
@@ -142,7 +142,7 @@ defmodule SummerChallenge.LeaderboardsTest do
 
       virtual_cyclist = Enum.find(virtual_ride_entries, &(&1.user.id == user.id))
       # Only VirtualRide, not EBikeRide
-      assert virtual_cyclist.totals.distance_m == 20000
+      assert virtual_cyclist.totals.distance_m == 20_000
     end
 
     test "handles unknown activity types gracefully" do
