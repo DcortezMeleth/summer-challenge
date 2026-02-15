@@ -30,6 +30,7 @@ defmodule SummerChallengeWeb.Router do
 
     live_session :public, on_mount: {Auth, :optional} do
       live "/leaderboard/:sport", LeaderboardLive, :index
+      live "/milestone", MilestoneLive, :index
     end
 
     live_session :authenticated, on_mount: {Auth, :require_authenticated_user} do
