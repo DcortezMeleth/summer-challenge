@@ -39,13 +39,13 @@ defmodule SummerChallenge.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.8.1"},
-      {:phoenix_ecto, "~> 4.5"},
+      {:phoenix, "~> 1.8"},
+      {:phoenix_ecto, "~> 4.7"},
       {:phoenix_live_view, "~> 1.1"},
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:swoosh, "~> 1.16"},
+      {:swoosh, "~> 1.21"},
       {:req, "~> 0.5"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
@@ -53,7 +53,7 @@ defmodule SummerChallenge.MixProject do
       {:jason, "~> 1.2"},
       {:oauth2, "~> 2.0"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"},
+      {:bandit, "~> 1.10"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:mox, "~> 1.0", only: :test},
