@@ -83,14 +83,22 @@ config :phoenix, :json_library, Jason
 # Configure Timezone Database
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
-# Configure Quantum Scheduler
-config :summer_challenge, SummerChallenge.Scheduler,
-  jobs: [
-    # Nightly sync at midnight Europe/Warsaw
-    # Cron format: minute hour day_of_month month day_of_week
-    {"0 0 * * *", {SummerChallenge.SyncService, :sync_all, []}}
-  ],
-  timezone: "Europe/Warsaw"
+# Configure Oban job processing
+config :summer_challenge, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [default: 10],
+  repo: SummerChallenge.Repo,
+  plugins: [
+    # Run daily sync at midnight Europe/Warsaw time
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 0 * * *", SummerChallenge.Workers.SyncAllWorker, timezone: "Europe/Warsaw"}
+     ]},
+    # Automatically delete completed jobs after 60 days
+    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 60},
+    # Track and report job statistics
+    Oban.Plugins.Stager
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

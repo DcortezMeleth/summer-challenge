@@ -13,10 +13,8 @@ defmodule SummerChallenge.Application do
       SummerChallenge.Repo,
       {DNSCluster, query: Application.get_env(:summer_challenge, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SummerChallenge.PubSub},
-      # Start a worker by calling: SummerChallenge.Worker.start_link(arg)
-      # {SummerChallenge.Worker, arg},
-      # Start the Quantum scheduler
-      SummerChallenge.Scheduler,
+      # Start Oban for background job processing
+      {Oban, Application.fetch_env!(:summer_challenge, Oban)},
       # Start to serve requests, typically the last entry
       SummerChallengeWeb.Endpoint
     ]

@@ -60,7 +60,7 @@ defmodule SummerChallenge.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:cloak_ecto, "~> 1.3"},
       {:lazy_html, ">= 0.1.0", only: :test},
-      {:quantum, "~> 3.0"},
+      {:oban, "~> 2.18"},
       {:tzdata, "~> 1.1"}
     ]
   end

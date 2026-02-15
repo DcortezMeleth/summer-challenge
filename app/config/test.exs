@@ -35,6 +35,9 @@ config :phoenix, :plug_init_mode, :runtime
 # Use mock for Strava client in tests
 config :summer_challenge, :strava_client, SummerChallenge.OAuth.StravaMock
 
+# Disable Oban job processing in tests
+config :summer_challenge, Oban, testing: :manual
+
 config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
