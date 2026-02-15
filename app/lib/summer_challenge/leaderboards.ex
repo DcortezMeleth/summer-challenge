@@ -37,8 +37,8 @@ defmodule SummerChallenge.Leaderboards do
           {:ok, %{entries: [Types.leaderboard_entry_dto()], last_sync_at: DateTime.t() | nil}}
           | {:error, term()}
   def get_public_leaderboard(sport_group, opts \\ [])
-  
-  def get_public_leaderboard(sport_group, opts) 
+
+  def get_public_leaderboard(sport_group, opts)
       when sport_group in [:running_outdoor, :cycling_outdoor, :running_virtual, :cycling_virtual] do
     challenge_id = Keyword.get(opts, :challenge_id)
 

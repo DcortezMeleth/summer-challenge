@@ -135,7 +135,7 @@ defmodule SummerChallengeWeb.MilestoneLive do
 
   defp build_no_challenge_page do
     threshold_hours = Milestones.milestone_threshold_hours()
-    
+
     %{
       achievers: [],
       last_sync_label: "Unknown",
@@ -148,7 +148,7 @@ defmodule SummerChallengeWeb.MilestoneLive do
 
   defp build_error_page do
     threshold_hours = Milestones.milestone_threshold_hours()
-    
+
     %{
       achievers: [],
       last_sync_label: "Unknown",

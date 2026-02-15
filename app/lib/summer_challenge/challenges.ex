@@ -119,7 +119,8 @@ defmodule SummerChallenge.Challenges do
   Updates a challenge.
   All fields can be updated at any time by admins.
   """
-  @spec update_challenge(Challenge.t(), map()) :: {:ok, Challenge.t()} | {:error, Ecto.Changeset.t()}
+  @spec update_challenge(Challenge.t(), map()) ::
+          {:ok, Challenge.t()} | {:error, Ecto.Changeset.t()}
   def update_challenge(%Challenge{} = challenge, attrs) do
     challenge
     |> Challenge.changeset(attrs)
@@ -130,7 +131,8 @@ defmodule SummerChallenge.Challenges do
   Deletes a challenge.
   Can only delete challenges that have not started yet.
   """
-  @spec delete_challenge(Challenge.t()) :: {:ok, Challenge.t()} | {:error, :cannot_delete | Ecto.Changeset.t()}
+  @spec delete_challenge(Challenge.t()) ::
+          {:ok, Challenge.t()} | {:error, :cannot_delete | Ecto.Changeset.t()}
   def delete_challenge(%Challenge{} = challenge) do
     if Challenge.can_delete?(challenge) do
       Repo.delete(challenge)
@@ -143,7 +145,8 @@ defmodule SummerChallenge.Challenges do
   Archives a challenge by setting its status to "archived".
   Can only archive challenges that have ended.
   """
-  @spec archive_challenge(Challenge.t()) :: {:ok, Challenge.t()} | {:error, :cannot_archive | Ecto.Changeset.t()}
+  @spec archive_challenge(Challenge.t()) ::
+          {:ok, Challenge.t()} | {:error, :cannot_archive | Ecto.Changeset.t()}
   def archive_challenge(%Challenge{} = challenge) do
     if Challenge.can_archive?(challenge) do
       update_challenge(challenge, %{status: "archived"})
@@ -156,7 +159,8 @@ defmodule SummerChallenge.Challenges do
   Clones a challenge with new name and dates.
   Sport type configuration is copied from the source challenge.
   """
-  @spec clone_challenge(Challenge.t(), map()) :: {:ok, Challenge.t()} | {:error, Ecto.Changeset.t()}
+  @spec clone_challenge(Challenge.t(), map()) ::
+          {:ok, Challenge.t()} | {:error, Ecto.Changeset.t()}
   def clone_challenge(%Challenge{} = source_challenge, attrs) do
     clone_attrs =
       Map.merge(
@@ -193,7 +197,7 @@ defmodule SummerChallenge.Challenges do
     now = DateTime.utc_now()
 
     query
-    |> order_by([c], [
+    |> order_by([c],
       # Active challenges first (status != archived AND within date range)
       desc:
         fragment(
@@ -206,7 +210,7 @@ defmodule SummerChallenge.Challenges do
         ),
       # Then by start_date descending
       desc: c.start_date
-    ])
+    )
   end
 
   defp apply_ordering(query, :start_date_asc) do

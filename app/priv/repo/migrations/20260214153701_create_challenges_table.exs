@@ -33,9 +33,7 @@ defmodule SummerChallenge.Repo.Migrations.CreateChallengesTable do
              check: "status in ('active', 'inactive', 'archived')"
            )
 
-    create constraint(:challenges, :challenges_date_range_check,
-             check: "end_date > start_date"
-           )
+    create constraint(:challenges, :challenges_date_range_check, check: "end_date > start_date")
 
     create constraint(:challenges, :challenges_min_duration_check,
              check: "end_date >= start_date + interval '7 days'"

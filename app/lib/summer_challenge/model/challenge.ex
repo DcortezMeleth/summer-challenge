@@ -112,7 +112,9 @@ defmodule SummerChallenge.Model.Challenge do
 
   def active?(%__MODULE__{start_date: start_date, end_date: end_date}) do
     now = DateTime.utc_now()
-    DateTime.compare(now, start_date) in [:gt, :eq] and DateTime.compare(now, end_date) in [:lt, :eq]
+
+    DateTime.compare(now, start_date) in [:gt, :eq] and
+      DateTime.compare(now, end_date) in [:lt, :eq]
   end
 
   @doc """

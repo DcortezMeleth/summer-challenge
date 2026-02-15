@@ -162,6 +162,7 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
       {:ok, activities} ->
         # Get last sync time
         user = SummerChallenge.Accounts.get_user(user_id)
+
         last_sync_label =
           if user.last_synced_at do
             SummerChallengeWeb.Formatters.format_warsaw_datetime(user.last_synced_at)
@@ -321,11 +322,20 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
 
   defp sport_type_color(sport_type) do
     cond do
-      sport_type in ["Run", "TrailRun"] -> "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-600/20"
-      sport_type in ["Ride", "GravelRide", "MountainBikeRide"] -> "bg-blue-100 text-blue-700 ring-1 ring-inset ring-blue-600/20"
-      sport_type in ["VirtualRun"] -> "bg-purple-100 text-purple-700 ring-1 ring-inset ring-purple-600/20"
-      sport_type in ["VirtualRide"] -> "bg-cyan-100 text-cyan-700 ring-1 ring-inset ring-cyan-600/20"
-      true -> "bg-ui-100 text-ui-700 ring-1 ring-inset ring-ui-600/20"
+      sport_type in ["Run", "TrailRun"] ->
+        "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-600/20"
+
+      sport_type in ["Ride", "GravelRide", "MountainBikeRide"] ->
+        "bg-blue-100 text-blue-700 ring-1 ring-inset ring-blue-600/20"
+
+      sport_type in ["VirtualRun"] ->
+        "bg-purple-100 text-purple-700 ring-1 ring-inset ring-purple-600/20"
+
+      sport_type in ["VirtualRide"] ->
+        "bg-cyan-100 text-cyan-700 ring-1 ring-inset ring-cyan-600/20"
+
+      true ->
+        "bg-ui-100 text-ui-700 ring-1 ring-inset ring-ui-600/20"
     end
   end
 end

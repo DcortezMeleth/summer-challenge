@@ -15,18 +15,19 @@ defmodule SummerChallenge.SyncService do
   Synchronizes activities for all users with credentials.
   """
   def sync_all do
-    with {:ok, %Challenge{} = challenge} <- Challenges.get_challenge(1) do
-      users = Accounts.list_syncable_users()
-      Logger.info("Starting sync for #{length(users)} users for challenge #{challenge.name}")
+    case Challenges.get_default_challenge() do
+      {:ok, %Challenge{} = challenge} ->
+        users = Accounts.list_syncable_users()
+        Logger.info("Starting sync for #{length(users)} users for challenge #{challenge.name}")
 
-      results = Enum.map(users, &sync_user(&1, challenge))
+        results = Enum.map(users, &sync_user(&1, challenge))
 
-      %{
-        total: length(users),
-        success: Enum.count(results, &match?({:ok, _}, &1)),
-        error: Enum.count(results, &match?({:error, _}, &1))
-      }
-    else
+        %{
+          total: length(users),
+          success: Enum.count(results, &match?({:ok, _}, &1)),
+          error: Enum.count(results, &match?({:error, _}, &1))
+        }
+
       {:error, reason} ->
         Logger.error("Failed to start sync: challenge not found. Reason: #{inspect(reason)}")
         {:error, reason}
@@ -76,7 +77,7 @@ defmodule SummerChallenge.SyncService do
   end
 
   defp maybe_get_challenge(%Challenge{} = challenge), do: {:ok, challenge}
-  defp maybe_get_challenge(nil), do: Challenges.get_challenge(1)
+  defp maybe_get_challenge(nil), do: Challenges.get_default_challenge()
 
   defp ensure_valid_token(%User{credential: credential} = user) do
     # buffer of 5 minutes

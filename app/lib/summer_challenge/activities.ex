@@ -82,10 +82,11 @@ defmodule SummerChallenge.Activities do
           |> Repo.update()
           |> case do
             {:ok, updated_activity} ->
-              {:ok, %{
-                id: updated_activity.id,
-                excluded: updated_activity.excluded
-              }}
+              {:ok,
+               %{
+                 id: updated_activity.id,
+                 excluded: updated_activity.excluded
+               }}
 
             {:error, changeset} ->
               {:error, changeset}

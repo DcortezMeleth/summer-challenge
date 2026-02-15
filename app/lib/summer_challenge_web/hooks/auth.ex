@@ -74,7 +74,10 @@ defmodule SummerChallengeWeb.Hooks.Auth do
     case Accounts.get_user(user_id) do
       nil ->
         # No valid user, assign empty auth context
-        assign(socket, current_user: nil, current_scope: %{authenticated?: false, user_id: nil, is_admin: false})
+        assign(socket,
+          current_user: nil,
+          current_scope: %{authenticated?: false, user_id: nil, is_admin: false}
+        )
 
         {:cont, socket}
 

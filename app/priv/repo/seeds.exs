@@ -26,35 +26,38 @@ IO.puts("  ✓ Cleared challenges")
 IO.puts("\nCreating sample challenges...")
 
 # Create an active challenge (ongoing)
-{:ok, _active_challenge} = Challenges.create_challenge(%{
-  name: "Summer Challenge 2026",
-  start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-  end_date: DateTime.add(DateTime.utc_now(), 20, :day),
-  allowed_sport_types: ["Run", "TrailRun", "Ride", "GravelRide", "MountainBikeRide"],
-  status: "active"
-})
+{:ok, _active_challenge} =
+  Challenges.create_challenge(%{
+    name: "Summer Challenge 2026",
+    start_date: DateTime.add(DateTime.utc_now(), -10, :day),
+    end_date: DateTime.add(DateTime.utc_now(), 20, :day),
+    allowed_sport_types: ["Run", "TrailRun", "Ride", "GravelRide", "MountainBikeRide"],
+    status: "active"
+  })
 
 IO.puts("  ✓ Created: Summer Challenge 2026 (Active)")
 
 # Create a future challenge (inactive)
-{:ok, _future_challenge} = Challenges.create_challenge(%{
-  name: "Fall Challenge 2026",
-  start_date: DateTime.add(DateTime.utc_now(), 60, :day),
-  end_date: DateTime.add(DateTime.utc_now(), 150, :day),
-  allowed_sport_types: ["Run", "TrailRun", "VirtualRun", "Ride", "VirtualRide"],
-  status: "inactive"
-})
+{:ok, _future_challenge} =
+  Challenges.create_challenge(%{
+    name: "Fall Challenge 2026",
+    start_date: DateTime.add(DateTime.utc_now(), 60, :day),
+    end_date: DateTime.add(DateTime.utc_now(), 150, :day),
+    allowed_sport_types: ["Run", "TrailRun", "VirtualRun", "Ride", "VirtualRide"],
+    status: "inactive"
+  })
 
 IO.puts("  ✓ Created: Fall Challenge 2026 (Future)")
 
 # Create a past challenge (can be archived)
-{:ok, past_challenge} = Challenges.create_challenge(%{
-  name: "Spring Challenge 2026",
-  start_date: DateTime.add(DateTime.utc_now(), -90, :day),
-  end_date: DateTime.add(DateTime.utc_now(), -10, :day),
-  allowed_sport_types: ["Run", "TrailRun", "Ride"],
-  status: "active"
-})
+{:ok, past_challenge} =
+  Challenges.create_challenge(%{
+    name: "Spring Challenge 2026",
+    start_date: DateTime.add(DateTime.utc_now(), -90, :day),
+    end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+    allowed_sport_types: ["Run", "TrailRun", "Ride"],
+    status: "active"
+  })
 
 IO.puts("  ✓ Created: Spring Challenge 2026 (Past)")
 
@@ -63,16 +66,20 @@ IO.puts("  ✓ Created: Spring Challenge 2026 (Past)")
 IO.puts("  ✓ Archived: Spring Challenge 2026")
 
 # Create another inactive challenge
-{:ok, _winter_challenge} = Challenges.create_challenge(%{
-  name: "Winter Challenge 2026",
-  start_date: DateTime.add(DateTime.utc_now(), 180, :day),
-  end_date: DateTime.add(DateTime.utc_now(), 270, :day),
-  allowed_sport_types: ["VirtualRun", "VirtualRide"],
-  status: "inactive"
-})
+{:ok, _winter_challenge} =
+  Challenges.create_challenge(%{
+    name: "Winter Challenge 2026",
+    start_date: DateTime.add(DateTime.utc_now(), 180, :day),
+    end_date: DateTime.add(DateTime.utc_now(), 270, :day),
+    allowed_sport_types: ["VirtualRun", "VirtualRide"],
+    status: "inactive"
+  })
 
 IO.puts("  ✓ Created: Winter Challenge 2026 (Future)")
 
 IO.puts("\nSeeds completed successfully!")
 IO.puts("Total challenges: #{Repo.aggregate(Challenge, :count)}")
-IO.puts("Active challenges: #{Repo.aggregate(from(c in Challenge, where: c.status != "archived"), :count)}")
+
+IO.puts(
+  "Active challenges: #{Repo.aggregate(from(c in Challenge, where: c.status != "archived"), :count)}"
+)

@@ -36,7 +36,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
           empty_message: String.t(),
           error_message: String.t() | nil
         }
-  
+
   defmodule Page do
     @moduledoc false
     defstruct [
@@ -73,7 +73,14 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
   defp sport_label(:cycling_outdoor), do: "Cycling (Outdoor)"
   defp sport_label(:running_virtual), do: "Running (Virtual)"
   defp sport_label(:cycling_virtual), do: "Cycling (Virtual)"
-  defp sport_label(sport), do: sport |> to_string() |> String.split("_") |> Enum.map(&String.capitalize/1) |> Enum.join(" ")
+
+  defp sport_label(sport),
+    do:
+      sport
+      |> to_string()
+      |> String.split("_")
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(" ")
 
   @doc """
   Creates a leaderboard row view model from a DTO entry.

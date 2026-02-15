@@ -40,7 +40,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   def handle_params(%{"sport" => sport_param} = params, _uri, socket) do
     # Handle optional challenge_id from URL params
     challenge_id = Map.get(params, "challenge_id", socket.assigns.selected_challenge_id)
-    
+
     socket = assign(socket, :selected_challenge_id, challenge_id)
 
     # Load challenge to get available sport groups
@@ -71,10 +71,14 @@ defmodule SummerChallengeWeb.LeaderboardLive do
           {:error, :sport_not_available} ->
             # Redirect to first available sport if current sport not available in challenge
             first_sport = hd(available_sports)
+
             socket =
               socket
               |> assign(:selected_challenge_id, challenge_id)
-              |> put_flash(:info, "Sport not available for this challenge; showing #{format_sport_name(first_sport)}.")
+              |> put_flash(
+                :info,
+                "Sport not available for this challenge; showing #{format_sport_name(first_sport)}."
+              )
               |> push_patch(to: "/leaderboard/#{first_sport}")
 
             {:noreply, socket}
@@ -82,6 +86,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
           {:error, :invalid_sport} ->
             # Redirect to first available sport for invalid sport params
             first_sport = hd(available_sports)
+
             socket =
               socket
               |> assign(:selected_challenge_id, challenge_id)
@@ -188,10 +193,11 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     case Challenges.get_challenge(challenge_id) do
       {:ok, challenge} ->
         sports = SummerChallenge.Model.Challenge.active_sport_groups(challenge)
-        
+
         # Ensure we have at least one sport
         case sports do
-          [] -> {:ok, [:running_outdoor, :cycling_outdoor]}  # Fallback if challenge has no sports configured
+          # Fallback if challenge has no sports configured
+          [] -> {:ok, [:running_outdoor, :cycling_outdoor]}
           sports -> {:ok, sports}
         end
 
@@ -204,7 +210,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
           {:ok, atom()} | {:error, :invalid_sport | :sport_not_available}
   defp validate_sport_param(sport_param, available_sports) do
     sport_atom = String.to_existing_atom(sport_param)
-    
+
     if sport_atom in available_sports do
       {:ok, sport_atom}
     else
@@ -219,12 +225,14 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   defp sport_category_to_label(:cycling_outdoor), do: "Cycling (Outdoor)"
   defp sport_category_to_label(:running_virtual), do: "Running (Virtual)"
   defp sport_category_to_label(:cycling_virtual), do: "Cycling (Virtual)"
-  defp sport_category_to_label(sport), do: 
-    sport 
-    |> to_string() 
-    |> String.split("_") 
-    |> Enum.map(&String.capitalize/1) 
-    |> Enum.join(" ")
+
+  defp sport_category_to_label(sport),
+    do:
+      sport
+      |> to_string()
+      |> String.split("_")
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(" ")
 
   @spec format_sport_name(atom()) :: String.t()
   defp format_sport_name(sport), do: sport_category_to_label(sport)
@@ -266,7 +274,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   @spec build_error_page(atom(), term(), [atom()]) :: LeaderboardVM.page()
   defp build_error_page(sport_category, _reason, available_sports) do
     tabs = build_sport_tabs(available_sports, sport_category)
-    
+
     %LeaderboardVM.Page{
       sport: sport_category,
       sport_label: sport_category_to_label(sport_category),

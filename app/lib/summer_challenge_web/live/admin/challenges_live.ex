@@ -458,13 +458,14 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
 
   defp sport_type_checkboxes(assigns) do
     sport_groups = Challenge.sport_type_groups()
-    
-    assigns = assign(assigns, :sport_groups, [
-      {:running_outdoor, "Running (Outdoor)", sport_groups.running_outdoor},
-      {:cycling_outdoor, "Cycling (Outdoor)", sport_groups.cycling_outdoor},
-      {:running_virtual, "Running (Virtual)", sport_groups.running_virtual},
-      {:cycling_virtual, "Cycling (Virtual)", sport_groups.cycling_virtual}
-    ])
+
+    assigns =
+      assign(assigns, :sport_groups, [
+        {:running_outdoor, "Running (Outdoor)", sport_groups.running_outdoor},
+        {:cycling_outdoor, "Cycling (Outdoor)", sport_groups.cycling_outdoor},
+        {:running_virtual, "Running (Virtual)", sport_groups.running_virtual},
+        {:cycling_virtual, "Cycling (Virtual)", sport_groups.cycling_virtual}
+      ])
 
     ~H"""
     <div class="space-y-4">

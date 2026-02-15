@@ -56,7 +56,8 @@ defmodule SummerChallenge.LeaderboardsTest do
     end
 
     test "returns running outdoor leaderboard sorted by distance" do
-      {:ok, %{entries: entries, last_sync_at: _}} = Leaderboards.get_public_leaderboard(:running_outdoor)
+      {:ok, %{entries: entries, last_sync_at: _}} =
+        Leaderboards.get_public_leaderboard(:running_outdoor)
 
       assert length(entries) == 2
 
@@ -73,7 +74,8 @@ defmodule SummerChallenge.LeaderboardsTest do
     end
 
     test "returns cycling outdoor leaderboard" do
-      {:ok, %{entries: entries, last_sync_at: _}} = Leaderboards.get_public_leaderboard(:cycling_outdoor)
+      {:ok, %{entries: entries, last_sync_at: _}} =
+        Leaderboards.get_public_leaderboard(:cycling_outdoor)
 
       assert length(entries) == 1
       [entry] = entries
@@ -118,20 +120,29 @@ defmodule SummerChallenge.LeaderboardsTest do
       })
 
       # Virtual runs appear in running_virtual, not running_outdoor
-      {:ok, %{entries: outdoor_run_entries}} = Leaderboards.get_public_leaderboard(:running_outdoor)
+      {:ok, %{entries: outdoor_run_entries}} =
+        Leaderboards.get_public_leaderboard(:running_outdoor)
+
       refute Enum.find(outdoor_run_entries, &(&1.user.id == user.id))
-      
-      {:ok, %{entries: virtual_run_entries}} = Leaderboards.get_public_leaderboard(:running_virtual)
+
+      {:ok, %{entries: virtual_run_entries}} =
+        Leaderboards.get_public_leaderboard(:running_virtual)
+
       virtual_runner = Enum.find(virtual_run_entries, &(&1.user.id == user.id))
       assert virtual_runner.totals.distance_m == 5000
 
       # Virtual rides appear in cycling_virtual (e-bikes are excluded per PRD)
-      {:ok, %{entries: outdoor_ride_entries}} = Leaderboards.get_public_leaderboard(:cycling_outdoor)
+      {:ok, %{entries: outdoor_ride_entries}} =
+        Leaderboards.get_public_leaderboard(:cycling_outdoor)
+
       refute Enum.find(outdoor_ride_entries, &(&1.user.id == user.id))
-      
-      {:ok, %{entries: virtual_ride_entries}} = Leaderboards.get_public_leaderboard(:cycling_virtual)
+
+      {:ok, %{entries: virtual_ride_entries}} =
+        Leaderboards.get_public_leaderboard(:cycling_virtual)
+
       virtual_cyclist = Enum.find(virtual_ride_entries, &(&1.user.id == user.id))
-      assert virtual_cyclist.totals.distance_m == 20000  # Only VirtualRide, not EBikeRide
+      # Only VirtualRide, not EBikeRide
+      assert virtual_cyclist.totals.distance_m == 20000
     end
 
     test "handles unknown activity types gracefully" do
@@ -154,10 +165,10 @@ defmodule SummerChallenge.LeaderboardsTest do
 
       {:ok, %{entries: cycle_outdoor}} = Leaderboards.get_public_leaderboard(:cycling_outdoor)
       refute Enum.any?(cycle_outdoor, &(&1.user.id == user.id))
-      
+
       {:ok, %{entries: run_virtual}} = Leaderboards.get_public_leaderboard(:running_virtual)
       refute Enum.any?(run_virtual, &(&1.user.id == user.id))
-      
+
       {:ok, %{entries: cycle_virtual}} = Leaderboards.get_public_leaderboard(:cycling_virtual)
       refute Enum.any?(cycle_virtual, &(&1.user.id == user.id))
     end
