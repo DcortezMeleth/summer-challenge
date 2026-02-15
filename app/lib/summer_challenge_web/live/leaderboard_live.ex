@@ -73,8 +73,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
             first_sport = hd(available_sports)
             socket =
               socket
+              |> assign(:selected_challenge_id, challenge_id)
               |> put_flash(:info, "Sport not available for this challenge; showing #{format_sport_name(first_sport)}.")
-              |> push_navigate(to: "/leaderboard/#{first_sport}")
+              |> push_patch(to: "/leaderboard/#{first_sport}")
 
             {:noreply, socket}
 
@@ -83,8 +84,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
             first_sport = hd(available_sports)
             socket =
               socket
+              |> assign(:selected_challenge_id, challenge_id)
               |> put_flash(:info, "Unknown sport; showing #{format_sport_name(first_sport)}.")
-              |> push_navigate(to: "/leaderboard/#{first_sport}")
+              |> push_patch(to: "/leaderboard/#{first_sport}")
 
             {:noreply, socket}
         end
@@ -94,8 +96,8 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         socket =
           socket
           |> assign(:page, build_no_challenge_page())
-          |> assign(:sport, :running)
-          |> assign(:available_sports, [:running, :cycling])
+          |> assign(:sport, :running_outdoor)
+          |> assign(:available_sports, [:running_outdoor, :cycling_outdoor])
 
         {:noreply, socket}
     end
