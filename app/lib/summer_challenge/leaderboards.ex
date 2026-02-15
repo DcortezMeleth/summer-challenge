@@ -9,13 +9,13 @@ defmodule SummerChallenge.Leaderboards do
   alias SummerChallenge.Model.Types
 
   @doc """
-  Retrieves public leaderboard data for a given sport category.
+  Retrieves public leaderboard data for a given sport group.
 
   Returns entries sorted by total distance in descending order, along with
   the timestamp of the most recent sync operation.
 
   ## Parameters
-  - `sport_category`: Either `:running` or `:cycling`
+  - `sport_group`: One of `:running_outdoor`, `:cycling_outdoor`, `:running_virtual`, `:cycling_virtual`
   - `opts`: Optional keyword list with:
     - `:challenge_id` - Filter activities by challenge (default: nil, returns all)
 
@@ -24,29 +24,26 @@ defmodule SummerChallenge.Leaderboards do
   - `{:error, reason}`
 
   ## Examples
-      iex> get_public_leaderboard(:running)
+      iex> get_public_leaderboard(:running_outdoor)
       {:ok, %{entries: [...], last_sync_at: ~U[2024-01-01 12:00:00Z]}}
 
-      iex> get_public_leaderboard(:running, challenge_id: "uuid")
+      iex> get_public_leaderboard(:cycling_outdoor, challenge_id: "uuid")
       {:ok, %{entries: [...], last_sync_at: ~U[2024-01-01 12:00:00Z]}}
 
       iex> get_public_leaderboard(:invalid)
-      {:error, :invalid_sport_category}
+      {:error, :invalid_sport_group}
   """
-  @spec get_public_leaderboard(:running | :cycling, keyword()) ::
+  @spec get_public_leaderboard(atom(), keyword()) ::
           {:ok, %{entries: [Types.leaderboard_entry_dto()], last_sync_at: DateTime.t() | nil}}
           | {:error, term()}
-  def get_public_leaderboard(sport_category, opts \\ [])
+  def get_public_leaderboard(sport_group, opts \\ [])
   
-  def get_public_leaderboard(sport_category, opts) when sport_category in [:running, :cycling] do
+  def get_public_leaderboard(sport_group, opts) 
+      when sport_group in [:running_outdoor, :cycling_outdoor, :running_virtual, :cycling_virtual] do
     challenge_id = Keyword.get(opts, :challenge_id)
 
-    # Convert UI atoms to database atoms
-    db_category =
-      case sport_category do
-        :running -> "run"
-        :cycling -> "ride"
-      end
+    # Get sport types for this group from Challenge model
+    sport_types = get_sport_types_for_group(sport_group)
 
     import Ecto.Query
     alias SummerChallenge.Repo
@@ -57,7 +54,7 @@ defmodule SummerChallenge.Leaderboards do
       from u in User,
         join: a in Activity,
         on: a.user_id == u.id,
-        where: a.sport_category == ^db_category and a.excluded == false,
+        where: a.sport_type in ^sport_types and a.excluded == false,
         group_by: [u.id],
         select: %{
           user_id: u.id,
@@ -88,7 +85,7 @@ defmodule SummerChallenge.Leaderboards do
 
         %{
           rank: rank,
-          sport_category: sport_category,
+          sport_group: sport_group,
           user: user,
           totals: %{
             distance_m: row.distance_m,
@@ -109,9 +106,15 @@ defmodule SummerChallenge.Leaderboards do
     {:ok, %{entries: entries, last_sync_at: last_sync_at}}
   end
 
-  def get_public_leaderboard(_invalid_category, _opts) do
-    {:error, :invalid_sport_category}
+  def get_public_leaderboard(_invalid_group, _opts) do
+    {:error, :invalid_sport_group}
   end
+
+  # Maps sport groups to their corresponding sport types (aligns with Challenge model)
+  defp get_sport_types_for_group(:running_outdoor), do: ["Run", "TrailRun"]
+  defp get_sport_types_for_group(:cycling_outdoor), do: ["Ride", "GravelRide", "MountainBikeRide"]
+  defp get_sport_types_for_group(:running_virtual), do: ["VirtualRun"]
+  defp get_sport_types_for_group(:cycling_virtual), do: ["VirtualRide"]
 
   @doc """
   Retrieves team leaderboard data for a given sport category.

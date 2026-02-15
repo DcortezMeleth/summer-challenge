@@ -8,7 +8,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
 
   @typedoc "Navigation tab for switching between sports"
   @type sport_tab :: %{
-          id: :running | :cycling,
+          id: atom(),
           label: String.t(),
           to: String.t(),
           active: boolean()
@@ -27,7 +27,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
 
   @typedoc "Complete page data for leaderboard rendering"
   @type page :: %{
-          sport: :running | :cycling,
+          sport: atom(),
           sport_label: String.t(),
           tabs: [sport_tab()],
           last_sync_label: String.t(),
@@ -36,6 +36,20 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
           empty_message: String.t(),
           error_message: String.t() | nil
         }
+  
+  defmodule Page do
+    @moduledoc false
+    defstruct [
+      :sport,
+      :sport_label,
+      :tabs,
+      :last_sync_label,
+      :rows,
+      :empty?,
+      :empty_message,
+      :error_message
+    ]
+  end
 
   @doc """
   Creates a sport tab view model.
@@ -45,19 +59,21 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
       iex> tab(:running, "/leaderboard/running", true)
       %{id: :running, label: "Running", to: "/leaderboard/running", active: true}
   """
-  @spec tab(:running | :cycling, String.t(), boolean()) :: sport_tab()
+  @spec tab(atom(), String.t(), boolean()) :: sport_tab()
   def tab(id, to, active?) do
     %{
       id: id,
-      label:
-        case id do
-          :running -> "Running"
-          :cycling -> "Cycling"
-        end,
+      label: sport_label(id),
       to: to,
       active: active?
     }
   end
+
+  defp sport_label(:running_outdoor), do: "Running (Outdoor)"
+  defp sport_label(:cycling_outdoor), do: "Cycling (Outdoor)"
+  defp sport_label(:running_virtual), do: "Running (Virtual)"
+  defp sport_label(:cycling_virtual), do: "Cycling (Virtual)"
+  defp sport_label(sport), do: sport |> to_string() |> String.split("_") |> Enum.map(&String.capitalize/1) |> Enum.join(" ")
 
   @doc """
   Creates a leaderboard row view model from a DTO entry.
@@ -105,7 +121,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
       %{sport: :running, sport_label: "Running", tabs: tabs, ...}
   """
   @spec page(
-          :running | :cycling,
+          atom(),
           String.t(),
           [sport_tab()],
           String.t(),
@@ -130,20 +146,16 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
 
   ## Examples
 
-      iex> error_page(:running, "Error loading data")
-      %{sport: :running, sport_label: "Running", rows: [], error_message: "Error loading data", ...}
+      iex> error_page(:running_outdoor, "Error loading data")
+      %{sport: :running_outdoor, sport_label: "Running (Outdoor)", rows: [], error_message: "Error loading data", ...}
   """
-  @spec error_page(:running | :cycling, String.t()) :: page()
+  @spec error_page(atom(), String.t()) :: page()
   def error_page(sport, error_message) do
-    sport_label =
-      case sport do
-        :running -> "Running"
-        :cycling -> "Cycling"
-      end
+    sport_label = sport_label(sport)
 
     tabs = [
-      tab(:running, "/leaderboard/running", sport == :running),
-      tab(:cycling, "/leaderboard/cycling", sport == :cycling)
+      tab(:running_outdoor, "/leaderboard/running_outdoor", sport == :running_outdoor),
+      tab(:cycling_outdoor, "/leaderboard/cycling_outdoor", sport == :cycling_outdoor)
     ]
 
     page(sport, sport_label, tabs, "Last sync: not yet completed", [], error_message)

@@ -12,12 +12,18 @@
 
 import Ecto.Query
 alias SummerChallenge.{Repo, Challenges}
-alias SummerChallenge.Model.Challenge
+alias SummerChallenge.Model.{Challenge, Activity}
 
 # Clear existing challenges if any (for development)
-Repo.delete_all(Challenge)
+# First, nullify all activity challenge_id references
+IO.puts("Clearing existing data...")
+Repo.update_all(Activity, set: [challenge_id: nil])
+IO.puts("  ✓ Cleared activity challenge references")
 
-IO.puts("Creating sample challenges...")
+Repo.delete_all(Challenge)
+IO.puts("  ✓ Cleared challenges")
+
+IO.puts("\nCreating sample challenges...")
 
 # Create an active challenge (ongoing)
 {:ok, _active_challenge} = Challenges.create_challenge(%{

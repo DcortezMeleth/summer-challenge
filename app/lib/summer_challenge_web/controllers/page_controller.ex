@@ -5,6 +5,6 @@ defmodule SummerChallengeWeb.PageController do
 
   def home(conn, _params) do
     conn
-    |> redirect(to: "/leaderboard/running")
+    |> redirect(to: "/leaderboard/running_outdoor")
   end
 end

@@ -22,7 +22,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       |> assign_new(:current_user, fn -> nil end)
 
     # Initialize with default sport if not set
-    socket = assign(socket, :sport, :running)
+    socket = assign(socket, :sport, :running_outdoor)
 
     # Load default challenge
     selected_challenge_id =
@@ -43,32 +43,59 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     
     socket = assign(socket, :selected_challenge_id, challenge_id)
 
-    case validate_sport_param(sport_param) do
-      {:ok, sport_category} ->
-        case load_leaderboard_data(sport_category, challenge_id) do
-          {:ok, page_data} ->
+    # Load challenge to get available sport groups
+    case load_challenge_sports(challenge_id) do
+      {:ok, available_sports} ->
+        case validate_sport_param(sport_param, available_sports) do
+          {:ok, sport_category} ->
+            case load_leaderboard_data(sport_category, challenge_id, available_sports) do
+              {:ok, page_data} ->
+                socket =
+                  socket
+                  |> assign(:page, page_data)
+                  |> assign(:sport, sport_category)
+                  |> assign(:available_sports, available_sports)
+
+                {:noreply, socket}
+
+              {:error, reason} ->
+                socket =
+                  socket
+                  |> assign(:page, build_error_page(sport_category, reason, available_sports))
+                  |> assign(:sport, sport_category)
+                  |> assign(:available_sports, available_sports)
+
+                {:noreply, socket}
+            end
+
+          {:error, :sport_not_available} ->
+            # Redirect to first available sport if current sport not available in challenge
+            first_sport = hd(available_sports)
             socket =
               socket
-              |> assign(:page, page_data)
-              |> assign(:sport, sport_category)
+              |> put_flash(:info, "Sport not available for this challenge; showing #{format_sport_name(first_sport)}.")
+              |> push_navigate(to: "/leaderboard/#{first_sport}")
 
             {:noreply, socket}
 
-          {:error, reason} ->
+          {:error, :invalid_sport} ->
+            # Redirect to first available sport for invalid sport params
+            first_sport = hd(available_sports)
             socket =
               socket
-              |> assign(:page, build_error_page(sport_category, reason))
-              |> assign(:sport, sport_category)
+              |> put_flash(:info, "Unknown sport; showing #{format_sport_name(first_sport)}.")
+              |> push_navigate(to: "/leaderboard/#{first_sport}")
 
             {:noreply, socket}
         end
 
-      {:error, :invalid_sport} ->
-        # Redirect to running leaderboard for invalid sport params
+      {:error, :no_challenge} ->
+        # No challenge available, show error page
         socket =
           socket
-          |> put_flash(:info, "Unknown sport; showing running leaderboard.")
-          |> push_navigate(to: "/leaderboard/running")
+          |> assign(:page, build_no_challenge_page())
+          |> assign(:sport, :running)
+          |> assign(:available_sports, [:running, :cycling])
 
         {:noreply, socket}
     end
@@ -152,28 +179,65 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   # Private functions
 
-  @spec validate_sport_param(String.t()) :: {:ok, :running | :cycling} | {:error, :invalid_sport}
-  defp validate_sport_param("running"), do: {:ok, :running}
-  defp validate_sport_param("cycling"), do: {:ok, :cycling}
-  defp validate_sport_param(_), do: {:error, :invalid_sport}
+  @spec load_challenge_sports(binary() | nil) :: {:ok, [atom()]} | {:error, :no_challenge}
+  defp load_challenge_sports(nil), do: {:error, :no_challenge}
 
-  @spec sport_category_to_label(:running | :cycling) :: String.t()
-  defp sport_category_to_label(:running), do: "Running"
-  defp sport_category_to_label(:cycling), do: "Cycling"
+  defp load_challenge_sports(challenge_id) do
+    case Challenges.get_challenge(challenge_id) do
+      {:ok, challenge} ->
+        sports = SummerChallenge.Model.Challenge.active_sport_groups(challenge)
+        
+        # Ensure we have at least one sport
+        case sports do
+          [] -> {:ok, [:running_outdoor, :cycling_outdoor]}  # Fallback if challenge has no sports configured
+          sports -> {:ok, sports}
+        end
 
-  @spec load_leaderboard_data(:running | :cycling, binary() | nil) ::
+      {:error, _} ->
+        {:error, :no_challenge}
+    end
+  end
+
+  @spec validate_sport_param(String.t(), [atom()]) ::
+          {:ok, atom()} | {:error, :invalid_sport | :sport_not_available}
+  defp validate_sport_param(sport_param, available_sports) do
+    sport_atom = String.to_existing_atom(sport_param)
+    
+    if sport_atom in available_sports do
+      {:ok, sport_atom}
+    else
+      {:error, :sport_not_available}
+    end
+  rescue
+    ArgumentError -> {:error, :invalid_sport}
+  end
+
+  @spec sport_category_to_label(atom()) :: String.t()
+  defp sport_category_to_label(:running_outdoor), do: "Running (Outdoor)"
+  defp sport_category_to_label(:cycling_outdoor), do: "Cycling (Outdoor)"
+  defp sport_category_to_label(:running_virtual), do: "Running (Virtual)"
+  defp sport_category_to_label(:cycling_virtual), do: "Cycling (Virtual)"
+  defp sport_category_to_label(sport), do: 
+    sport 
+    |> to_string() 
+    |> String.split("_") 
+    |> Enum.map(&String.capitalize/1) 
+    |> Enum.join(" ")
+
+  @spec format_sport_name(atom()) :: String.t()
+  defp format_sport_name(sport), do: sport_category_to_label(sport)
+
+  @spec load_leaderboard_data(atom(), binary() | nil, [atom()]) ::
           {:ok, LeaderboardVM.page()} | {:error, term()}
-  defp load_leaderboard_data(sport_category, challenge_id) do
+  defp load_leaderboard_data(sport_category, challenge_id, available_sports) do
     case Leaderboards.get_public_leaderboard(sport_category, challenge_id: challenge_id) do
       {:ok, %{entries: entries, last_sync_at: last_sync_at}} ->
         # Map DTOs to view models and build page data
         rows = Enum.map(entries, &LeaderboardVM.row/1)
         sport_label = sport_category_to_label(sport_category)
 
-        tabs = [
-          LeaderboardVM.tab(:running, "/leaderboard/running", sport_category == :running),
-          LeaderboardVM.tab(:cycling, "/leaderboard/cycling", sport_category == :cycling)
-        ]
+        # Generate tabs dynamically based on available sports
+        tabs = build_sport_tabs(available_sports, sport_category)
 
         last_sync_label = SummerChallengeWeb.Formatters.format_warsaw_datetime(last_sync_at)
 
@@ -185,11 +249,43 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     end
   end
 
-  @spec build_error_page(:running | :cycling, term()) :: LeaderboardVM.page()
-  defp build_error_page(sport_category, _reason) do
-    LeaderboardVM.error_page(
-      sport_category,
-      "Unable to load leaderboard right now. Please try again later."
-    )
+  @spec build_sport_tabs([atom()], atom()) :: [LeaderboardVM.tab()]
+  defp build_sport_tabs(available_sports, current_sport) do
+    available_sports
+    |> Enum.map(fn sport ->
+      LeaderboardVM.tab(
+        sport,
+        "/leaderboard/#{sport}",
+        sport == current_sport
+      )
+    end)
+  end
+
+  @spec build_error_page(atom(), term(), [atom()]) :: LeaderboardVM.page()
+  defp build_error_page(sport_category, _reason, available_sports) do
+    tabs = build_sport_tabs(available_sports, sport_category)
+    
+    %LeaderboardVM.Page{
+      sport: sport_category,
+      sport_label: sport_category_to_label(sport_category),
+      tabs: tabs,
+      last_sync_label: "Unknown",
+      rows: [],
+      empty_message: "Unable to load leaderboard. Please try again later.",
+      error_message: "Unable to load leaderboard right now. Please try again later."
+    }
+  end
+
+  @spec build_no_challenge_page() :: LeaderboardVM.page()
+  defp build_no_challenge_page do
+    %LeaderboardVM.Page{
+      sport: :running_outdoor,
+      sport_label: "Running (Outdoor)",
+      tabs: [],
+      last_sync_label: "Unknown",
+      rows: [],
+      empty_message: "No challenges available.",
+      error_message: "No challenges are currently configured. Please contact an administrator."
+    }
   end
 end
