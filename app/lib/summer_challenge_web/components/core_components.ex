@@ -161,6 +161,30 @@ defmodule SummerChallengeWeb.CoreComponents do
     """
   end
 
+  def icon(%{name: "hero-clock"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    </svg>
+    """
+  end
+
+  def icon(%{name: "hero-inbox"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 13.5 8.5 6.5L19.25 13.5M2.25 8.25l9.9-6.7c.6-.4 1.4-.4 1.9 0l9.9 6.7M2.25 13.5V19.5a.75.75 0 0 0 .75.75h18a.75.75 0 0 0 .75-.75v-6l-9.7 6.4c-.6.4-1.4.4-1.9 0l-9.7-6.4ZM2.25 8.25v5.25m0-5.25h19.5" />
+    </svg>
+    """
+  end
+
+  def icon(%{name: "hero-exclamation-triangle"} = assigns) do
+    ~H"""
+    <svg class={@class} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+    </svg>
+    """
+  end
+
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
@@ -684,6 +708,18 @@ defmodule SummerChallengeWeb.CoreComponents do
           <div class="text-sm text-brand-50 font-medium">
             Welcome, <%= @current_user.display_name %>!
           </div>
+          <.link
+            navigate="/leaderboard/running_outdoor"
+            class="text-xs text-brand-200 hover:text-white underline transition-colors"
+          >
+            Leaderboard
+          </.link>
+          <.link
+            navigate="/my/activities"
+            class="text-xs text-brand-200 hover:text-white underline transition-colors"
+          >
+            My Activities
+          </.link>
           <%= if @current_scope.is_admin do %>
             <.link
               navigate="/admin/challenges"
