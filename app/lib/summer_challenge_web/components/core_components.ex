@@ -736,7 +736,7 @@ defmodule SummerChallengeWeb.CoreComponents do
           </.link>
           <%= if @current_scope.is_admin do %>
             <.link
-              navigate="/admin/challenges"
+              navigate="/admin"
               class="text-xs text-brand-200 hover:text-white underline transition-colors"
             >
               Admin

@@ -12,18 +12,22 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
   """
   use SummerChallengeWeb, :live
 
+  require Logger
   alias SummerChallenge.Challenges
   alias SummerChallenge.Model.Challenge
+  alias SummerChallenge.Workers.SyncAllWorker
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "Manage Challenges")
+     |> assign(:page_title, "Admin Dashboard")
      |> assign(:show_form, false)
      |> assign(:form_mode, nil)
      |> assign(:selected_challenge, nil)
-     |> load_challenges()}
+     |> assign(:syncing, false)
+     |> load_challenges()
+     |> load_stats()}
   end
 
   @impl true
@@ -33,7 +37,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
 
   defp apply_action(socket, :index, _params) do
     socket
-    |> assign(:page_title, "Manage Challenges")
+    |> assign(:page_title, "Admin Dashboard")
     |> assign(:show_form, false)
     |> assign(:form_mode, nil)
     |> assign(:selected_challenge, nil)
@@ -65,7 +69,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
       {:error, :not_found} ->
         socket
         |> put_flash(:error, "Challenge not found")
-        |> push_navigate(to: ~p"/admin/challenges")
+        |> push_navigate(to: ~p"/admin")
     end
   end
 
@@ -93,7 +97,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
       {:error, :not_found} ->
         socket
         |> put_flash(:error, "Challenge not found")
-        |> push_navigate(to: ~p"/admin/challenges")
+        |> push_navigate(to: ~p"/admin")
     end
   end
 
@@ -116,6 +120,33 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
   end
 
   @impl true
+  def handle_event("force_sync", _params, socket) do
+    if socket.assigns.current_scope.is_admin do
+      Logger.info("Admin #{socket.assigns.current_scope.user_id} triggered manual sync")
+
+      case SyncAllWorker.new(%{}) |> Oban.insert() do
+        {:ok, _job} ->
+          {:noreply,
+           socket
+           |> assign(:syncing, true)
+           |> put_flash(:info, "Sync job queued successfully! It will start processing shortly.")
+           |> load_stats()}
+
+        {:error, reason} ->
+          Logger.error("Failed to queue sync job: #{inspect(reason)}")
+
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             "Failed to queue sync job. Please try again or check logs."
+           )}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Unauthorized")}
+    end
+  end
+
   def handle_event("save", %{"challenge" => challenge_params}, socket) do
     case socket.assigns.form_mode do
       :new ->
@@ -194,18 +225,93 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
 
         <header class="mb-8">
           <h1 class="text-3xl font-bold tracking-tight text-ui-900">
-            Manage Challenges
+            Admin Dashboard
           </h1>
           <p class="mt-2 text-sm text-ui-700">
-            Create, edit, and manage sports challenges for your organization.
+            System management, activity sync, and challenge administration
           </p>
         </header>
+
+        <!-- System Stats & Sync Control -->
+        <div class="mb-8 space-y-6">
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <.stat_card
+              title="Total Users"
+              value={@stats.total_users}
+              icon="hero-users"
+              color="blue"
+            />
+            <.stat_card
+              title="Users with Credentials"
+              value={@stats.syncable_users}
+              icon="hero-user-circle"
+              color="green"
+            />
+            <.stat_card
+              title="Pending Jobs"
+              value={@stats.pending_jobs}
+              icon="hero-clock"
+              color="yellow"
+            />
+            <.stat_card
+              title="Failed Jobs (24h)"
+              value={@stats.failed_jobs_24h}
+              icon="hero-exclamation-triangle"
+              color="red"
+            />
+          </div>
+
+          <!-- Sync Control -->
+          <div class="bg-white shadow-sport rounded-xl overflow-hidden ring-1 ring-ui-200">
+            <div class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold text-ui-900">Activity Sync</h3>
+                  <p class="mt-1 text-xs text-ui-600">
+                    <span class="font-medium">Next scheduled:</span> Midnight (Europe/Warsaw)
+                    <span class="mx-2">•</span>
+                    <span class="font-medium">Last sync:</span> <%= @stats.last_sync_at || "Never" %>
+                  </p>
+                </div>
+
+                <button
+                  phx-click="force_sync"
+                  disabled={@syncing}
+                  class={[
+                    "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm",
+                    "transition-colors duration-150",
+                    if(@syncing,
+                      do: "bg-ui-100 text-ui-400 cursor-not-allowed",
+                      else: "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800"
+                    )
+                  ]}
+                >
+                  <.icon
+                    name="hero-arrow-path"
+                    class={if @syncing, do: "w-5 h-5 animate-spin", else: "w-5 h-5"}
+                  />
+                  <%= if @syncing, do: "Syncing...", else: "Force Sync Now" %>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Challenge Management Section -->
+        <div class="border-t border-ui-200 pt-8">
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-ui-900">Manage Challenges</h2>
+            <p class="mt-1 text-sm text-ui-700">
+              Create, edit, and manage sports challenges
+            </p>
+          </div>
 
         <%= if @show_form do %>
           <.challenge_form
             form={@form}
             mode={@form_mode}
-            on_cancel={~p"/admin/challenges"}
+            on_cancel={~p"/admin"}
           />
         <% else %>
           <div class="mb-6">
@@ -220,6 +326,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
 
           <.challenges_table challenges={@challenges} />
         <% end %>
+        </div>
       </div>
     </div>
     """
@@ -233,7 +340,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
         {:noreply,
          socket
          |> put_flash(:info, "Challenge created successfully")
-         |> push_navigate(to: ~p"/admin/challenges")}
+         |> push_navigate(to: ~p"/admin")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset))}
@@ -246,7 +353,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
         {:noreply,
          socket
          |> put_flash(:info, "Challenge updated successfully")
-         |> push_navigate(to: ~p"/admin/challenges")}
+         |> push_navigate(to: ~p"/admin")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset))}
@@ -256,6 +363,66 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
   defp load_challenges(socket) do
     challenges = Challenges.list_challenges(include_archived: true, order_by: :start_date_desc)
     assign(socket, :challenges, challenges)
+  end
+
+  defp load_stats(socket) do
+    stats = %{
+      total_users: count_total_users(),
+      syncable_users: count_syncable_users(),
+      pending_jobs: count_pending_jobs(),
+      failed_jobs_24h: count_failed_jobs_24h(),
+      last_sync_at: get_last_sync_time()
+    }
+
+    assign(socket, :stats, stats)
+  end
+
+  defp count_total_users do
+    SummerChallenge.Repo.aggregate(SummerChallenge.Model.User, :count)
+  end
+
+  defp count_syncable_users do
+    length(SummerChallenge.Accounts.list_syncable_users())
+  end
+
+  defp count_pending_jobs do
+    import Ecto.Query
+
+    SummerChallenge.Repo.one(
+      from j in Oban.Job,
+        where: j.state in ["available", "scheduled", "executing"],
+        select: count(j.id)
+    ) || 0
+  end
+
+  defp count_failed_jobs_24h do
+    import Ecto.Query
+
+    twenty_four_hours_ago = DateTime.utc_now() |> DateTime.add(-24 * 60 * 60)
+
+    SummerChallenge.Repo.one(
+      from j in Oban.Job,
+        where:
+          j.state in ["retryable", "discarded"] and
+            j.attempted_at >= ^twenty_four_hours_ago,
+        select: count(j.id)
+    ) || 0
+  end
+
+  defp get_last_sync_time do
+    import Ecto.Query
+
+    case SummerChallenge.Repo.one(
+           from j in Oban.Job,
+             where:
+               j.worker == "SummerChallenge.Workers.SyncAllWorker" and j.state == "completed",
+             order_by: [desc: j.completed_at],
+             limit: 1,
+             select: j.completed_at
+         ) do
+      nil -> nil
+      datetime -> SummerChallengeWeb.Formatters.format_warsaw_datetime(datetime)
+    end
   end
 
   # Component functions
@@ -526,4 +693,31 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
     end_str = Calendar.strftime(challenge.end_date, "%b %d, %Y")
     "#{start_str} - #{end_str}"
   end
+
+  defp stat_card(assigns) do
+    ~H"""
+    <div class="bg-white shadow-sport rounded-xl overflow-hidden ring-1 ring-ui-200">
+      <div class="px-6 py-5">
+        <div class="flex items-center">
+          <div class={[
+            "flex-shrink-0 rounded-lg p-3",
+            stat_color_class(@color)
+          ]}>
+            <.icon name={@icon} class="w-6 h-6 text-white" />
+          </div>
+          <div class="ml-4 flex-1">
+            <p class="text-sm font-medium text-ui-600"><%= @title %></p>
+            <p class="text-2xl font-bold text-ui-900"><%= @value %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  defp stat_color_class("blue"), do: "bg-blue-500"
+  defp stat_color_class("green"), do: "bg-green-500"
+  defp stat_color_class("yellow"), do: "bg-yellow-500"
+  defp stat_color_class("red"), do: "bg-rose-500"
+  defp stat_color_class(_), do: "bg-ui-500"
 end

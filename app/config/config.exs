@@ -92,12 +92,11 @@ config :summer_challenge, Oban,
     # Run daily sync at midnight Europe/Warsaw time
     {Oban.Plugins.Cron,
      crontab: [
-       {"0 0 * * *", SummerChallenge.Workers.SyncAllWorker, timezone: "Europe/Warsaw"}
-     ]},
+       {"0 0 * * *", SummerChallenge.Workers.SyncAllWorker}
+     ],
+     timezone: "Europe/Warsaw"},
     # Automatically delete completed jobs after 60 days
-    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 60},
-    # Track and report job statistics
-    Oban.Plugins.Stager
+    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 60}
   ]
 
 # Import environment specific config. This must remain at the bottom

@@ -1,37 +1,88 @@
 defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
   use SummerChallengeWeb.ConnCase
+  use Oban.Testing, repo: SummerChallenge.Repo
+
   import Phoenix.LiveViewTest
+  import Mox
 
   alias SummerChallenge.{Repo, Challenges}
   alias SummerChallenge.Model.User
+  alias SummerChallenge.Workers.SyncAllWorker
+
+  setup :verify_on_exit!
 
   describe "Admin Challenges LiveView - Authorization" do
     test "redirects non-authenticated users to leaderboard", %{conn: conn} do
       assert {:error, {:redirect, %{to: "/leaderboard/running"}}} =
-               live(conn, ~p"/admin/challenges")
+               live(conn, ~p"/admin")
     end
 
     test "allows authenticated admin users to access", %{conn: conn} do
       admin_user = create_admin_user()
       conn = authenticate_conn(conn, admin_user)
 
-      {:ok, _view, html} = live(conn, ~p"/admin/challenges")
+      {:ok, _view, html} = live(conn, ~p"/admin")
 
+      assert html =~ "Admin Dashboard"
+      assert html =~ "Force Sync Now"
       assert html =~ "Manage Challenges"
       assert html =~ "New Challenge"
     end
 
-    test "authenticated non-admin users can access (authorization should be in context)", %{
+    test "authenticated non-admin users are redirected", %{
       conn: conn
     } do
       regular_user = create_regular_user()
       conn = authenticate_conn(conn, regular_user)
 
-      # The route is protected by authenticated session, but admin-specific
-      # functionality should be controlled at the context level
-      {:ok, _view, html} = live(conn, ~p"/admin/challenges")
+      # Non-admin users should be redirected with an error message
+      assert {:error, {:redirect, %{to: "/leaderboard/running", flash: flash}}} =
+               live(conn, ~p"/admin")
 
-      assert html =~ "Manage Challenges"
+      assert flash["error"] == "You do not have permission to access this page."
+    end
+  end
+
+  describe "Dashboard - Stats Display" do
+    test "displays system stats correctly", %{conn: conn} do
+      admin_user = create_admin_user()
+      _regular_user = create_regular_user()
+      conn = authenticate_conn(conn, admin_user)
+
+      {:ok, _view, html} = live(conn, ~p"/admin")
+
+      assert html =~ "Total Users"
+      assert html =~ "Users with Credentials"
+      assert html =~ "Pending Jobs"
+      assert html =~ "Failed Jobs (24h)"
+    end
+  end
+
+  describe "Dashboard - Force Sync" do
+    test "admin can trigger manual sync", %{conn: conn} do
+      admin_user = create_admin_user()
+      conn = authenticate_conn(conn, admin_user)
+
+      {:ok, view, _html} = live(conn, ~p"/admin")
+
+      html = view |> element("button", "Force Sync Now") |> render_click()
+
+      assert html =~ "Sync job queued successfully"
+      assert_enqueued(worker: SyncAllWorker)
+    end
+
+    test "updates UI when sync is triggered", %{conn: conn} do
+      admin_user = create_admin_user()
+      conn = authenticate_conn(conn, admin_user)
+
+      {:ok, view, _html} = live(conn, ~p"/admin")
+
+      # Trigger sync
+      view |> element("button", "Force Sync Now") |> render_click()
+
+      # Check that syncing state is active
+      html = render(view)
+      assert html =~ "Syncing..."
     end
   end
 
@@ -76,7 +127,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, _archived} = Challenges.archive_challenge(past)
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, _view, html} = live(conn, ~p"/admin/challenges")
+      {:ok, _view, html} = live(conn, ~p"/admin")
 
       # Should display all challenges
       assert html =~ "Active Challenge"
@@ -96,7 +147,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         })
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, _view, html} = live(conn, ~p"/admin/challenges")
+      {:ok, _view, html} = live(conn, ~p"/admin")
 
       assert html =~ "Test Challenge"
       assert html =~ "Jun 01, 2026"
@@ -131,7 +182,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         })
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, view, _html} = live(conn, ~p"/admin/challenges")
+      {:ok, view, _html} = live(conn, ~p"/admin")
 
       # Check that delete button exists for future challenge
       assert view
@@ -315,7 +366,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       conn = authenticate_conn(conn, admin_user)
       fake_id = Ecto.UUID.generate()
 
-      assert {:error, {:live_redirect, %{to: "/admin/challenges", flash: %{"error" => message}}}} =
+      assert {:error, {:live_redirect, %{to: "/admin", flash: %{"error" => message}}}} =
                live(conn, ~p"/admin/challenges/#{fake_id}/edit")
 
       assert message =~ "Challenge not found"
@@ -339,7 +390,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         })
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, view, _html} = live(conn, ~p"/admin/challenges")
+      {:ok, view, _html} = live(conn, ~p"/admin")
 
       html =
         view
@@ -361,7 +412,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         })
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, view, _html} = live(conn, ~p"/admin/challenges")
+      {:ok, view, _html} = live(conn, ~p"/admin")
 
       # The delete button should not be visible for started challenges
       refute view
@@ -390,7 +441,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         })
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, view, _html} = live(conn, ~p"/admin/challenges")
+      {:ok, view, _html} = live(conn, ~p"/admin")
 
       html =
         view
@@ -415,7 +466,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         })
 
       conn = authenticate_conn(conn, admin_user)
-      {:ok, view, _html} = live(conn, ~p"/admin/challenges")
+      {:ok, view, _html} = live(conn, ~p"/admin")
 
       # The archive button should not be visible for ongoing challenges
       refute view

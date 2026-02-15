@@ -102,4 +102,53 @@ defmodule SummerChallengeWeb.Hooks.Auth do
 
     {:cont, socket}
   end
+
+  # Admin-only mount hook - requires authentication AND admin privileges
+  def on_mount(:require_admin, _params, %{"user_id" => user_id}, socket) do
+    require Logger
+    Logger.info("Auth hook (admin): user_id from session: #{inspect(user_id)}")
+
+    case Accounts.get_user(user_id) do
+      nil ->
+        Logger.error("Auth hook (admin): User not found for user_id: #{inspect(user_id)}")
+
+        socket =
+          socket
+          |> put_flash(:error, "Session expired. Please sign in again.")
+          |> redirect(to: "/leaderboard/running")
+
+        {:halt, socket}
+
+      %{is_admin: true} = user ->
+        Logger.info("Auth hook (admin): Admin user found: #{inspect(user.id)}")
+
+        socket =
+          assign(socket,
+            current_user: user,
+            current_scope: %{authenticated?: true, user_id: user.id, is_admin: true}
+          )
+
+        {:cont, socket}
+
+      user ->
+        Logger.warning("Auth hook (admin): Non-admin user attempted access: #{inspect(user.id)}")
+
+        socket =
+          socket
+          |> put_flash(:error, "You do not have permission to access this page.")
+          |> redirect(to: "/leaderboard/running")
+
+        {:halt, socket}
+    end
+  end
+
+  def on_mount(:require_admin, _params, _session, socket) do
+    # No user_id in session, redirect to leaderboard
+    socket =
+      socket
+      |> put_flash(:error, "Please sign in to continue.")
+      |> redirect(to: "/leaderboard/running")
+
+    {:halt, socket}
+  end
 end
