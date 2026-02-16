@@ -20,6 +20,7 @@ defmodule SummerChallengeWeb.ConnCase do
   using do
     quote do
       use SummerChallengeWeb, :verified_routes
+
       import Phoenix.ConnTest
       import Plug.Conn
       import SummerChallengeWeb.ConnCase
