@@ -1,5 +1,6 @@
 defmodule SummerChallengeWeb.OnboardingLiveTest do
   use SummerChallengeWeb.ConnCase
+
   import Phoenix.LiveViewTest
 
   alias SummerChallenge.Accounts
@@ -62,7 +63,7 @@ defmodule SummerChallengeWeb.OnboardingLiveTest do
       # Verify user is updated
       updated_user = Accounts.get_user(user.id)
       assert updated_user.display_name == "New Name"
-      assert updated_user.joined_at != nil
+      assert updated_user.joined_at
     end
   end
 end

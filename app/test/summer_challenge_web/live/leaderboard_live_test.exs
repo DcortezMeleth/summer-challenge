@@ -1,5 +1,6 @@
 defmodule SummerChallengeWeb.LeaderboardLiveTest do
   use SummerChallengeWeb.ConnCase
+
   import Phoenix.LiveViewTest
 
   describe "Leaderboard UI authentication" do

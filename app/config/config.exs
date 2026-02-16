@@ -7,6 +7,75 @@
 # General application configuration
 import Config
 
+# Configure Timezone Database
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
+config :esbuild,
+  version: "0.24.2",
+  default: [
+    args: ~w(
+        js/app.js
+        --bundle
+        --target=es2020
+        --outdir=../priv/static/assets
+        --external:/fonts/*
+        --external:/images/*
+      ),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+
+# Configures Elixir's Logger
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id]
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
+
+# Configure Oban job processing
+config :summer_challenge, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [default: 10],
+  repo: SummerChallenge.Repo,
+  plugins: [
+    # Run daily sync at midnight Europe/Warsaw time
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 0 * * *", SummerChallenge.Workers.SyncAllWorker}
+     ],
+     timezone: "Europe/Warsaw"},
+    # Automatically delete completed jobs after 60 days
+    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 60}
+  ]
+
+# Configures the mailer
+#
+# By default it uses the "Local" adapter which stores the emails
+# locally. You can see the emails in your browser, at "/dev/mailbox".
+#
+# For production it's recommended to configure a different adapter
+# at the `config/runtime.exs`.
+config :summer_challenge, SummerChallenge.Mailer, adapter: Swoosh.Adapters.Local
+
+# Configure Vault for encryption
+config :summer_challenge, SummerChallenge.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: Base.decode64!("3Jhb/h4/5j7+Q3/h4/5j7+Q3/h4/5j7+Q3/h4/5j7+Q=")}
+  ]
+
+# Configures the endpoint
+config :summer_challenge, SummerChallengeWeb.Endpoint,
+  url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [json: SummerChallengeWeb.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: SummerChallenge.PubSub,
+  live_view: [signing_salt: "ZFRJlLTh"]
+
 config :summer_challenge,
   ecto_repos: [SummerChallenge.Repo],
   generators: [timestamp_type: :utc_datetime],
@@ -26,79 +95,10 @@ config :tailwind,
       --input=css/app.css
       --output=../priv/static/assets/app.css
     ),
+
+    # Import environment specific config. This must remain at the bottom
+    # of this file so it overrides the configuration defined above.
     cd: Path.expand("../assets", __DIR__)
   ]
 
-config :esbuild,
-  version: "0.24.2",
-  default: [
-    args: ~w(
-        js/app.js
-        --bundle
-        --target=es2020
-        --outdir=../priv/static/assets
-        --external:/fonts/*
-        --external:/images/*
-      ),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-
-# Configures the endpoint
-config :summer_challenge, SummerChallengeWeb.Endpoint,
-  url: [host: "localhost"],
-  adapter: Bandit.PhoenixAdapter,
-  render_errors: [
-    formats: [json: SummerChallengeWeb.ErrorJSON],
-    layout: false
-  ],
-  pubsub_server: SummerChallenge.PubSub,
-  live_view: [signing_salt: "ZFRJlLTh"]
-
-# Configures the mailer
-#
-# By default it uses the "Local" adapter which stores the emails
-# locally. You can see the emails in your browser, at "/dev/mailbox".
-#
-# For production it's recommended to configure a different adapter
-# at the `config/runtime.exs`.
-config :summer_challenge, SummerChallenge.Mailer, adapter: Swoosh.Adapters.Local
-
-# Configures Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
-# Configure Vault for encryption
-config :summer_challenge, SummerChallenge.Vault,
-  ciphers: [
-    default:
-      {Cloak.Ciphers.AES.GCM,
-       tag: "AES.GCM.V1", key: Base.decode64!("3Jhb/h4/5j7+Q3/h4/5j7+Q3/h4/5j7+Q3/h4/5j7+Q=")}
-  ]
-
-# Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
-
-# Configure Timezone Database
-config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
-
-# Configure Oban job processing
-config :summer_challenge, Oban,
-  engine: Oban.Engines.Basic,
-  queues: [default: 10],
-  repo: SummerChallenge.Repo,
-  plugins: [
-    # Run daily sync at midnight Europe/Warsaw time
-    {Oban.Plugins.Cron,
-     crontab: [
-       {"0 0 * * *", SummerChallenge.Workers.SyncAllWorker}
-     ],
-     timezone: "Europe/Warsaw"},
-    # Automatically delete completed jobs after 60 days
-    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 60}
-  ]
-
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

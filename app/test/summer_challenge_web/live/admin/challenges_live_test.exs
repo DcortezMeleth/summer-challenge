@@ -2,11 +2,12 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
   use SummerChallengeWeb.ConnCase
   use Oban.Testing, repo: SummerChallenge.Repo
 
-  import Phoenix.LiveViewTest
   import Mox
+  import Phoenix.LiveViewTest
 
-  alias SummerChallenge.{Repo, Challenges}
+  alias SummerChallenge.Challenges
   alias SummerChallenge.Model.User
+  alias SummerChallenge.Repo
   alias SummerChallenge.Workers.SyncAllWorker
 
   setup :verify_on_exit!

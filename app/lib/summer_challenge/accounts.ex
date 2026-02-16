@@ -7,9 +7,13 @@ defmodule SummerChallenge.Accounts do
   """
 
   import Ecto.Query
-  require Logger
+
+  alias SummerChallenge.Model.Types
+  alias SummerChallenge.Model.User
+  alias SummerChallenge.Model.UserCredential
   alias SummerChallenge.Repo
-  alias SummerChallenge.Model.{User, Types, UserCredential}
+
+  require Logger
 
   defp strava_client, do: Application.get_env(:summer_challenge, :strava_client)
 
@@ -75,8 +79,7 @@ defmodule SummerChallenge.Accounts do
   """
   @spec user_onboarded?(Types.user_dto() | nil) :: boolean()
   def user_onboarded?(%{display_name: display_name, joined_at: joined_at})
-      when is_binary(display_name) and display_name != "" and not is_nil(joined_at),
-      do: true
+      when is_binary(display_name) and display_name != "" and not is_nil(joined_at), do: true
 
   def user_onboarded?(_), do: false
 
@@ -188,9 +191,7 @@ defmodule SummerChallenge.Accounts do
             {:ok, token_data}
 
           {:error, reason} ->
-            Logger.error(
-              "Failed to store refreshed credentials for user #{user.id}: #{inspect(reason)}"
-            )
+            Logger.error("Failed to store refreshed credentials for user #{user.id}: #{inspect(reason)}")
 
             {:error, reason}
         end
@@ -205,7 +206,7 @@ defmodule SummerChallenge.Accounts do
 
   @spec get_user_by_strava_id(integer()) :: Types.user_dto() | nil
   defp get_user_by_strava_id(strava_id) do
-    SummerChallenge.Model.User
+    User
     |> where([u], u.strava_athlete_id == ^strava_id)
     |> preload(:team)
     |> Repo.one()
@@ -220,7 +221,7 @@ defmodule SummerChallenge.Accounts do
     display_name = generate_display_name(athlete)
     is_admin = check_admin_status(athlete)
 
-    %SummerChallenge.Model.User{}
+    %User{}
     |> Ecto.Changeset.change(%{
       strava_athlete_id: athlete["id"],
       display_name: display_name,
@@ -266,7 +267,8 @@ defmodule SummerChallenge.Accounts do
   @spec check_admin_status(map()) :: boolean()
   defp check_admin_status(athlete) do
     admin_emails =
-      Application.get_env(:summer_challenge, :admin_emails, "")
+      :summer_challenge
+      |> Application.get_env(:admin_emails, "")
       |> String.split(",", trim: true)
       |> Enum.map(&String.trim/1)
 

@@ -7,9 +7,10 @@ defmodule SummerChallenge.Activities do
   """
 
   import Ecto.Query
-  alias SummerChallenge.Repo
+
   alias SummerChallenge.Model.Activity
   alias SummerChallenge.Model.Types
+  alias SummerChallenge.Repo
 
   @doc """
   Retrieves activities for a specific user and challenge.

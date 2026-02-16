@@ -1,6 +1,9 @@
 defmodule SummerChallengeWeb.OAuthControllerTest do
   use SummerChallengeWeb.ConnCase
+
   import Mox
+
+  alias SummerChallenge.OAuth.StravaMock
 
   # Make sure mocks are verified when the test exits
   setup :verify_on_exit!
@@ -17,7 +20,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
 
       athlete = %{"id" => 111, "firstname" => "New", "lastname" => "User"}
 
-      SummerChallenge.OAuth.StravaMock
+      StravaMock
       |> expect(:get_token!, fn [code: ^code] -> token end)
       |> expect(:get_athlete, fn ^token -> {:ok, athlete} end)
 
@@ -41,7 +44,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
         expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
       }
 
-      SummerChallenge.OAuth.StravaMock
+      StravaMock
       |> expect(:get_token!, fn [code: ^code] -> token end)
       |> expect(:get_athlete, fn ^token -> {:ok, athlete} end)
 
@@ -54,9 +57,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
     test "handles strava errors gracefully", %{conn: conn} do
       code = "invalid_code"
 
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:get_token!, fn [code: ^code] -> raise OAuth2.Error, reason: "Invalid code" end)
-
+      expect(StravaMock, :get_token!, fn [code: ^code] -> raise OAuth2.Error, reason: "Invalid code" end)
       conn = get(conn, ~p"/auth/strava/callback", code: code, state: "ignored_in_mvp")
 
       assert redirected_to(conn) == ~p"/leaderboard"

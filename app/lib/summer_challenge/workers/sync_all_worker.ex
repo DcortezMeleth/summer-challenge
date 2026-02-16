@@ -10,8 +10,9 @@ defmodule SummerChallenge.Workers.SyncAllWorker do
     max_attempts: 3,
     unique: [period: 3600, states: [:available, :scheduled, :executing]]
 
-  require Logger
   alias SummerChallenge.SyncService
+
+  require Logger
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do

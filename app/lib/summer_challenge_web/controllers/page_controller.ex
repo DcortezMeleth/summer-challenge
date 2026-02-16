@@ -4,7 +4,6 @@ defmodule SummerChallengeWeb.PageController do
   import Phoenix.Controller
 
   def home(conn, _params) do
-    conn
-    |> redirect(to: "/leaderboard")
+    redirect(conn, to: "/leaderboard")
   end
 end

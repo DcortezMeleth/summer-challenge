@@ -12,10 +12,11 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
   """
   use SummerChallengeWeb, :live
 
-  require Logger
   alias SummerChallenge.Challenges
   alias SummerChallenge.Model.Challenge
   alias SummerChallenge.Workers.SyncAllWorker
+
+  require Logger
 
   @impl true
   def mount(_params, _session, socket) do
@@ -124,7 +125,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
     if socket.assigns.current_scope.is_admin do
       Logger.info("Admin #{socket.assigns.current_scope.user_id} triggered manual sync")
 
-      case SyncAllWorker.new(%{}) |> Oban.insert() do
+      case %{} |> SyncAllWorker.new() |> Oban.insert() do
         {:ok, _job} ->
           {:noreply,
            socket
@@ -200,8 +201,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
              |> load_challenges()}
 
           {:error, :cannot_archive} ->
-            {:noreply,
-             put_flash(socket, :error, "Cannot archive a challenge that hasn't ended yet")}
+            {:noreply, put_flash(socket, :error, "Cannot archive a challenge that hasn't ended yet")}
 
           {:error, _changeset} ->
             {:noreply, put_flash(socket, :error, "Failed to archive challenge")}
@@ -398,7 +398,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
   defp count_failed_jobs_24h do
     import Ecto.Query
 
-    twenty_four_hours_ago = DateTime.utc_now() |> DateTime.add(-24 * 60 * 60)
+    twenty_four_hours_ago = DateTime.add(DateTime.utc_now(), -24 * 60 * 60)
 
     SummerChallenge.Repo.one(
       from j in Oban.Job,
@@ -414,8 +414,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
 
     case SummerChallenge.Repo.one(
            from j in Oban.Job,
-             where:
-               j.worker == "SummerChallenge.Workers.SyncAllWorker" and j.state == "completed",
+             where: j.worker == "SummerChallenge.Workers.SyncAllWorker" and j.state == "completed",
              order_by: [desc: j.completed_at],
              limit: 1,
              select: j.completed_at

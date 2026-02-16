@@ -11,7 +11,10 @@ defmodule SummerChallenge.Model.Challenge do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+
+  alias SummerChallenge.Model.Activity
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -37,7 +40,7 @@ defmodule SummerChallenge.Model.Challenge do
     field :allowed_sport_types, {:array, :string}, default: []
     field :status, :string, default: "active"
 
-    has_many :activities, SummerChallenge.Model.Activity
+    has_many :activities, Activity
 
     timestamps()
   end
@@ -49,7 +52,7 @@ defmodule SummerChallenge.Model.Challenge do
           end_date: DateTime.t() | nil,
           allowed_sport_types: [String.t()],
           status: String.t(),
-          activities: [SummerChallenge.Model.Activity.t()] | Ecto.Association.NotLoaded.t(),
+          activities: [Activity.t()] | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -122,7 +125,7 @@ defmodule SummerChallenge.Model.Challenge do
   """
   @spec can_delete?(t()) :: boolean()
   def can_delete?(%__MODULE__{start_date: start_date}) do
-    DateTime.compare(DateTime.utc_now(), start_date) == :lt
+    DateTime.before?(DateTime.utc_now(), start_date)
   end
 
   @doc """
@@ -130,7 +133,7 @@ defmodule SummerChallenge.Model.Challenge do
   """
   @spec can_archive?(t()) :: boolean()
   def can_archive?(%__MODULE__{end_date: end_date, status: status}) do
-    status != "archived" and DateTime.compare(DateTime.utc_now(), end_date) == :gt
+    status != "archived" and DateTime.after?(DateTime.utc_now(), end_date)
   end
 
   # Private validation functions

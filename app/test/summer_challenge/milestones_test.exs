@@ -1,8 +1,11 @@
 defmodule SummerChallenge.MilestonesTest do
   use SummerChallenge.DataCase
 
-  alias SummerChallenge.{Milestones, Challenges, Repo}
-  alias SummerChallenge.Model.{User, Activity}
+  alias SummerChallenge.Challenges
+  alias SummerChallenge.Milestones
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.User
+  alias SummerChallenge.Repo
 
   describe "get_milestone_achievers/1" do
     setup do

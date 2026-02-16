@@ -11,8 +11,11 @@
 # and so on) as they will fail if something goes wrong.
 
 import Ecto.Query
-alias SummerChallenge.{Repo, Challenges}
-alias SummerChallenge.Model.{Challenge, Activity}
+
+alias SummerChallenge.Challenges
+alias SummerChallenge.Model.Activity
+alias SummerChallenge.Model.Challenge
+alias SummerChallenge.Repo
 
 # Clear existing challenges if any (for development)
 # First, nullify all activity challenge_id references
@@ -80,6 +83,4 @@ IO.puts("  ✓ Created: Winter Challenge 2026 (Future)")
 IO.puts("\nSeeds completed successfully!")
 IO.puts("Total challenges: #{Repo.aggregate(Challenge, :count)}")
 
-IO.puts(
-  "Active challenges: #{Repo.aggregate(from(c in Challenge, where: c.status != "archived"), :count)}"
-)
+IO.puts("Active challenges: #{Repo.aggregate(from(c in Challenge, where: c.status != "archived"), :count)}")

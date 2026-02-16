@@ -40,14 +40,16 @@ defmodule SummerChallenge.Leaderboards do
 
   def get_public_leaderboard(sport_group, opts)
       when sport_group in [:running_outdoor, :cycling_outdoor, :running_virtual, :cycling_virtual] do
+    import Ecto.Query
+
+    alias SummerChallenge.Model.Activity
+    alias SummerChallenge.Model.User
+    alias SummerChallenge.Repo
+
     challenge_id = Keyword.get(opts, :challenge_id)
 
     # Get sport types for this group from Challenge model
     sport_types = get_sport_types_for_group(sport_group)
-
-    import Ecto.Query
-    alias SummerChallenge.Repo
-    alias SummerChallenge.Model.{Activity, User}
 
     # Query to aggregate activities per user
     query =

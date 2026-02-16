@@ -8,14 +8,14 @@ defmodule SummerChallengeWeb.Layouts do
   """
   use Phoenix.Component
 
-  import SummerChallengeWeb.CoreComponents
-
-  # Routes generation with the ~p sigil
   use Phoenix.VerifiedRoutes,
     endpoint: SummerChallengeWeb.Endpoint,
     router: SummerChallengeWeb.Router,
     statics: SummerChallengeWeb.static_paths()
 
+  import SummerChallengeWeb.CoreComponents
+
+  # Routes generation with the ~p sigil
   @doc """
   The app layout renders the main application structure with
   navigation and flash messages.

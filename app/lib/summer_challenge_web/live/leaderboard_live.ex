@@ -9,9 +9,10 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   use SummerChallengeWeb, :live
 
-  alias SummerChallenge.{Leaderboards, Challenges}
-  alias SummerChallengeWeb.ViewModels.Leaderboard, as: LeaderboardVM
+  alias SummerChallenge.Challenges
+  alias SummerChallenge.Leaderboards
   alias SummerChallengeWeb.Live.Components.ChallengeSelector
+  alias SummerChallengeWeb.ViewModels.Leaderboard, as: LeaderboardVM
 
   @impl true
   def mount(_params, _session, socket) do
@@ -123,8 +124,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   @impl true
   def handle_event("refresh", _params, socket) do
     if socket.assigns.current_scope.authenticated? do
-      user_id = socket.assigns.current_scope.user_id
       require Logger
+
+      user_id = socket.assigns.current_scope.user_id
       Logger.info("Manual refresh triggered for user #{user_id}")
 
       case SummerChallenge.SyncService.sync_user(user_id) do
@@ -137,8 +139,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         {:error, reason} ->
           Logger.error("Manual refresh failed for user #{user_id}: #{inspect(reason)}")
 
-          {:noreply,
-           put_flash(socket, :error, "Failed to refresh activities: #{inspect(reason)}")}
+          {:noreply, put_flash(socket, :error, "Failed to refresh activities: #{inspect(reason)}")}
       end
     else
       {:noreply, socket}
@@ -255,11 +256,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   defp sport_category_to_label(:cycling_virtual), do: "Cycling (Virtual)"
 
   defp sport_category_to_label(sport),
-    do:
-      sport
-      |> to_string()
-      |> String.split("_")
-      |> Enum.map_join(" ", &String.capitalize/1)
+    do: sport |> to_string() |> String.split("_") |> Enum.map_join(" ", &String.capitalize/1)
 
   @spec format_sport_name(atom()) :: String.t()
   defp format_sport_name(sport), do: sport_category_to_label(sport)
@@ -288,8 +285,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   @spec build_sport_tabs([atom()], atom()) :: [LeaderboardVM.tab()]
   defp build_sport_tabs(available_sports, current_sport) do
-    available_sports
-    |> Enum.map(fn sport ->
+    Enum.map(available_sports, fn sport ->
       LeaderboardVM.tab(
         sport,
         "/leaderboard/#{sport}",

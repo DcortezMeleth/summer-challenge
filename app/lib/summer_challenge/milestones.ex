@@ -7,8 +7,10 @@ defmodule SummerChallenge.Milestones do
   """
 
   import Ecto.Query
+
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.User
   alias SummerChallenge.Repo
-  alias SummerChallenge.Model.{Activity, User}
 
   # 40 hours in seconds
   @milestone_threshold_seconds 40 * 60 * 60

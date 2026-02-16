@@ -45,7 +45,7 @@ defmodule SummerChallenge.AccountsTest do
       {:ok, updated_user} = Accounts.complete_onboarding(user.id, "Brand New Name")
 
       assert updated_user.display_name == "Brand New Name"
-      assert updated_user.joined_at != nil
+      assert updated_user.joined_at
     end
 
     test "does not update if display name is invalid" do
@@ -78,7 +78,7 @@ defmodule SummerChallenge.AccountsTest do
       token_data = %{
         access_token: "secret_access_token",
         refresh_token: "secret_refresh_token",
-        expires_at: DateTime.utc_now() |> DateTime.to_unix()
+        expires_at: DateTime.to_unix(DateTime.utc_now())
       }
 
       assert :ok = Accounts.store_credentials(user.id, token_data)

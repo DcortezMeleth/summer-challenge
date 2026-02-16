@@ -1,5 +1,21 @@
 import Config
 
+# Print only warnings and errors during test
+config :logger, level: :warning
+
+# Initialize plugs at runtime for faster test compilation
+config :phoenix, :plug_init_mode, :runtime
+
+config :phoenix_live_view,
+  # Enable helpful, but potentially expensive runtime checks
+  enable_expensive_runtime_checks: true
+
+# Disable Oban job processing in tests
+config :summer_challenge, Oban, testing: :manual
+
+# In test we don't send emails
+config :summer_challenge, SummerChallenge.Mailer, adapter: Swoosh.Adapters.Test
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
@@ -20,24 +36,8 @@ config :summer_challenge, SummerChallengeWeb.Endpoint,
   secret_key_base: "F2oFDcpi61xlLy5h5fr4qQ7N1aprmXpKO4OMN+jvtwZEmCQ1bWMAyTwOReD9iJ+m",
   server: false
 
-# In test we don't send emails
-config :summer_challenge, SummerChallenge.Mailer, adapter: Swoosh.Adapters.Test
-
-# Disable swoosh api client as it is only required for production adapters
-config :swoosh, :api_client, false
-
-# Print only warnings and errors during test
-config :logger, level: :warning
-
-# Initialize plugs at runtime for faster test compilation
-config :phoenix, :plug_init_mode, :runtime
-
 # Use mock for Strava client in tests
 config :summer_challenge, :strava_client, SummerChallenge.OAuth.StravaMock
 
-# Disable Oban job processing in tests
-config :summer_challenge, Oban, testing: :manual
-
-config :phoenix_live_view,
-  # Enable helpful, but potentially expensive runtime checks
-  enable_expensive_runtime_checks: true
+# Disable swoosh api client as it is only required for production adapters
+config :swoosh, :api_client, false

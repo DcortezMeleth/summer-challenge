@@ -8,7 +8,8 @@ defmodule SummerChallengeWeb.MilestoneLive do
 
   use SummerChallengeWeb, :live
 
-  alias SummerChallenge.{Milestones, Challenges}
+  alias SummerChallenge.Challenges
+  alias SummerChallenge.Milestones
   alias SummerChallengeWeb.Live.Components.ChallengeSelector
 
   @impl true

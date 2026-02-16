@@ -6,7 +6,11 @@ defmodule SummerChallenge.OAuth.Strava do
   token exchange, and profile fetching.
   """
 
+  @behaviour API
+
   use OAuth2.Strategy
+
+  alias OAuth2.Strategy.AuthCode
 
   # Define logic for mocking
   defmodule API do
@@ -18,13 +22,11 @@ defmodule SummerChallenge.OAuth.Strava do
     @callback refresh_token(String.t()) :: {:ok, map()} | {:error, term()}
   end
 
-  @behaviour API
-
   @doc """
   Returns the authorize URL for Strava OAuth.
   """
   def client do
-    OAuth2.Client.new(
+    [
       strategy: __MODULE__,
       client_id: Application.get_env(:summer_challenge, :strava_client_id),
       client_secret: Application.get_env(:summer_challenge, :strava_client_secret),
@@ -34,7 +36,8 @@ defmodule SummerChallenge.OAuth.Strava do
       site: "https://www.strava.com",
       authorize_url: "/oauth/authorize",
       token_url: "/oauth/token"
-    )
+    ]
+    |> OAuth2.Client.new()
     |> OAuth2.Client.put_serializer("application/json", Jason)
   end
 
@@ -43,11 +46,9 @@ defmodule SummerChallenge.OAuth.Strava do
   """
   @impl true
   def authorize_url!(params \\ []) do
-    client()
-    |> OAuth2.Client.authorize_url!(
-      Keyword.merge(params,
-        scope: "read,read_all,profile:read_all,activity:read,activity:read_all"
-      )
+    OAuth2.Client.authorize_url!(
+      client(),
+      Keyword.put(params, :scope, "read,read_all,profile:read_all,activity:read,activity:read_all")
     )
   end
 
@@ -64,6 +65,8 @@ defmodule SummerChallenge.OAuth.Strava do
   Custom token exchange implementation using Req to ensure form-encoded data.
   """
   def exchange_token(code) do
+    require Logger
+
     client = client()
 
     url = "#{client.site}#{client.token_url}"
@@ -80,7 +83,6 @@ defmodule SummerChallenge.OAuth.Strava do
       {"Content-Type", "application/x-www-form-urlencoded"}
     ]
 
-    require Logger
     Logger.info("OAuth Debug - Manual token exchange to: #{url}")
     Logger.info("OAuth Debug - Request body: #{inspect(body)}")
 
@@ -184,12 +186,13 @@ defmodule SummerChallenge.OAuth.Strava do
 
   @impl OAuth2.Strategy
   def authorize_url(client, params) do
-    OAuth2.Strategy.AuthCode.authorize_url(client, params)
+    AuthCode.authorize_url(client, params)
   end
 
   @impl OAuth2.Strategy
   def get_token(client, params, headers) do
     require Logger
+
     Logger.info("OAuth Debug - Token request params: #{inspect(params)}")
 
     Logger.info(
@@ -202,6 +205,6 @@ defmodule SummerChallenge.OAuth.Strava do
 
     client
     |> put_header("Accept", "application/json")
-    |> OAuth2.Strategy.AuthCode.get_token(params, headers)
+    |> AuthCode.get_token(params, headers)
   end
 end

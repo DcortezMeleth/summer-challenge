@@ -12,8 +12,8 @@ defmodule SummerChallenge.Challenges do
 
   import Ecto.Query, warn: false
 
-  alias SummerChallenge.Repo
   alias SummerChallenge.Model.Challenge
+  alias SummerChallenge.Repo
 
   @doc """
   Lists all challenges with optional filtering.
@@ -43,7 +43,8 @@ defmodule SummerChallenge.Challenges do
   """
   @spec list_challenges_for_selector(boolean()) :: [map()]
   def list_challenges_for_selector(include_archived \\ false) do
-    list_challenges(include_archived: include_archived, order_by: :selector_order)
+    [include_archived: include_archived, order_by: :selector_order]
+    |> list_challenges()
     |> Enum.map(&to_summary_dto/1)
   end
 
@@ -196,9 +197,7 @@ defmodule SummerChallenge.Challenges do
   defp apply_ordering(query, :selector_order) do
     now = DateTime.utc_now()
 
-    query
-    |> order_by([c],
-      # Active challenges first (status != archived AND within date range)
+    order_by(query, [c],
       desc:
         fragment(
           "CASE WHEN ? != 'archived' AND ? <= ? AND ? >= ? THEN 1 ELSE 0 END",
@@ -208,9 +207,11 @@ defmodule SummerChallenge.Challenges do
           c.end_date,
           ^now
         ),
-      # Then by start_date descending
       desc: c.start_date
     )
+
+    # Active challenges first (status != archived AND within date range)
+    # Then by start_date descending
   end
 
   defp apply_ordering(query, :start_date_asc) do

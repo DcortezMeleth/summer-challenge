@@ -74,12 +74,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
   defp sport_label(:running_virtual), do: "Running (Virtual)"
   defp sport_label(:cycling_virtual), do: "Cycling (Virtual)"
 
-  defp sport_label(sport),
-    do:
-      sport
-      |> to_string()
-      |> String.split("_")
-      |> Enum.map_join(" ", &String.capitalize/1)
+  defp sport_label(sport), do: sport |> to_string() |> String.split("_") |> Enum.map_join(" ", &String.capitalize/1)
 
   @doc """
   Creates a leaderboard row view model from a DTO entry.
@@ -94,12 +89,7 @@ defmodule SummerChallengeWeb.ViewModels.Leaderboard do
   def row(%{
         rank: rank,
         user: %{display_name: display_name, team_name: team_name},
-        totals: %{
-          distance_m: distance,
-          moving_time_s: time,
-          elev_gain_m: elevation,
-          activity_count: count
-        }
+        totals: %{distance_m: distance, moving_time_s: time, elev_gain_m: elevation, activity_count: count}
       }) do
     %{
       rank: rank,

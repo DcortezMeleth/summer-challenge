@@ -8,7 +8,8 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
 
   use SummerChallengeWeb, :live
 
-  alias SummerChallenge.{Activities, Challenges}
+  alias SummerChallenge.Activities
+  alias SummerChallenge.Challenges
   alias SummerChallengeWeb.Live.Components.ChallengeSelector
 
   @impl true
@@ -144,9 +145,7 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
   def handle_info({:challenge_selected, challenge_id}, socket) do
     user_id = socket.assigns.current_scope.user_id
 
-    socket =
-      socket
-      |> assign(:selected_challenge_id, challenge_id)
+    socket = assign(socket, :selected_challenge_id, challenge_id)
 
     case load_activities_data(user_id, challenge_id) do
       {:ok, page_data} ->

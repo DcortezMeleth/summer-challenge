@@ -10,12 +10,14 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   import Phoenix.Component
   import Phoenix.LiveView, only: [put_flash: 3, redirect: 2]
 
+  alias Phoenix.LiveView.Socket
   alias SummerChallenge.Accounts
 
-  @spec on_mount(atom(), map(), map(), Phoenix.LiveView.Socket.t()) ::
-          {:cont, Phoenix.LiveView.Socket.t()} | {:halt, Phoenix.LiveView.Socket.t()}
+  @spec on_mount(atom(), map(), map(), Socket.t()) ::
+          {:cont, Socket.t()} | {:halt, Socket.t()}
   def on_mount(:require_authenticated_user, _params, %{"user_id" => user_id}, socket) do
     require Logger
+
     Logger.info("Auth hook: user_id from session: #{inspect(user_id)}")
 
     case Accounts.get_user(user_id) do
@@ -68,8 +70,8 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   ## Returns
   - `{:cont, socket}` always
   """
-  @spec on_mount(:optional, map(), map(), Phoenix.LiveView.Socket.t()) ::
-          {:cont, Phoenix.LiveView.Socket.t()}
+  @spec on_mount(:optional, map(), map(), Socket.t()) ::
+          {:cont, Socket.t()}
   def on_mount(:optional, _params, %{"user_id" => user_id}, socket) do
     case Accounts.get_user(user_id) do
       nil ->
@@ -106,6 +108,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   # Admin-only mount hook - requires authentication AND admin privileges
   def on_mount(:require_admin, _params, %{"user_id" => user_id}, socket) do
     require Logger
+
     Logger.info("Auth hook (admin): user_id from session: #{inspect(user_id)}")
 
     case Accounts.get_user(user_id) do

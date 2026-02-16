@@ -10,6 +10,9 @@ defmodule SummerChallengeWeb.CoreComponents do
   """
   use Phoenix.Component
 
+  alias Phoenix.HTML.Form
+  alias Phoenix.HTML.FormField
+
   @doc """
   Renders a [Hero Icon](https://heroicons.com).
 
@@ -467,7 +470,7 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   Handles form submission, validation, and error display for the display name input.
   """
-  attr :form, Phoenix.HTML.Form, required: true
+  attr :form, Form, required: true
   attr :saving?, :boolean, required: true
   attr :submit_label, :string, default: "Continue"
   attr :focus_field, :atom, default: nil
@@ -558,12 +561,10 @@ defmodule SummerChallengeWeb.CoreComponents do
 
   attr :type, :string,
     default: "text",
-    values:
-      ~w(checkbox color date datetime-local email file hidden month number password
+    values: ~w(checkbox color date datetime-local email file hidden month number password
                                            range radio search select tel text textarea time url week)
 
-  attr :field, Phoenix.HTML.FormField,
-    doc: "a form field struct retrieved from the form, for example: @form[:email]"
+  attr :field, FormField, doc: "a form field struct retrieved from the form, for example: @form[:email]"
 
   attr :errors, :list, default: []
   attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
@@ -571,13 +572,12 @@ defmodule SummerChallengeWeb.CoreComponents do
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
 
-  attr :rest, :global,
-    include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
+  attr :rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                                   multiple pattern placeholder readonly required rows size step)
 
   slot :inner_block
 
-  def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+  def input(%{field: %FormField{} = field} = assigns) do
     assigns
     |> assign(field: nil, id: assigns.id || field.id)
     |> assign(:errors, Enum.map(field.errors, &translate_error/1))
@@ -589,7 +589,7 @@ defmodule SummerChallengeWeb.CoreComponents do
   def input(%{type: "checkbox"} = assigns) do
     assigns =
       assign_new(assigns, :checked, fn ->
-        Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
+        Form.normalize_value("checkbox", assigns[:value])
       end)
 
     ~H"""

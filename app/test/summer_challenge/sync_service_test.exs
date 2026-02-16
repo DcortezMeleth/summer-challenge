@@ -1,10 +1,14 @@
 defmodule SummerChallenge.SyncServiceTest do
   use SummerChallenge.DataCase
+
   import Mox
 
-  alias SummerChallenge.SyncService
   alias SummerChallenge.Challenges
-  alias SummerChallenge.Model.{User, UserCredential, Activity}
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.User
+  alias SummerChallenge.Model.UserCredential
+  alias SummerChallenge.OAuth.StravaMock
+  alias SummerChallenge.SyncService
 
   setup :verify_on_exit!
 
@@ -27,8 +31,7 @@ defmodule SummerChallenge.SyncServiceTest do
         user_id: user.id,
         access_token: "old_access_token",
         refresh_token: "refresh_token",
-        expires_at:
-          DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:microsecond)
+        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:microsecond)
       })
 
       {:ok, user: user, challenge: challenge}
@@ -37,8 +40,7 @@ defmodule SummerChallenge.SyncServiceTest do
     test "syncs activities if token is valid", %{user: user, challenge: challenge} do
       user = Repo.preload(user, :credential)
 
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:list_activities, fn %{access_token: "old_access_token"}, _params ->
+      expect(StravaMock, :list_activities, fn %{access_token: "old_access_token"}, _params ->
         {:ok,
          [
            %{
@@ -69,13 +71,13 @@ defmodule SummerChallenge.SyncServiceTest do
       user = Repo.preload(user, :credential)
 
       user.credential
-      |> Ecto.Changeset.change(%{expires_at: DateTime.utc_now() |> DateTime.add(-3600, :second)})
+      |> Ecto.Changeset.change(%{expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)})
       |> Repo.update!()
 
       # Reload user to get the updated credential
-      user = Repo.get(User, user.id) |> Repo.preload(:credential)
+      user = User |> Repo.get(user.id) |> Repo.preload(:credential)
 
-      SummerChallenge.OAuth.StravaMock
+      StravaMock
       |> expect(:refresh_token, fn "refresh_token" ->
         {:ok,
          %{
@@ -97,8 +99,7 @@ defmodule SummerChallenge.SyncServiceTest do
     test "filters activities by dates and sport types", %{user: user, challenge: challenge} do
       user = Repo.preload(user, :credential)
 
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:list_activities, fn %{access_token: "old_access_token"}, _params ->
+      expect(StravaMock, :list_activities, fn %{access_token: "old_access_token"}, _params ->
         {:ok,
          [
            # Valid
@@ -151,8 +152,7 @@ defmodule SummerChallenge.SyncServiceTest do
     test "uses default challenge when no challenge is provided", %{user: user} do
       user = Repo.preload(user, :credential)
 
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:list_activities, fn %{access_token: "old_access_token"}, _params ->
+      expect(StravaMock, :list_activities, fn %{access_token: "old_access_token"}, _params ->
         {:ok,
          [
            %{
@@ -178,8 +178,7 @@ defmodule SummerChallenge.SyncServiceTest do
     end
 
     test "uses default challenge when called with user_id", %{user: user} do
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:list_activities, fn %{access_token: "old_access_token"}, _params ->
+      expect(StravaMock, :list_activities, fn %{access_token: "old_access_token"}, _params ->
         {:ok,
          [
            %{
@@ -209,8 +208,8 @@ defmodule SummerChallenge.SyncServiceTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Active Challenge",
-          start_date: DateTime.utc_now() |> DateTime.add(-7, :day),
-          end_date: DateTime.utc_now() |> DateTime.add(7, :day),
+          start_date: DateTime.add(DateTime.utc_now(), -7, :day),
+          end_date: DateTime.add(DateTime.utc_now(), 7, :day),
           allowed_sport_types: ["Run", "Ride"],
           status: "active"
         })
@@ -222,28 +221,27 @@ defmodule SummerChallenge.SyncServiceTest do
         user_id: user1.id,
         access_token: "token1",
         refresh_token: "refresh1",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second)
+        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
       })
 
       Repo.insert!(%UserCredential{
         user_id: user2.id,
         access_token: "token2",
         refresh_token: "refresh2",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second)
+        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
       })
 
       {:ok, challenge: challenge, user1: user1, user2: user2}
     end
 
     test "syncs all users using default challenge", %{challenge: challenge} do
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:list_activities, 2, fn %{access_token: _token}, _params ->
+      expect(StravaMock, :list_activities, 2, fn %{access_token: _token}, _params ->
         {:ok,
          [
            %{
              "id" => :rand.uniform(100_000),
              "type" => "Run",
-             "start_date" => DateTime.utc_now() |> DateTime.to_iso8601(),
+             "start_date" => DateTime.to_iso8601(DateTime.utc_now()),
              "distance" => 5000,
              "moving_time" => 1800,
              "total_elevation_gain" => 100

@@ -7,7 +7,10 @@ defmodule SummerChallenge.Model.Team do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+
+  alias SummerChallenge.Model.User
 
   @type t :: %__MODULE__{}
 
@@ -16,9 +19,9 @@ defmodule SummerChallenge.Model.Team do
   schema "teams" do
     field :name, :string
 
-    belongs_to :owner, SummerChallenge.Model.User, foreign_key: :owner_user_id
+    belongs_to :owner, User, foreign_key: :owner_user_id
 
-    has_many :members, SummerChallenge.Model.User, foreign_key: :team_id
+    has_many :members, User, foreign_key: :team_id
 
     timestamps(type: :utc_datetime_usec)
   end

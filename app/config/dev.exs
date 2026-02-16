@@ -1,5 +1,15 @@
 import Config
 
+# Do not include metadata nor timestamps in development logs
+config :logger, :default_formatter, format: "[$level] $message\n"
+
+# Initialize plugs at runtime for faster development compilation
+config :phoenix, :plug_init_mode, :runtime
+
+# Set a higher stacktrace during development. Avoid configuring such
+# in production as building large stacktraces may be expensive.
+config :phoenix, :stacktrace_depth, 20
+
 # Configure your database
 config :summer_challenge, SummerChallenge.Repo,
   username: "bsadel",
@@ -55,29 +65,18 @@ config :summer_challenge, SummerChallengeWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :summer_challenge, dev_routes: true
 
-# Do not include metadata nor timestamps in development logs
-config :logger, :default_formatter, format: "[$level] $message\n"
-
-# Set a higher stacktrace during development. Avoid configuring such
-# in production as building large stacktraces may be expensive.
-config :phoenix, :stacktrace_depth, 20
-
-# Initialize plugs at runtime for faster development compilation
-config :phoenix, :plug_init_mode, :runtime
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
-
 # Strava OAuth configuration
 # Secrets are loaded from environment variables or dev.secret.exs (gitignored)
 config :summer_challenge,
   strava_client_id: System.get_env("STRAVA_CLIENT_ID"),
   strava_client_secret: System.get_env("STRAVA_CLIENT_SECRET"),
-  strava_redirect_uri:
-    System.get_env("STRAVA_REDIRECT_URI") || "http://localhost:4000/auth/strava/callback",
+  strava_redirect_uri: System.get_env("STRAVA_REDIRECT_URI") || "http://localhost:4000/auth/strava/callback",
   admin_emails: System.get_env("ADMIN_EMAILS") || ""
 
 # Import secret configuration file if it exists (gitignored)
+# Disable swoosh api client as it is only required for production adapters.
+config :swoosh, :api_client, false
+
 if File.exists?("config/dev.secret.exs") do
   import_config "dev.secret.exs"
 end

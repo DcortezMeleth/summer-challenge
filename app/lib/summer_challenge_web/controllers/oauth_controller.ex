@@ -61,60 +61,53 @@ defmodule SummerChallengeWeb.OAuthController do
 
   @spec exchange_code_for_token(String.t()) :: {:ok, map()} | {:error, term()}
   defp exchange_code_for_token(code) do
-    try do
-      # Debug: Log the configuration being used
-      client_id = Application.get_env(:summer_challenge, :strava_client_id)
-      client_secret = Application.get_env(:summer_challenge, :strava_client_secret)
-      require Logger
+    require Logger
+    # Debug: Log the configuration being used
+    client_id = Application.get_env(:summer_challenge, :strava_client_id)
+    client_secret = Application.get_env(:summer_challenge, :strava_client_secret)
+    Logger.info("OAuth Debug - Client ID: #{client_id}, Secret length: #{String.length(client_secret)}")
 
-      Logger.info(
-        "OAuth Debug - Client ID: #{client_id}, Secret length: #{String.length(client_secret)}"
-      )
+    # Exchange authorization code for access token
+    token = strava_client().get_token!(code: code)
 
-      # Exchange authorization code for access token
-      token = strava_client().get_token!(code: code)
+    # Fetch athlete profile
+    case strava_client().get_athlete(token) do
+      {:ok, athlete} ->
+        {:ok, %{token: token, athlete: athlete}}
 
-      # Fetch athlete profile
-      case strava_client().get_athlete(token) do
-        {:ok, athlete} ->
-          {:ok, %{token: token, athlete: athlete}}
-
-        {:error, reason} ->
-          {:error, "Failed to fetch athlete profile: #{reason}"}
-      end
-    rescue
-      e in OAuth2.Error ->
-        {:error, "OAuth error: #{e.reason}"}
-
-      e ->
-        {:error, "Unexpected error: #{inspect(e)}"}
+      {:error, reason} ->
+        {:error, "Failed to fetch athlete profile: #{reason}"}
     end
+  rescue
+    e in OAuth2.Error ->
+      {:error, "OAuth error: #{e.reason}"}
+
+    e ->
+      {:error, "Unexpected error: #{inspect(e)}"}
   end
 
   @spec handle_successful_auth(Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp handle_successful_auth(conn, %{token: token, athlete: athlete}) do
-    try do
-      # Create or update user from Strava profile
-      case Accounts.find_or_create_user_from_strava(athlete) do
-        {:ok, user} ->
-          # Store credentials
-          :ok = Accounts.store_credentials(user.id, token_to_map(token))
+    # Create or update user from Strava profile
+    case Accounts.find_or_create_user_from_strava(athlete) do
+      {:ok, user} ->
+        # Store credentials
+        :ok = Accounts.store_credentials(user.id, token_to_map(token))
 
-          # Set session and redirect
-          redirect_path = determine_redirect_path(user)
+        # Set session and redirect
+        redirect_path = determine_redirect_path(user)
 
-          conn
-          |> put_session(:user_id, user.id)
-          |> put_flash(:info, "Successfully signed in!")
-          |> redirect(to: redirect_path)
+        conn
+        |> put_session(:user_id, user.id)
+        |> put_flash(:info, "Successfully signed in!")
+        |> redirect(to: redirect_path)
 
-        {:error, reason} ->
-          handle_auth_error(conn, "Failed to create user: #{inspect(reason)}")
-      end
-    rescue
-      e ->
-        handle_auth_error(conn, "Unexpected error during authentication: #{inspect(e)}")
+      {:error, reason} ->
+        handle_auth_error(conn, "Failed to create user: #{inspect(reason)}")
     end
+  rescue
+    e ->
+      handle_auth_error(conn, "Unexpected error during authentication: #{inspect(e)}")
   end
 
   @spec handle_auth_error(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
@@ -150,6 +143,6 @@ defmodule SummerChallengeWeb.OAuthController do
   defp generate_state do
     # Generate a random state for CSRF protection
     # In production, store this in session and verify
-    :crypto.strong_rand_bytes(32) |> Base.encode64()
+    32 |> :crypto.strong_rand_bytes() |> Base.encode64()
   end
 end

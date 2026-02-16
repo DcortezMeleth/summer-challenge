@@ -3,12 +3,15 @@ defmodule SummerChallenge.Model.UserCredential do
   Schema for storing encrypted user credentials.
   """
   use Ecto.Schema
+
   import Ecto.Changeset
+
+  alias SummerChallenge.Vault.Encrypted.Binary
 
   @primary_key {:user_id, :binary_id, autogenerate: false}
   schema "user_credentials" do
-    field :access_token, SummerChallenge.Vault.Encrypted.Binary, source: :access_token_enc
-    field :refresh_token, SummerChallenge.Vault.Encrypted.Binary, source: :refresh_token_enc
+    field :access_token, Binary, source: :access_token_enc
+    field :refresh_token, Binary, source: :refresh_token_enc
     field :expires_at, :utc_datetime_usec
 
     belongs_to :user, SummerChallenge.Model.User, define_field: false

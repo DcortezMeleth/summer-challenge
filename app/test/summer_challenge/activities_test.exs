@@ -1,8 +1,11 @@
 defmodule SummerChallenge.ActivitiesTest do
   use SummerChallenge.DataCase
 
-  alias SummerChallenge.{Activities, Challenges, Repo}
-  alias SummerChallenge.Model.{User, Activity}
+  alias SummerChallenge.Activities
+  alias SummerChallenge.Challenges
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.User
+  alias SummerChallenge.Repo
 
   describe "get_user_activities/2" do
     setup do

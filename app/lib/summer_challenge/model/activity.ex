@@ -7,6 +7,7 @@ defmodule SummerChallenge.Model.Activity do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

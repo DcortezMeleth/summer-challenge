@@ -4,9 +4,12 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
 
   import Mox
 
-  alias SummerChallenge.Workers.SyncAllWorker
   alias SummerChallenge.Challenges
-  alias SummerChallenge.Model.{User, UserCredential, Activity}
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.User
+  alias SummerChallenge.Model.UserCredential
+  alias SummerChallenge.OAuth.StravaMock
+  alias SummerChallenge.Workers.SyncAllWorker
 
   setup :verify_on_exit!
 
@@ -16,8 +19,8 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Test Challenge",
-          start_date: DateTime.utc_now() |> DateTime.add(-7, :day),
-          end_date: DateTime.utc_now() |> DateTime.add(7, :day),
+          start_date: DateTime.add(DateTime.utc_now(), -7, :day),
+          end_date: DateTime.add(DateTime.utc_now(), 7, :day),
           allowed_sport_types: ["Run", "Ride"],
           status: "active"
         })
@@ -29,28 +32,27 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
         user_id: user1.id,
         access_token: "token1",
         refresh_token: "refresh1",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second)
+        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
       })
 
       Repo.insert!(%UserCredential{
         user_id: user2.id,
         access_token: "token2",
         refresh_token: "refresh2",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second)
+        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
       })
 
       {:ok, challenge: challenge, user1: user1, user2: user2}
     end
 
     test "successfully syncs all users", %{challenge: challenge} do
-      SummerChallenge.OAuth.StravaMock
-      |> expect(:list_activities, 2, fn %{access_token: _token}, _params ->
+      expect(StravaMock, :list_activities, 2, fn %{access_token: _token}, _params ->
         {:ok,
          [
            %{
              "id" => :rand.uniform(100_000),
              "type" => "Run",
-             "start_date" => DateTime.utc_now() |> DateTime.to_iso8601(),
+             "start_date" => DateTime.to_iso8601(DateTime.utc_now()),
              "distance" => 5000,
              "moving_time" => 1800,
              "total_elevation_gain" => 100
@@ -79,7 +81,7 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
 
     test "returns stats even when some users fail" do
       # Make one user's sync fail by having the API return an error
-      SummerChallenge.OAuth.StravaMock
+      StravaMock
       |> expect(:list_activities, fn %{access_token: "token1"}, _params ->
         {:error, :api_error}
       end)
@@ -96,7 +98,7 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
 
     test "can be enqueued" do
       # Test that the job can be enqueued successfully
-      assert {:ok, %Oban.Job{}} = SyncAllWorker.new(%{}) |> Oban.insert()
+      assert {:ok, %Oban.Job{}} = %{} |> SyncAllWorker.new() |> Oban.insert()
 
       # Verify job is in the queue
       assert_enqueued(worker: SyncAllWorker)
@@ -104,10 +106,10 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
 
     test "enforces unique constraint to prevent duplicate jobs" do
       # Insert first job
-      assert {:ok, job1} = SyncAllWorker.new(%{}) |> Oban.insert()
+      assert {:ok, job1} = %{} |> SyncAllWorker.new() |> Oban.insert()
 
       # Try to insert duplicate job (should return the same job due to unique constraint)
-      assert {:ok, job2} = SyncAllWorker.new(%{}) |> Oban.insert()
+      assert {:ok, job2} = %{} |> SyncAllWorker.new() |> Oban.insert()
 
       # Should be the same job ID due to unique constraint
       assert job1.id == job2.id

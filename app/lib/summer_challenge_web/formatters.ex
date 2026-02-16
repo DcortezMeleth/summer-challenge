@@ -20,7 +20,7 @@ defmodule SummerChallengeWeb.Formatters do
   @spec format_km(non_neg_integer()) :: String.t()
   def format_km(distance_m) when is_integer(distance_m) and distance_m >= 0 do
     km = distance_m / 1000.0
-    :io_lib.format("~.1f km", [km]) |> to_string()
+    "~.1f km" |> :io_lib.format([km]) |> to_string()
   end
 
   @doc """
@@ -43,7 +43,8 @@ defmodule SummerChallengeWeb.Formatters do
     minutes = div(rem(seconds, 3600), 60)
     remaining_seconds = rem(seconds, 60)
 
-    :io_lib.format("~2..0B:~2..0B:~2..0B", [hours, minutes, remaining_seconds])
+    "~2..0B:~2..0B:~2..0B"
+    |> :io_lib.format([hours, minutes, remaining_seconds])
     |> to_string()
   end
 

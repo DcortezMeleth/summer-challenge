@@ -3,11 +3,14 @@ defmodule SummerChallenge.SyncService do
   Service for synchronizing activities from Strava for all eligible users.
   """
 
-  require Logger
   alias SummerChallenge.Accounts
-  alias SummerChallenge.Repo
   alias SummerChallenge.Challenges
-  alias SummerChallenge.Model.{User, Activity, Challenge}
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.Challenge
+  alias SummerChallenge.Model.User
+  alias SummerChallenge.Repo
+
+  require Logger
 
   defp strava_client, do: Application.get_env(:summer_challenge, :strava_client)
 
@@ -79,7 +82,7 @@ defmodule SummerChallenge.SyncService do
 
   defp ensure_valid_token(%User{credential: credential} = user) do
     # buffer of 5 minutes
-    if DateTime.compare(credential.expires_at, DateTime.add(DateTime.utc_now(), 300)) == :gt do
+    if DateTime.after?(credential.expires_at, DateTime.add(DateTime.utc_now(), 300)) do
       {:ok, %{access_token: credential.access_token}}
     else
       Logger.info("Refreshing token for user #{user.id}")
@@ -97,7 +100,7 @@ defmodule SummerChallenge.SyncService do
       if user.last_synced_at do
         DateTime.to_unix(user.last_synced_at)
       else
-        challenge.start_date |> DateTime.to_unix()
+        DateTime.to_unix(challenge.start_date)
       end
 
     Logger.info("Fetching activities for user #{user.id} since #{after_timestamp}")
@@ -119,7 +122,7 @@ defmodule SummerChallenge.SyncService do
 
     activities
     |> Enum.filter(fn activity_data ->
-      start_at = activity_data["start_date"] |> parse_iso8601!()
+      start_at = parse_iso8601!(activity_data["start_date"])
 
       # Filter by challenge window and activity type
       DateTime.compare(start_at, challenge.end_date) != :gt and
@@ -132,7 +135,7 @@ defmodule SummerChallenge.SyncService do
         challenge_id: challenge.id,
         strava_id: activity_data["id"],
         sport_type: activity_data["type"],
-        start_at: activity_data["start_date"] |> parse_iso8601!(),
+        start_at: parse_iso8601!(activity_data["start_date"]),
         distance_m: round(activity_data["distance"]),
         moving_time_s: activity_data["moving_time"],
         elev_gain_m: round(activity_data["total_elevation_gain"] || 0)
@@ -141,8 +144,7 @@ defmodule SummerChallenge.SyncService do
       %Activity{}
       |> Activity.changeset(attrs)
       |> Repo.insert(
-        on_conflict:
-          {:replace_all_except, [:id, :inserted_at, :user_id, :strava_id, :sport_category]},
+        on_conflict: {:replace_all_except, [:id, :inserted_at, :user_id, :strava_id, :sport_category]},
         conflict_target: :strava_id
       )
     end)

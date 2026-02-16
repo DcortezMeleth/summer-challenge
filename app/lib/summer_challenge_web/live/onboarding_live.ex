@@ -10,8 +10,8 @@ defmodule SummerChallengeWeb.OnboardingLive do
   use SummerChallengeWeb, :live
 
   alias SummerChallenge.Accounts
-  alias SummerChallengeWeb.ViewModels.Onboarding, as: OnboardingVM
   alias SummerChallenge.Model.Types
+  alias SummerChallengeWeb.ViewModels.Onboarding, as: OnboardingVM
 
   @impl true
   def mount(_params, _session, socket) do
@@ -38,9 +38,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
   def handle_params(params, _uri, socket) do
     return_to = OnboardingVM.sanitize_return_to(params["return_to"])
 
-    socket =
-      socket
-      |> assign(:return_to, return_to)
+    socket = assign(socket, :return_to, return_to)
 
     {:noreply, socket}
   end
@@ -48,7 +46,8 @@ defmodule SummerChallengeWeb.OnboardingLive do
   @impl true
   def handle_event("validate", %{"onboarding" => params}, socket) do
     changeset =
-      validate_display_name(params)
+      params
+      |> validate_display_name()
       |> Map.put(:action, :validate)
 
     page = OnboardingVM.build_page(changeset, nil, nil)
@@ -72,9 +71,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
           # Update socket with new user data and navigate to safe return destination
           return_path = socket.assigns.return_to || "/leaderboard"
 
-          socket =
-            socket
-            |> assign(:current_user, updated_user)
+          socket = assign(socket, :current_user, updated_user)
 
           {:noreply, push_navigate(socket, to: return_path)}
 
@@ -124,8 +121,7 @@ defmodule SummerChallengeWeb.OnboardingLive do
     data = %{display_name: current_user.display_name || ""}
     types = %{display_name: :string}
 
-    {data, types}
-    |> Ecto.Changeset.cast(%{}, [:display_name])
+    Ecto.Changeset.cast({data, types}, %{}, [:display_name])
   end
 
   @spec validate_display_name(map()) :: Ecto.Changeset.t()

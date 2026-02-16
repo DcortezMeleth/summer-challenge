@@ -2,7 +2,8 @@ defmodule SummerChallenge.LeaderboardsTest do
   use SummerChallenge.DataCase
 
   alias SummerChallenge.Leaderboards
-  alias SummerChallenge.Model.{Activity, User}
+  alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.User
 
   describe "get_public_leaderboard/1" do
     setup do
@@ -123,7 +124,7 @@ defmodule SummerChallenge.LeaderboardsTest do
       {:ok, %{entries: outdoor_run_entries}} =
         Leaderboards.get_public_leaderboard(:running_outdoor)
 
-      refute Enum.find(outdoor_run_entries, &(&1.user.id == user.id))
+      refute Enum.any?(outdoor_run_entries, &(&1.user.id == user.id))
 
       {:ok, %{entries: virtual_run_entries}} =
         Leaderboards.get_public_leaderboard(:running_virtual)
@@ -135,7 +136,7 @@ defmodule SummerChallenge.LeaderboardsTest do
       {:ok, %{entries: outdoor_ride_entries}} =
         Leaderboards.get_public_leaderboard(:cycling_outdoor)
 
-      refute Enum.find(outdoor_ride_entries, &(&1.user.id == user.id))
+      refute Enum.any?(outdoor_ride_entries, &(&1.user.id == user.id))
 
       {:ok, %{entries: virtual_ride_entries}} =
         Leaderboards.get_public_leaderboard(:cycling_virtual)
