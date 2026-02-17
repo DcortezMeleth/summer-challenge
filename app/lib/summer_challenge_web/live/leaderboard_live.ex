@@ -32,7 +32,10 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         {:error, :no_challenges} -> nil
       end
 
-    socket = assign(socket, :selected_challenge_id, selected_challenge_id)
+    socket =
+      socket
+      |> assign(:selected_challenge_id, selected_challenge_id)
+      |> assign(:current_path, "/leaderboard")
 
     {:ok, socket}
   end
@@ -84,7 +87,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     ~H"""
     <.app_shell>
       <:top_bar>
-        <.auth_section current_scope={@current_scope} current_user={@current_user} />
+        <.auth_section current_scope={@current_scope} current_user={@current_user} current_path={@current_path} />
       </:top_bar>
 
       <:challenge_selector>

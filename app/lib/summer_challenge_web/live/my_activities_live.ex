@@ -25,6 +25,7 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
       socket
       |> assign(:selected_challenge_id, selected_challenge_id)
       |> assign(:toggling_activity_id, nil)
+      |> assign(:current_path, "/my/activities")
 
     {:ok, socket}
   end
@@ -53,7 +54,7 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
     ~H"""
     <.app_shell>
       <:top_bar>
-        <.auth_section current_scope={@current_scope} current_user={@current_user} />
+        <.auth_section current_scope={@current_scope} current_user={@current_user} current_path={@current_path} />
       </:top_bar>
 
       <:challenge_selector>

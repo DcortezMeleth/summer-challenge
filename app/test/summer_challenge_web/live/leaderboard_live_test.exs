@@ -9,7 +9,7 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
 
       assert html =~ "Connect with Strava"
       refute html =~ "Sign out"
-      refute html =~ "Welcome,"
+      refute html =~ "Ready to compete"
     end
 
     test "shows welcome message and sign out button for authenticated users", %{conn: conn} do
@@ -33,7 +33,8 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
 
       {:ok, _view, html} = live(conn, ~p"/leaderboard/running_outdoor")
 
-      assert html =~ "Welcome, Test Athlete!"
+      assert html =~ "Test Athlete"
+      assert html =~ "Ready to compete"
       assert html =~ "Sign out"
       assert html =~ "href=\"/auth/logout\""
       assert html =~ "data-method=\"delete\""
