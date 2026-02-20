@@ -15,6 +15,8 @@ defmodule SummerChallenge.Application do
       {Phoenix.PubSub, name: SummerChallenge.PubSub},
       # Start Oban for background job processing
       {Oban, Application.fetch_env!(:summer_challenge, Oban)},
+      # On startup, enqueue a catch-up sync if the last sync was more than 23 hours ago
+      {Task, fn -> SummerChallenge.Workers.StartupSyncCheck.run() end},
       # Start to serve requests, typically the last entry
       SummerChallengeWeb.Endpoint
     ]
