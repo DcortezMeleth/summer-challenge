@@ -15,12 +15,11 @@ defmodule SummerChallengeWeb.Layouts do
 
   import SummerChallengeWeb.CoreComponents
 
-  # Routes generation with the ~p sigil
   @doc """
-  The app layout renders the main application structure with
-  navigation and flash messages.
+  The root layout renders the HTML shell: doctype, head, CSS/JS tags.
+  This is only re-rendered on full page loads, NOT during live navigation.
   """
-  def app(assigns) do
+  def root(assigns) do
     ~H"""
     <!DOCTYPE html>
     <html lang="en" class="[scrollbar-gutter:stable]">
@@ -36,10 +35,20 @@ defmodule SummerChallengeWeb.Layouts do
         </script>
       </head>
       <body class="min-h-screen bg-ui-50 text-ui-900 antialiased">
-        <.flash_group flash={@flash} />
         <%= @inner_content %>
       </body>
     </html>
+    """
+  end
+
+  @doc """
+  The app layout wraps LiveView content. This is what gets
+  re-rendered during live navigation (no full page reload).
+  """
+  def app(assigns) do
+    ~H"""
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
     """
   end
 

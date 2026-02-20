@@ -14,7 +14,6 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    # Load default challenge
     selected_challenge_id =
       case Challenges.get_default_challenge() do
         {:ok, challenge} -> challenge.id

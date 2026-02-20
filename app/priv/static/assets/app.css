@@ -1716,8 +1716,6 @@ video {
   scrollbar-gutter: stable;
 }
 
-/* Global polish (keep minimal; most styling comes from Tailwind classes). */
-
 html {
   text-rendering: optimizeLegibility;
 }
@@ -1966,5 +1964,3 @@ html {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-
-

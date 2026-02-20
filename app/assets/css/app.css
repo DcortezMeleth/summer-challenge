@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global polish (keep minimal; most styling comes from Tailwind classes). */
 html {
   text-rendering: optimizeLegibility;
 }
@@ -37,5 +36,3 @@ html {
     transform: scale(0.95);
   }
 }
-
-
