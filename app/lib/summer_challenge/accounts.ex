@@ -107,8 +107,7 @@ defmodule SummerChallenge.Accounts do
         create_user_from_strava(athlete)
 
       existing_user ->
-        # Update existing user (could refresh profile data in future)
-        {:ok, existing_user}
+        update_user_profile_from_strava(existing_user, athlete)
     end
   end
 
@@ -220,22 +219,47 @@ defmodule SummerChallenge.Accounts do
   defp create_user_from_strava(athlete) do
     display_name = generate_display_name(athlete)
     is_admin = check_admin_status(athlete)
+    profile_image_url = athlete["profile_medium"] || athlete["profile"]
 
     %User{}
     |> Ecto.Changeset.change(%{
       strava_athlete_id: athlete["id"],
       display_name: display_name,
-      is_admin: is_admin
+      is_admin: is_admin,
+      profile_image_url: profile_image_url
     })
     |> Repo.insert()
     |> case do
       {:ok, user} ->
-        # Preload team association for consistency
         user = Repo.preload(user, :team)
         {:ok, user_to_dto(user)}
 
       {:error, changeset} ->
         {:error, changeset}
+    end
+  end
+
+  @spec update_user_profile_from_strava(Types.user_dto(), map()) ::
+          {:ok, Types.user_dto()} | {:error, Ecto.Changeset.t()}
+  defp update_user_profile_from_strava(user_dto, athlete) do
+    profile_image_url = athlete["profile_medium"] || athlete["profile"]
+
+    case Repo.get(User, user_dto.id) do
+      nil ->
+        {:ok, user_dto}
+
+      user ->
+        user
+        |> Ecto.Changeset.change(%{profile_image_url: profile_image_url})
+        |> Repo.update()
+        |> case do
+          {:ok, updated_user} ->
+            updated_user = Repo.preload(updated_user, :team)
+            {:ok, user_to_dto(updated_user)}
+
+          {:error, changeset} ->
+            {:error, changeset}
+        end
     end
   end
 
@@ -289,6 +313,7 @@ defmodule SummerChallenge.Accounts do
     %{
       id: user.id,
       display_name: user.display_name,
+      profile_image_url: user.profile_image_url,
       is_admin: user.is_admin,
       team_id: team_id,
       team_name: team_name,

@@ -17,6 +17,7 @@ defmodule SummerChallenge.Model.User do
   schema "users" do
     field :display_name, :string
     field :strava_athlete_id, :integer
+    field :profile_image_url, :string
     field :joined_at, :utc_datetime_usec
     field :last_synced_at, :utc_datetime_usec
     field :last_sync_error, :string

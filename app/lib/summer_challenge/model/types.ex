@@ -26,6 +26,7 @@ defmodule SummerChallenge.Model.Types do
   @type user_dto :: %{
           id: uuid(),
           display_name: String.t(),
+          profile_image_url: String.t() | nil,
           is_admin: boolean(),
           team_id: uuid() | nil,
           team_name: String.t() | nil,

@@ -708,9 +708,17 @@ defmodule SummerChallengeWeb.CoreComponents do
       <%= if @current_scope.authenticated? do %>
         <!-- User welcome message -->
         <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-            <%= String.first(@current_user.display_name) %>
-          </div>
+          <%= if @current_user.profile_image_url do %>
+            <img
+              src={@current_user.profile_image_url}
+              alt={@current_user.display_name}
+              class="h-8 w-8 rounded-full object-cover shadow-lg"
+            />
+          <% else %>
+            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+              <%= String.first(@current_user.display_name) %>
+            </div>
+          <% end %>
           <div>
             <p class="text-sm font-semibold text-white">
               <%= @current_user.display_name %>
