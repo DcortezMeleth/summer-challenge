@@ -707,15 +707,15 @@ defmodule SummerChallengeWeb.CoreComponents do
     <div class="flex items-center justify-between py-4">
       <%= if @current_scope.authenticated? do %>
         <!-- User welcome message -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-brand-700/40 rounded-2xl px-3 py-1.5 ring-1 ring-brand-500/30">
           <%= if @current_user.profile_image_url do %>
             <img
               src={@current_user.profile_image_url}
               alt={@current_user.display_name}
-              class="h-8 w-8 rounded-full object-cover shadow-lg"
+              class="h-8 w-8 rounded-full object-cover shadow-md ring-2 ring-brand-400/50"
             />
           <% else %>
-            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-brand-400/50">
               <%= String.first(@current_user.display_name) %>
             </div>
           <% end %>
