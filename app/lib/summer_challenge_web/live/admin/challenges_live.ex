@@ -23,6 +23,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
     {:ok,
      socket
      |> assign(:page_title, "Admin Dashboard")
+     |> assign(:hide_nav, true)
      |> assign(:show_form, false)
      |> assign(:form_mode, nil)
      |> assign(:selected_challenge, nil)

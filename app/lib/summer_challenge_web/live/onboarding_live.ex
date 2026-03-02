@@ -17,20 +17,27 @@ defmodule SummerChallengeWeb.OnboardingLive do
   def mount(_params, _session, socket) do
     current_user = socket.assigns.current_user
 
-    if Accounts.user_onboarded?(current_user) do
-      # User is already onboarded, redirect to leaderboard
-      {:ok, push_navigate(socket, to: "/leaderboard")}
-    else
-      # Initialize onboarding form
-      changeset = build_initial_changeset(current_user)
-      page = OnboardingVM.build_page(changeset, nil, nil)
+    cond do
+      is_nil(current_user) ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Please sign in to continue.")
+         |> push_navigate(to: "/leaderboard")}
 
-      socket =
-        socket
-        |> assign(:page, page)
-        |> assign(:saving?, false)
+      Accounts.user_onboarded?(current_user) ->
+        {:ok, push_navigate(socket, to: "/leaderboard")}
 
-      {:ok, socket}
+      true ->
+        changeset = build_initial_changeset(current_user)
+        page = OnboardingVM.build_page(changeset, nil, nil)
+
+        socket =
+          socket
+          |> assign(:page, page)
+          |> assign(:saving?, false)
+          |> assign(:hide_nav, true)
+
+        {:ok, socket}
     end
   end
 
@@ -147,24 +154,22 @@ defmodule SummerChallengeWeb.OnboardingLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.app_shell>
-      <.onboarding_shell>
-        <.onboarding_card>
-          <.onboarding_header />
+    <.onboarding_shell>
+      <.onboarding_card>
+        <.onboarding_header />
 
-          <.display_name_form
-            form={@page.form.form}
-            saving?={@saving?}
-            focus_field={@page.form.focus_field}
-          />
+        <.display_name_form
+          form={@page.form.form}
+          saving?={@saving?}
+          focus_field={@page.form.focus_field}
+        />
 
-          <.terms_privacy_notice
-            terms_href="/terms"
-            privacy_href="/privacy"
-          />
-        </.onboarding_card>
-      </.onboarding_shell>
-    </.app_shell>
+        <.terms_privacy_notice
+          terms_href="/terms"
+          privacy_href="/privacy"
+        />
+      </.onboarding_card>
+    </.onboarding_shell>
     """
   end
 end

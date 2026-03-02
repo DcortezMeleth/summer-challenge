@@ -29,16 +29,12 @@ defmodule SummerChallengeWeb.Router do
     get "/auth/strava/callback", OAuthController, :callback
     delete "/auth/logout", OAuthController, :delete
 
-    live_session :public, on_mount: {Auth, :optional} do
+    live_session :app, on_mount: {Auth, :optional} do
       live "/leaderboard", LeaderboardLive, :index
       live "/leaderboard/:sport", LeaderboardLive, :index
       live "/milestone", MilestoneLive, :index
-    end
-
-    live_session :authenticated, on_mount: {Auth, :require_authenticated_user} do
       live "/onboarding", OnboardingLive, :index
       live "/my/activities", MyActivitiesLive, :index
-      # TODO: Add other authenticated routes here (teams, settings, etc.)
     end
 
     live_session :admin, on_mount: {Auth, :require_admin} do

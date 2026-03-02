@@ -16,13 +16,6 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    # Ensure auth context is available (should be set by auth hook, but provide defaults)
-    socket =
-      socket
-      |> assign_new(:current_scope, fn -> %{authenticated?: false, user_id: nil} end)
-      |> assign_new(:current_user, fn -> nil end)
-
-    # Initialize with default sport if not set
     socket = assign(socket, :sport, :running_outdoor)
 
     # Load default challenge
@@ -32,10 +25,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         {:error, :no_challenges} -> nil
       end
 
-    socket =
-      socket
-      |> assign(:selected_challenge_id, selected_challenge_id)
-      |> assign(:current_path, "/leaderboard")
+    socket = assign(socket, :selected_challenge_id, selected_challenge_id)
 
     {:ok, socket}
   end
@@ -85,42 +75,55 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.app_shell>
-      <:top_bar>
-        <.auth_section current_scope={@current_scope} current_user={@current_user} current_path={@current_path} />
-      </:top_bar>
+    <main id="main-content" class="min-h-screen bg-gradient-to-b from-brand-50 via-ui-50 to-ui-50" role="main">
+      <div class="mx-auto max-w-5xl px-4 py-10">
+        <header class="mb-8">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+                Summer Challenge
+              </p>
+              <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
+                Leaderboards
+              </h1>
+              <p class="mt-2 text-sm text-ui-700 max-w-prose">
+                Outdoor-only totals for running and cycling. Compete hard, move smart.
+              </p>
+            </div>
+            <div class="flex-shrink-0 min-w-[20rem]">
+              <.live_component
+                module={ChallengeSelector}
+                id="challenge-selector"
+                selected_challenge_id={@selected_challenge_id}
+                is_admin={@current_scope.is_admin}
+              />
+            </div>
+          </div>
+        </header>
 
-      <:challenge_selector>
-        <.live_component
-          module={ChallengeSelector}
-          id="challenge-selector"
-          selected_challenge_id={@selected_challenge_id}
-          is_admin={@current_scope.is_admin}
+        <.sport_switch tabs={@page.tabs} />
+
+        <div class="flex justify-between items-center px-4 py-2 bg-brand-50 border-b border-brand-100">
+          <.sync_status_line last_sync_label={@page.last_sync_label} />
+          <button
+            :if={@current_scope.authenticated?}
+            phx-click="refresh"
+            class="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1"
+          >
+            <.icon name="hero-arrow-path" class="w-4 h-4" />
+            Refresh Data
+          </button>
+        </div>
+
+        <.error_banner :if={@page.error_message} error_message={@page.error_message} />
+
+        <.leaderboard_table
+          sport_label={@page.sport_label}
+          rows={@page.rows}
+          empty_message={@page.empty_message}
         />
-      </:challenge_selector>
-
-      <.sport_switch tabs={@page.tabs} />
-
-      <div class="flex justify-between items-center px-4 py-2 bg-brand-50 border-b border-brand-100">
-        <.sync_status_line last_sync_label={@page.last_sync_label} />
-        <button
-          :if={@current_scope.authenticated?}
-          phx-click="refresh"
-          class="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1"
-        >
-          <.icon name="hero-arrow-path" class="w-4 h-4" />
-          Refresh Data
-        </button>
       </div>
-
-      <.error_banner :if={@page.error_message} error_message={@page.error_message} />
-
-      <.leaderboard_table
-        sport_label={@page.sport_label}
-        rows={@page.rows}
-        empty_message={@page.empty_message}
-      />
-    </.app_shell>
+    </main>
     """
   end
 

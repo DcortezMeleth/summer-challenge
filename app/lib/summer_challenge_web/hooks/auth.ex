@@ -8,7 +8,7 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   """
 
   import Phoenix.Component
-  import Phoenix.LiveView, only: [put_flash: 3, redirect: 2]
+  import Phoenix.LiveView, only: [attach_hook: 4, put_flash: 3, redirect: 2]
 
   alias Phoenix.LiveView.Socket
   alias SummerChallenge.Accounts
@@ -73,36 +73,31 @@ defmodule SummerChallengeWeb.Hooks.Auth do
   @spec on_mount(:optional, map(), map(), Socket.t()) ::
           {:cont, Socket.t()}
   def on_mount(:optional, _params, %{"user_id" => user_id}, socket) do
-    case Accounts.get_user(user_id) do
-      nil ->
-        # No valid user, assign empty auth context
-        assign(socket,
-          current_user: nil,
-          current_scope: %{authenticated?: false, user_id: nil, is_admin: false}
-        )
+    socket =
+      case Accounts.get_user(user_id) do
+        nil ->
+          assign(socket,
+            current_user: nil,
+            current_scope: %{authenticated?: false, user_id: nil, is_admin: false}
+          )
 
-        {:cont, socket}
-
-      user ->
-        # User found, assign to socket
-        socket =
+        user ->
           assign(socket,
             current_user: user,
             current_scope: %{authenticated?: true, user_id: user.id, is_admin: user.is_admin}
           )
+      end
 
-        {:cont, socket}
-    end
+    {:cont, with_path_tracking(socket)}
   end
 
   def on_mount(:optional, _params, _session, socket) do
-    # No user_id in session, assign empty auth context
     socket =
       socket
       |> assign(:current_user, nil)
       |> assign(:current_scope, %{authenticated?: false, user_id: nil, is_admin: false})
 
-    {:cont, socket}
+    {:cont, with_path_tracking(socket)}
   end
 
   # Admin-only mount hook - requires authentication AND admin privileges
@@ -153,5 +148,12 @@ defmodule SummerChallengeWeb.Hooks.Auth do
       |> redirect(to: "/leaderboard")
 
     {:halt, socket}
+  end
+
+  defp with_path_tracking(socket) do
+    attach_hook(socket, :active_path, :handle_params, fn _params, url, socket ->
+      %{path: path} = URI.parse(url)
+      {:cont, assign(socket, :current_path, path)}
+    end)
   end
 end

@@ -14,19 +14,25 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    selected_challenge_id =
-      case Challenges.get_default_challenge() do
-        {:ok, challenge} -> challenge.id
-        {:error, :no_challenges} -> nil
-      end
+    if socket.assigns.current_scope.authenticated? do
+      selected_challenge_id =
+        case Challenges.get_default_challenge() do
+          {:ok, challenge} -> challenge.id
+          {:error, :no_challenges} -> nil
+        end
 
-    socket =
-      socket
-      |> assign(:selected_challenge_id, selected_challenge_id)
-      |> assign(:toggling_activity_id, nil)
-      |> assign(:current_path, "/my/activities")
+      socket =
+        socket
+        |> assign(:selected_challenge_id, selected_challenge_id)
+        |> assign(:toggling_activity_id, nil)
 
-    {:ok, socket}
+      {:ok, socket}
+    else
+      {:ok,
+       socket
+       |> put_flash(:error, "Please sign in to view your activities.")
+       |> push_navigate(to: "/leaderboard")}
+    end
   end
 
   @impl true
@@ -51,28 +57,30 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.app_shell>
-      <:top_bar>
-        <.auth_section current_scope={@current_scope} current_user={@current_user} current_path={@current_path} />
-      </:top_bar>
-
-      <:challenge_selector>
-        <.live_component
-          module={ChallengeSelector}
-          id="challenge-selector"
-          selected_challenge_id={@selected_challenge_id}
-          is_admin={@current_scope.is_admin}
-        />
-      </:challenge_selector>
-
-      <div class="px-4 py-6 max-w-7xl mx-auto">
+    <main id="main-content" class="min-h-screen bg-gradient-to-b from-brand-50 via-ui-50 to-ui-50" role="main">
+      <div class="mx-auto max-w-5xl px-4 py-10">
         <header class="mb-8">
-          <h1 class="text-3xl font-bold tracking-tight text-ui-900">
-            My Activities
-          </h1>
-          <p class="mt-2 text-sm text-ui-700">
-            Manage which activities count toward your challenge totals.
-          </p>
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+                Summer Challenge
+              </p>
+              <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
+                My Activities
+              </h1>
+              <p class="mt-2 text-sm text-ui-700 max-w-prose">
+                Manage which activities count toward your challenge totals.
+              </p>
+            </div>
+            <div class="flex-shrink-0 min-w-[20rem]">
+              <.live_component
+                module={ChallengeSelector}
+                id="challenge-selector"
+                selected_challenge_id={@selected_challenge_id}
+                is_admin={@current_scope.is_admin}
+              />
+            </div>
+          </div>
         </header>
 
         <.sync_status_banner last_sync_label={@page.last_sync_label} />
@@ -85,7 +93,7 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
           toggling_activity_id={@toggling_activity_id}
         />
       </div>
-    </.app_shell>
+    </main>
     """
   end
 

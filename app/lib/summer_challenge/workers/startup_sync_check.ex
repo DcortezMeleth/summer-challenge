@@ -7,12 +7,13 @@ defmodule SummerChallenge.Workers.StartupSyncCheck do
   (or has never happened).
   """
 
-  require Logger
   import Ecto.Query
 
   alias SummerChallenge.Model.User
   alias SummerChallenge.Repo
   alias SummerChallenge.Workers.SyncAllWorker
+
+  require Logger
 
   @sync_threshold_hours 23
 

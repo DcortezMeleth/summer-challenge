@@ -44,10 +44,37 @@ defmodule SummerChallengeWeb.Layouts do
   @doc """
   The app layout wraps LiveView content. This is what gets
   re-rendered during live navigation (no full page reload).
+
+  The navbar is rendered here so it persists across live navigations
+  without re-mounting. Set `assign(:hide_nav, true)` in a LiveView
+  to suppress the navbar (e.g. onboarding, admin).
   """
   def app(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:current_scope, fn -> %{authenticated?: false, user_id: nil, is_admin: false} end)
+      |> assign_new(:current_user, fn -> nil end)
+      |> assign_new(:current_path, fn -> "" end)
+
     ~H"""
     <.flash_group flash={@flash} />
+    <%= unless assigns[:hide_nav] do %>
+      <a
+        href="#main-content"
+        class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-brand-700 text-white px-4 py-2 rounded-md z-50"
+      >
+        Skip to main content
+      </a>
+      <div class="sticky top-0 z-40 bg-brand-900/95 backdrop-blur-md w-full shadow-lg border-b border-brand-700/50">
+        <div class="mx-auto max-w-5xl px-4">
+          <.auth_section
+            current_scope={@current_scope}
+            current_user={@current_user}
+            current_path={@current_path}
+          />
+        </div>
+      </div>
+    <% end %>
     <%= @inner_content %>
     """
   end

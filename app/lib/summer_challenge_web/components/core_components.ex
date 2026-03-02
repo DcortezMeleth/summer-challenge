@@ -244,55 +244,6 @@ defmodule SummerChallengeWeb.CoreComponents do
   end
 
   @doc """
-  App shell component providing consistent page layout.
-  """
-  slot :inner_block, required: true
-  slot :top_bar
-  slot :challenge_selector
-
-  def app_shell(assigns) do
-    ~H"""
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-brand-700 text-white px-4 py-2 rounded-md z-50">
-      Skip to main content
-    </a>
-    <main
-      id="main-content"
-      class="min-h-screen bg-gradient-to-b from-brand-50 via-ui-50 to-ui-50"
-      role="main"
-    >
-      <!-- Enhanced navbar with glass morphism and subtle animation -->
-      <div class="sticky top-0 z-40 bg-brand-900/95 backdrop-blur-md w-full shadow-lg border-b border-brand-700/50">
-        <div class="mx-auto max-w-5xl px-4">
-          <%= render_slot(@top_bar) %>
-        </div>
-      </div>
-      <div class="mx-auto max-w-5xl px-4 py-10">
-        <header class="mb-8">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex-1">
-              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
-                Summer Challenge
-              </p>
-              <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
-                Leaderboards
-              </h1>
-              <p class="mt-2 text-sm text-ui-700 max-w-prose">
-                Outdoor-only totals for running and cycling. Compete hard, move smart.
-              </p>
-            </div>
-            <div :if={@challenge_selector != []} class="flex-shrink-0 min-w-[20rem]">
-              <%= render_slot(@challenge_selector) %>
-            </div>
-          </div>
-        </header>
-
-        <%= render_slot(@inner_block) %>
-      </div>
-    </main>
-    """
-  end
-
-  @doc """
   Sport switch component for toggling between running and cycling leaderboards.
   """
   attr :tabs, :list, required: true

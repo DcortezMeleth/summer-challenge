@@ -14,23 +14,13 @@ defmodule SummerChallengeWeb.MilestoneLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    # Ensure auth context is available
-    socket =
-      socket
-      |> assign_new(:current_scope, fn -> %{authenticated?: false, user_id: nil} end)
-      |> assign_new(:current_user, fn -> nil end)
-
-    # Load default challenge
     selected_challenge_id =
       case Challenges.get_default_challenge() do
         {:ok, challenge} -> challenge.id
         {:error, :no_challenges} -> nil
       end
 
-    socket =
-      socket
-      |> assign(:selected_challenge_id, selected_challenge_id)
-      |> assign(:current_path, "/milestone")
+    socket = assign(socket, :selected_challenge_id, selected_challenge_id)
 
     {:ok, socket}
   end
@@ -56,29 +46,31 @@ defmodule SummerChallengeWeb.MilestoneLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.app_shell>
-      <:top_bar>
-        <.auth_section current_scope={@current_scope} current_user={@current_user} current_path={@current_path} />
-      </:top_bar>
-
-      <:challenge_selector>
-        <.live_component
-          module={ChallengeSelector}
-          id="challenge-selector"
-          selected_challenge_id={@selected_challenge_id}
-          is_admin={@current_scope.is_admin}
-        />
-      </:challenge_selector>
-
-      <div class="px-4 py-6">
-        <header class="mb-8 text-center">
-          <h1 class="text-3xl font-bold tracking-tight text-ui-900">
-            40-Hour Milestone
-          </h1>
-          <p class="mt-2 text-sm text-ui-700 max-w-2xl mx-auto">
-            Congratulations to everyone who reached <%= @page.threshold_hours %> hours of moving time!
-            Keep pushing toward your fitness goals.
-          </p>
+    <main id="main-content" class="min-h-screen bg-gradient-to-b from-brand-50 via-ui-50 to-ui-50" role="main">
+      <div class="mx-auto max-w-5xl px-4 py-10">
+        <header class="mb-8">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+                Summer Challenge
+              </p>
+              <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
+                40-Hour Milestone
+              </h1>
+              <p class="mt-2 text-sm text-ui-700 max-w-prose">
+                Congratulations to everyone who reached <%= @page.threshold_hours %> hours of moving time!
+                Keep pushing toward your fitness goals.
+              </p>
+            </div>
+            <div class="flex-shrink-0 min-w-[20rem]">
+              <.live_component
+                module={ChallengeSelector}
+                id="challenge-selector"
+                selected_challenge_id={@selected_challenge_id}
+                is_admin={@current_scope.is_admin}
+              />
+            </div>
+          </div>
         </header>
 
         <div class="flex justify-between items-center px-4 py-2 bg-brand-50 border-b border-brand-100 mb-6">
@@ -93,7 +85,7 @@ defmodule SummerChallengeWeb.MilestoneLive do
           threshold_hours={@page.threshold_hours}
         />
       </div>
-    </.app_shell>
+    </main>
     """
   end
 
