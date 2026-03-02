@@ -377,9 +377,9 @@ defmodule SummerChallengeWeb.CoreComponents do
         <span class={[
           "inline-flex items-center justify-center h-7 min-w-7 px-2 rounded-full font-bold",
           case @row.rank do
-            1 -> "bg-brand-700 text-white"
-            2 -> "bg-brand-100 text-brand-900 ring-1 ring-brand-200"
-            3 -> "bg-ui-200 text-ui-900"
+            1 -> "bg-amber-400 text-amber-900 ring-1 ring-amber-500/50 shadow-sm"
+            2 -> "bg-slate-200 text-slate-600 ring-1 ring-slate-400/50"
+            3 -> "bg-orange-100 text-orange-800 ring-1 ring-orange-400/50"
             _ -> "bg-ui-100 text-ui-900"
           end
         ]}>
@@ -392,16 +392,16 @@ defmodule SummerChallengeWeb.CoreComponents do
       <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700">
         <%= @row.team_name %>
       </td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900 text-right tabular-nums" aria-label="Distance covered">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Distance covered">
         <%= @row.distance_label %>
       </td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900 text-right tabular-nums" aria-label="Moving time">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Moving time">
         <%= @row.moving_time_label %>
       </td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900 text-right tabular-nums" aria-label="Elevation gain">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Elevation gain">
         <%= @row.elev_gain_label %>
       </td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900 text-right tabular-nums" aria-label="Number of activities">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Number of activities">
         <%= @row.activity_count_label %>
       </td>
     </tr>
@@ -802,7 +802,7 @@ defmodule SummerChallengeWeb.CoreComponents do
       <!-- Active indicator bar -->
       <div
         :if={@is_active}
-        class="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-brand-400 rounded-full"
+        class="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-orange-400 rounded-full"
       >
       </div>
       

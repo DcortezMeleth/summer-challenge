@@ -51,7 +51,7 @@ defmodule SummerChallengeWeb.MilestoneLive do
         <header class="mb-8">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+              <p class="text-xs font-semibold tracking-widest text-orange-500 uppercase">
                 Summer Challenge
               </p>
               <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
@@ -183,7 +183,7 @@ defmodule SummerChallengeWeb.MilestoneLive do
       <div class="bg-white shadow-sport rounded-2xl overflow-hidden ring-1 ring-ui-200">
         <%= if @empty_message && Enum.empty?(@achievers) do %>
           <div class="px-6 py-16 text-center">
-            <.icon name="hero-trophy" class="mx-auto h-16 w-16 text-ui-400" />
+            <.icon name="hero-trophy" class="mx-auto h-16 w-16 text-amber-400" />
             <h3 class="mt-4 text-lg font-semibold text-ui-900">No Achievers Yet</h3>
             <p class="mt-2 text-sm text-ui-600"><%= @empty_message %></p>
             <p class="mt-4 text-xs text-ui-500">
@@ -193,6 +193,9 @@ defmodule SummerChallengeWeb.MilestoneLive do
         <% else %>
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-ui-200">
+              <caption class="text-lg font-semibold text-white py-4 px-6 text-left bg-gradient-to-r from-amber-700 to-amber-500">
+                <%= @threshold_hours %>-Hour Club
+              </caption>
               <thead class="bg-ui-50">
                 <tr>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-ui-600 uppercase tracking-wider">
@@ -222,7 +225,7 @@ defmodule SummerChallengeWeb.MilestoneLive do
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700">
                     <%= normalize_team_name(achiever.user.team_name) %>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900 text-right font-mono font-semibold">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-700 text-right font-mono font-semibold">
                     <%= format_moving_time(achiever.total_moving_time_s) %>
                   </td>
                 </tr>

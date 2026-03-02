@@ -62,7 +62,7 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
         <header class="mb-8">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+              <p class="text-xs font-semibold tracking-widest text-orange-500 uppercase">
                 Summer Challenge
               </p>
               <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
@@ -296,13 +296,13 @@ defmodule SummerChallengeWeb.MyActivitiesLive do
                     <%= activity.sport_type %>
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700 text-right font-mono">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right font-mono">
                   <%= SummerChallengeWeb.Formatters.format_km(activity.distance_m) %>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700 text-right font-mono">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right font-mono">
                   <%= SummerChallengeWeb.Formatters.format_duration(activity.moving_time_s) %>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700 text-right font-mono">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right font-mono">
                   <%= SummerChallengeWeb.Formatters.format_meters(activity.elev_gain_m) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">

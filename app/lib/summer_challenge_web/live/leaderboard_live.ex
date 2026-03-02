@@ -80,7 +80,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         <header class="mb-8">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <p class="text-xs font-semibold tracking-widest text-brand-700 uppercase">
+              <p class="text-xs font-semibold tracking-widest text-orange-500 uppercase">
                 Summer Challenge
               </p>
               <h1 class="mt-2 text-3xl font-bold tracking-tight text-ui-900">
@@ -108,7 +108,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
           <button
             :if={@current_scope.authenticated?}
             phx-click="refresh"
-            class="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1"
+            class="text-sm font-medium text-orange-500 hover:text-orange-600 flex items-center gap-1"
           >
             <.icon name="hero-arrow-path" class="w-4 h-4" />
             Refresh Data
