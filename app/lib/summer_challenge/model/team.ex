@@ -35,17 +35,15 @@ defmodule SummerChallenge.Model.Team do
     team
     |> cast(attrs, [:name, :owner_user_id])
     |> validate_required([:name, :owner_user_id])
+    |> update_change(:name, &String.trim/1)
     |> validate_length(:name, min: 1, max: 80)
     |> validate_change(:name, fn :name, value ->
-      trimmed = String.trim(value)
-
-      if trimmed == "" do
+      if String.trim(value) == "" do
         [name: "Team name cannot be blank"]
       else
         []
       end
     end)
-    |> put_change(:name, String.trim(get_field(team, :name) || ""))
     |> unique_constraint(:name)
   end
 
@@ -58,17 +56,15 @@ defmodule SummerChallenge.Model.Team do
     team
     |> cast(attrs, [:name])
     |> validate_required([:name])
+    |> update_change(:name, &String.trim/1)
     |> validate_length(:name, min: 1, max: 80)
     |> validate_change(:name, fn :name, value ->
-      trimmed = String.trim(value)
-
-      if trimmed == "" do
+      if String.trim(value) == "" do
         [name: "Team name cannot be blank"]
       else
         []
       end
     end)
-    |> put_change(:name, String.trim(get_field(team, :name) || ""))
     |> unique_constraint(:name)
   end
 end

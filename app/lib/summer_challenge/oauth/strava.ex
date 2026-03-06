@@ -6,6 +6,12 @@ defmodule SummerChallenge.OAuth.Strava do
   token exchange, and profile fetching.
   """
 
+  @behaviour API
+
+  use OAuth2.Strategy
+
+  alias OAuth2.Strategy.AuthCode
+
   defmodule API do
     @moduledoc "Behaviour for mocking Strava API calls in tests."
     @callback authorize_url!(keyword()) :: String.t()
@@ -14,12 +20,6 @@ defmodule SummerChallenge.OAuth.Strava do
     @callback list_activities(OAuth2.AccessToken.t(), map()) :: {:ok, [map()]} | {:error, term()}
     @callback refresh_token(String.t()) :: {:ok, map()} | {:error, term()}
   end
-
-  @behaviour API
-
-  use OAuth2.Strategy
-
-  alias OAuth2.Strategy.AuthCode
 
   @doc """
   Returns the authorize URL for Strava OAuth.

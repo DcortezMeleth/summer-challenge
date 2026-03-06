@@ -35,6 +35,7 @@ defmodule SummerChallengeWeb.Router do
       live "/milestone", MilestoneLive, :index
       live "/onboarding", OnboardingLive, :index
       live "/my/activities", MyActivitiesLive, :index
+      live "/teams", TeamsLive, :index
     end
 
     live_session :admin, on_mount: {Auth, :require_admin} do
