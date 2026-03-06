@@ -458,7 +458,7 @@ defmodule SummerChallengeWeb.TeamsLive do
 
             <div class="flex-shrink-0">
               <span
-                :if={is_my_team?(team, @current_team)}
+                :if={my_team?(team, @current_team)}
                 class="text-xs font-semibold text-brand-700 bg-brand-50 ring-1 ring-brand-200 rounded-full px-2.5 py-1"
               >
                 My team
@@ -544,7 +544,7 @@ defmodule SummerChallengeWeb.TeamsLive do
     current_scope.user_id == team.owner_user_id or current_scope.is_admin
   end
 
-  defp is_my_team?(_team, nil), do: false
+  defp my_team?(_team, nil), do: false
 
-  defp is_my_team?(team, current_team), do: team.id == current_team.id
+  defp my_team?(team, current_team), do: team.id == current_team.id
 end

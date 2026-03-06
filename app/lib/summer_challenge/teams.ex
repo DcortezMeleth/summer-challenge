@@ -63,22 +63,7 @@ defmodule SummerChallenge.Teams do
         {:error, :already_in_team}
 
       user ->
-        Repo.transaction(fn ->
-          attrs_with_owner = Map.put(attrs, :owner_user_id, user.id)
-
-          case %Team{} |> Team.changeset(attrs_with_owner) |> Repo.insert() do
-            {:ok, team} ->
-              user
-              |> Ecto.Changeset.change(%{team_id: team.id})
-              |> Repo.update!()
-
-              team = Repo.preload(team, [:members, :owner])
-              team_to_dto(team)
-
-            {:error, changeset} ->
-              Repo.rollback(changeset)
-          end
-        end)
+        Repo.transaction(fn -> do_create_team(user, attrs) end)
     end
   end
 
@@ -100,29 +85,7 @@ defmodule SummerChallenge.Teams do
         {:error, :already_in_team}
 
       user ->
-        Repo.transaction(fn ->
-          case Repo.get(Team, team_id) do
-            nil ->
-              Repo.rollback(:not_found)
-
-            team ->
-              member_count =
-                User
-                |> where([u], u.team_id == ^team_id)
-                |> Repo.aggregate(:count)
-
-              if member_count >= @team_size_cap do
-                Repo.rollback(:team_full)
-              else
-                user
-                |> Ecto.Changeset.change(%{team_id: team.id})
-                |> Repo.update!()
-
-                team = Repo.preload(team, [:members, :owner], force: true)
-                team_to_dto(team)
-              end
-          end
-        end)
+        Repo.transaction(fn -> do_join_team(user, team_id) end)
     end
   end
 
@@ -142,21 +105,7 @@ defmodule SummerChallenge.Teams do
         {:error, :not_in_team}
 
       user ->
-        Repo.transaction(fn ->
-          team = Repo.get!(Team, user.team_id)
-
-          if team.owner_user_id == user.id do
-            team
-            |> Ecto.Changeset.change(%{owner_user_id: nil})
-            |> Repo.update!()
-          end
-
-          user
-          |> Ecto.Changeset.change(%{team_id: nil})
-          |> Repo.update!()
-
-          :left
-        end)
+        Repo.transaction(fn -> do_leave_team(user) end)
     end
   end
 
@@ -215,6 +164,48 @@ defmodule SummerChallenge.Teams do
   end
 
   # Private helpers
+
+  defp do_create_team(user, attrs) do
+    attrs_with_owner = Map.put(attrs, :owner_user_id, user.id)
+
+    case %Team{} |> Team.changeset(attrs_with_owner) |> Repo.insert() do
+      {:ok, team} ->
+        user |> Ecto.Changeset.change(%{team_id: team.id}) |> Repo.update!()
+        team |> Repo.preload([:members, :owner]) |> team_to_dto()
+
+      {:error, changeset} ->
+        Repo.rollback(changeset)
+    end
+  end
+
+  defp do_join_team(user, team_id) do
+    with %Team{} = team <- Repo.get(Team, team_id) || :not_found,
+         :ok <- check_team_capacity(team_id) do
+      user |> Ecto.Changeset.change(%{team_id: team.id}) |> Repo.update!()
+      team |> Repo.preload([:members, :owner], force: true) |> team_to_dto()
+    else
+      :not_found -> Repo.rollback(:not_found)
+      {:error, :team_full} -> Repo.rollback(:team_full)
+    end
+  end
+
+  defp do_leave_team(user) do
+    team = Repo.get!(Team, user.team_id)
+    maybe_clear_team_owner(team, user)
+    user |> Ecto.Changeset.change(%{team_id: nil}) |> Repo.update!()
+    :left
+  end
+
+  defp check_team_capacity(team_id) do
+    member_count = User |> where([u], u.team_id == ^team_id) |> Repo.aggregate(:count)
+    if member_count >= @team_size_cap, do: {:error, :team_full}, else: :ok
+  end
+
+  defp maybe_clear_team_owner(team, user) do
+    if team.owner_user_id == user.id do
+      team |> Ecto.Changeset.change(%{owner_user_id: nil}) |> Repo.update!()
+    end
+  end
 
   @spec authorize_manage_team(Team.t(), User.t()) :: :ok | {:error, :unauthorized}
   defp authorize_manage_team(team, user) do

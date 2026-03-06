@@ -3,6 +3,7 @@ defmodule SummerChallenge.LeaderboardsTest do
 
   alias SummerChallenge.Leaderboards
   alias SummerChallenge.Model.Activity
+  alias SummerChallenge.Model.Challenge
   alias SummerChallenge.Model.User
 
   describe "get_public_leaderboard/1" do
@@ -148,7 +149,7 @@ defmodule SummerChallenge.LeaderboardsTest do
 
     test "filters by challenge_id when provided" do
       challenge =
-        Repo.insert!(%SummerChallenge.Model.Challenge{
+        Repo.insert!(%Challenge{
           name: "Test Challenge",
           start_date: ~U[2024-06-01 00:00:00Z],
           end_date: ~U[2024-08-31 23:59:59Z],
@@ -157,7 +158,8 @@ defmodule SummerChallenge.LeaderboardsTest do
         })
 
       # Tag user1's first activity with the challenge
-      Repo.get_by!(Activity, strava_id: 1)
+      Activity
+      |> Repo.get_by!(strava_id: 1)
       |> Ecto.Changeset.change(%{challenge_id: challenge.id})
       |> Repo.update!()
 
@@ -323,7 +325,7 @@ defmodule SummerChallenge.LeaderboardsTest do
 
     test "filters by challenge_id when provided" do
       challenge =
-        Repo.insert!(%SummerChallenge.Model.Challenge{
+        Repo.insert!(%Challenge{
           name: "Team Challenge",
           start_date: ~U[2024-06-01 00:00:00Z],
           end_date: ~U[2024-08-31 23:59:59Z],
@@ -332,7 +334,8 @@ defmodule SummerChallenge.LeaderboardsTest do
         })
 
       # Tag only Team Alpha's first run with the challenge
-      Repo.get_by!(Activity, strava_id: 201)
+      Activity
+      |> Repo.get_by!(strava_id: 201)
       |> Ecto.Changeset.change(%{challenge_id: challenge.id})
       |> Repo.update!()
 
@@ -345,7 +348,8 @@ defmodule SummerChallenge.LeaderboardsTest do
     end
 
     test "respects excluded activities" do
-      Repo.get_by!(Activity, strava_id: 203)
+      Activity
+      |> Repo.get_by!(strava_id: 203)
       |> Ecto.Changeset.change(%{excluded: true})
       |> Repo.update!()
 

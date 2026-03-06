@@ -55,7 +55,7 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
     end
 
     test "shows welcome message and sign out button for authenticated users", %{conn: conn} do
-      user = %SummerChallenge.Model.User{
+      user = %User{
         id: Ecto.UUID.generate(),
         display_name: "Test Athlete",
         joined_at: DateTime.utc_now()
@@ -71,7 +71,7 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
       # We don't need Mox here if we just want to test rendering with session,
       # but the Auth hook will call Accounts.get_user.
       # Let's ensure the user exists in the DB for the hook to find it.
-      _user = SummerChallenge.Repo.insert!(user)
+      _user = Repo.insert!(user)
 
       {:ok, _view, html} = live(conn, ~p"/leaderboard/running_outdoor")
 
@@ -129,8 +129,8 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
 
       {:ok, _view, html} = live(conn, ~p"/leaderboard/running_outdoor")
 
-      fast_pos = :binary.match(html, "Fast Team") |> elem(0)
-      slow_pos = :binary.match(html, "Slow Team") |> elem(0)
+      fast_pos = html |> :binary.match("Fast Team") |> elem(0)
+      slow_pos = html |> :binary.match("Slow Team") |> elem(0)
 
       assert fast_pos < slow_pos
     end

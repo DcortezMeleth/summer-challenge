@@ -11,6 +11,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   alias SummerChallenge.Challenges
   alias SummerChallenge.Leaderboards
+  alias SummerChallenge.Model.Challenge
   alias SummerChallengeWeb.Live.Components.ChallengeSelector
   alias SummerChallengeWeb.ViewModels.Leaderboard, as: LeaderboardVM
 
@@ -312,7 +313,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   defp load_challenge_sports(challenge_id) do
     case Challenges.get_challenge(challenge_id) do
       {:ok, challenge} ->
-        sports = SummerChallenge.Model.Challenge.active_sport_groups(challenge)
+        sports = Challenge.active_sport_groups(challenge)
 
         # Ensure we have at least one sport
         case sports do
@@ -381,10 +382,8 @@ defmodule SummerChallengeWeb.LeaderboardLive do
             rank: entry.rank,
             team_name: entry.team.name,
             distance_label: SummerChallengeWeb.Formatters.format_km(entry.totals.distance_m),
-            moving_time_label:
-              SummerChallengeWeb.Formatters.format_duration(entry.totals.moving_time_s),
-            elev_gain_label:
-              SummerChallengeWeb.Formatters.format_meters(entry.totals.elev_gain_m),
+            moving_time_label: SummerChallengeWeb.Formatters.format_duration(entry.totals.moving_time_s),
+            elev_gain_label: SummerChallengeWeb.Formatters.format_meters(entry.totals.elev_gain_m),
             activity_count_label: Integer.to_string(entry.totals.activity_count)
           }
         end)

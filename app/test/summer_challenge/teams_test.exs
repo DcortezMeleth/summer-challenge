@@ -2,6 +2,8 @@ defmodule SummerChallenge.TeamsTest do
   use SummerChallenge.DataCase, async: true
 
   alias SummerChallenge.Accounts
+  alias SummerChallenge.Model.Team
+  alias SummerChallenge.Model.User
   alias SummerChallenge.Teams
 
   # ---------------------------------------------------------------------------
@@ -144,7 +146,7 @@ defmodule SummerChallenge.TeamsTest do
 
       assert {:ok, :left} = Teams.leave_team(user.id)
 
-      updated_user = Repo.get!(SummerChallenge.Model.User, user.id)
+      updated_user = Repo.get!(User, user.id)
       assert is_nil(updated_user.team_id)
     end
 
@@ -153,7 +155,7 @@ defmodule SummerChallenge.TeamsTest do
 
       assert {:ok, :left} = Teams.leave_team(owner.id)
 
-      updated_team = Repo.get!(SummerChallenge.Model.Team, team.id)
+      updated_team = Repo.get!(Team, team.id)
       assert is_nil(updated_team.owner_user_id)
     end
 
@@ -164,7 +166,7 @@ defmodule SummerChallenge.TeamsTest do
 
       assert {:ok, :left} = Teams.leave_team(member.id)
 
-      updated_team = Repo.get!(SummerChallenge.Model.Team, team.id)
+      updated_team = Repo.get!(Team, team.id)
       assert updated_team.owner_user_id == owner.id
     end
 
@@ -203,7 +205,7 @@ defmodule SummerChallenge.TeamsTest do
           "email" => "admin@example.com"
         })
 
-      admin_record = Repo.get!(SummerChallenge.Model.User, admin.id)
+      admin_record = Repo.get!(User, admin.id)
       admin_record |> Ecto.Changeset.change(%{is_admin: true}) |> Repo.update!()
 
       assert {:ok, updated_team} = Teams.rename_team(team.id, admin.id, "Admin Renamed")
@@ -248,7 +250,7 @@ defmodule SummerChallenge.TeamsTest do
       {owner, team} = create_user_and_team(5001, "To Be Deleted")
 
       assert {:ok, :deleted} = Teams.delete_team(team.id, owner.id)
-      assert is_nil(Repo.get(SummerChallenge.Model.Team, team.id))
+      assert is_nil(Repo.get(Team, team.id))
     end
 
     test "all members become teamless on deletion" do
@@ -258,8 +260,8 @@ defmodule SummerChallenge.TeamsTest do
 
       assert {:ok, :deleted} = Teams.delete_team(team.id, owner.id)
 
-      updated_owner = Repo.get!(SummerChallenge.Model.User, owner.id)
-      updated_member = Repo.get!(SummerChallenge.Model.User, member.id)
+      updated_owner = Repo.get!(User, owner.id)
+      updated_member = Repo.get!(User, member.id)
 
       assert is_nil(updated_owner.team_id)
       assert is_nil(updated_member.team_id)
@@ -276,7 +278,7 @@ defmodule SummerChallenge.TeamsTest do
           "email" => "admin2@example.com"
         })
 
-      admin_record = Repo.get!(SummerChallenge.Model.User, admin.id)
+      admin_record = Repo.get!(User, admin.id)
       admin_record |> Ecto.Changeset.change(%{is_admin: true}) |> Repo.update!()
 
       assert {:ok, :deleted} = Teams.delete_team(team.id, admin.id)
@@ -287,7 +289,7 @@ defmodule SummerChallenge.TeamsTest do
       other = create_user(5007, "Other")
 
       assert {:error, :unauthorized} = Teams.delete_team(team.id, other.id)
-      assert Repo.get(SummerChallenge.Model.Team, team.id)
+      assert Repo.get(Team, team.id)
     end
 
     test "returns error for unknown team" do
@@ -328,7 +330,7 @@ defmodule SummerChallenge.TeamsTest do
       {_owner, _} = create_user_and_team(6005, "Alpha")
       {_owner, _} = create_user_and_team(6006, "Midway")
 
-      names = Teams.list_teams() |> Enum.map(& &1.name)
+      names = Enum.map(Teams.list_teams(), & &1.name)
       assert names == ["Alpha", "Midway", "Zephyr"]
     end
   end
