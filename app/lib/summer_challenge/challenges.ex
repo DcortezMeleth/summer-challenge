@@ -75,7 +75,7 @@ defmodule SummerChallenge.Challenges do
   """
   @spec get_default_challenge() :: {:ok, Challenge.t()} | {:error, :no_challenges}
   def get_default_challenge do
-    now = DateTime.utc_now()
+    now = SummerChallenge.Clock.utc_now()
 
     # Try to find active challenge with latest start date
     active_challenge =
@@ -198,7 +198,7 @@ defmodule SummerChallenge.Challenges do
   end
 
   defp apply_ordering(query, :selector_order) do
-    now = DateTime.utc_now()
+    now = SummerChallenge.Clock.utc_now()
 
     order_by(query, [c],
       desc:

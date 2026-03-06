@@ -42,13 +42,13 @@ defmodule SummerChallenge.Workers.StartupSyncCheck do
   defp sync_needed?(nil), do: true
 
   defp sync_needed?(last_synced_at) do
-    DateTime.diff(DateTime.utc_now(), last_synced_at, :hour) >= @sync_threshold_hours
+    DateTime.diff(SummerChallenge.Clock.utc_now(), last_synced_at, :hour) >= @sync_threshold_hours
   end
 
   defp format_age(nil), do: "never"
 
   defp format_age(last_synced_at) do
-    hours = DateTime.diff(DateTime.utc_now(), last_synced_at, :hour)
+    hours = DateTime.diff(SummerChallenge.Clock.utc_now(), last_synced_at, :hour)
     "#{hours}h ago"
   end
 end

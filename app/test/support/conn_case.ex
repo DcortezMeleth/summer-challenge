@@ -24,10 +24,11 @@ defmodule SummerChallengeWeb.ConnCase do
       import Phoenix.ConnTest
       import Plug.Conn
       import SummerChallengeWeb.ConnCase
+
+      alias SummerChallenge.Clock
+
       # The default endpoint for testing
       @endpoint SummerChallengeWeb.Endpoint
-
-      # Import conveniences for testing with connections
     end
   end
 

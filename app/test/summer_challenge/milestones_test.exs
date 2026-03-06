@@ -12,8 +12,8 @@ defmodule SummerChallenge.MilestonesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Milestone Test Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 30, :day),
+          start_date: DateTime.add(Clock.utc_now(), -30, :day),
+          end_date: DateTime.add(Clock.utc_now(), 30, :day),
           allowed_sport_types: ["Run", "Ride"],
           status: "active"
         })
@@ -27,7 +27,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Achiever One",
           strava_athlete_id: 111,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       Repo.insert!(%Activity{
@@ -35,7 +35,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 1,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -5, :day),
+        start_at: DateTime.add(Clock.utc_now(), -5, :day),
         distance_m: 50_000,
         # Exactly 40 hours
         moving_time_s: 40 * 60 * 60,
@@ -48,7 +48,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Achiever Two",
           strava_athlete_id: 222,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       Repo.insert!(%Activity{
@@ -56,7 +56,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 2,
         sport_type: "Ride",
-        start_at: DateTime.add(DateTime.utc_now(), -3, :day),
+        start_at: DateTime.add(Clock.utc_now(), -3, :day),
         distance_m: 100_000,
         # 50 hours
         moving_time_s: 50 * 60 * 60,
@@ -83,7 +83,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Almost There",
           strava_athlete_id: 333,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       Repo.insert!(%Activity{
@@ -91,7 +91,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 1,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -5, :day),
+        start_at: DateTime.add(Clock.utc_now(), -5, :day),
         distance_m: 40_000,
         # 39 hours
         moving_time_s: 39 * 60 * 60,
@@ -110,7 +110,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Multi Activity",
           strava_athlete_id: 444,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       # Create multiple activities that together exceed 40 hours
@@ -119,7 +119,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 1,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -10, :day),
+        start_at: DateTime.add(Clock.utc_now(), -10, :day),
         distance_m: 20_000,
         # 15 hours
         moving_time_s: 15 * 60 * 60,
@@ -132,7 +132,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 2,
         sport_type: "Ride",
-        start_at: DateTime.add(DateTime.utc_now(), -5, :day),
+        start_at: DateTime.add(Clock.utc_now(), -5, :day),
         distance_m: 60_000,
         # 20 hours
         moving_time_s: 20 * 60 * 60,
@@ -145,7 +145,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 3,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -2, :day),
+        start_at: DateTime.add(Clock.utc_now(), -2, :day),
         distance_m: 10_000,
         # 6 hours
         moving_time_s: 6 * 60 * 60,
@@ -167,7 +167,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Excluded Activities",
           strava_athlete_id: 555,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       # Included activity - 30 hours
@@ -176,7 +176,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 1,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -10, :day),
+        start_at: DateTime.add(Clock.utc_now(), -10, :day),
         distance_m: 30_000,
         moving_time_s: 30 * 60 * 60,
         elev_gain_m: 300,
@@ -189,7 +189,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 2,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -5, :day),
+        start_at: DateTime.add(Clock.utc_now(), -5, :day),
         distance_m: 15_000,
         moving_time_s: 15 * 60 * 60,
         elev_gain_m: 150,
@@ -209,8 +209,8 @@ defmodule SummerChallenge.MilestonesTest do
       {:ok, other_challenge} =
         Challenges.create_challenge(%{
           name: "Other Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -60, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -31, :day),
+          start_date: DateTime.add(Clock.utc_now(), -60, :day),
+          end_date: DateTime.add(Clock.utc_now(), -31, :day),
           allowed_sport_types: ["Run"],
           status: "archived"
         })
@@ -219,7 +219,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Two Challenges",
           strava_athlete_id: 666,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       # Activity in the specified challenge - 30 hours
@@ -228,7 +228,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 1,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -5, :day),
+        start_at: DateTime.add(Clock.utc_now(), -5, :day),
         distance_m: 30_000,
         moving_time_s: 30 * 60 * 60,
         elev_gain_m: 300,
@@ -241,7 +241,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: other_challenge.id,
         strava_id: 2,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -45, :day),
+        start_at: DateTime.add(Clock.utc_now(), -45, :day),
         distance_m: 20_000,
         moving_time_s: 20 * 60 * 60,
         elev_gain_m: 200,
@@ -261,7 +261,7 @@ defmodule SummerChallenge.MilestonesTest do
         Repo.insert!(%User{
           display_name: "Team Owner",
           strava_athlete_id: 888,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       # Create a team
@@ -276,7 +276,7 @@ defmodule SummerChallenge.MilestonesTest do
           display_name: "Team Member",
           strava_athlete_id: 777,
           team_id: team.id,
-          joined_at: DateTime.utc_now()
+          joined_at: Clock.utc_now()
         })
 
       Repo.insert!(%Activity{
@@ -284,7 +284,7 @@ defmodule SummerChallenge.MilestonesTest do
         challenge_id: challenge.id,
         strava_id: 1,
         sport_type: "Run",
-        start_at: DateTime.add(DateTime.utc_now(), -5, :day),
+        start_at: DateTime.add(Clock.utc_now(), -5, :day),
         distance_m: 50_000,
         moving_time_s: 45 * 60 * 60,
         elev_gain_m: 500,

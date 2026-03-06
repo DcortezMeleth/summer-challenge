@@ -114,7 +114,7 @@ defmodule SummerChallenge.Model.Challenge do
   def active?(%__MODULE__{status: "archived"}), do: false
 
   def active?(%__MODULE__{start_date: start_date, end_date: end_date}) do
-    now = DateTime.utc_now()
+    now = SummerChallenge.Clock.utc_now()
 
     DateTime.compare(now, start_date) in [:gt, :eq] and
       DateTime.compare(now, end_date) in [:lt, :eq]
@@ -125,7 +125,7 @@ defmodule SummerChallenge.Model.Challenge do
   """
   @spec can_delete?(t()) :: boolean()
   def can_delete?(%__MODULE__{start_date: start_date}) do
-    DateTime.before?(DateTime.utc_now(), start_date)
+    DateTime.before?(SummerChallenge.Clock.utc_now(), start_date)
   end
 
   @doc """
@@ -133,7 +133,7 @@ defmodule SummerChallenge.Model.Challenge do
   """
   @spec can_archive?(t()) :: boolean()
   def can_archive?(%__MODULE__{end_date: end_date, status: status}) do
-    status != "archived" and DateTime.after?(DateTime.utc_now(), end_date)
+    status != "archived" and DateTime.after?(SummerChallenge.Clock.utc_now(), end_date)
   end
 
   # Private validation functions

@@ -12,6 +12,13 @@ defmodule SummerChallenge.DataCase do
   PostgreSQL, you can even run database tests asynchronously
   by setting `use SummerChallenge.DataCase, async: true`, although
   this option is not recommended for other databases.
+
+  ## Frozen clock
+
+  All tests automatically get a frozen clock at `SummerChallenge.DataCase.frozen_now/0`.
+  Use `SummerChallenge.Clock.utc_now/0` (aliased as `Clock.utc_now/0` in test modules)
+  instead of `DateTime.utc_now/0` when building time-relative test fixtures so that
+  they stay consistent with the time the application code perceives.
   """
 
   use ExUnit.CaseTemplate
@@ -25,6 +32,7 @@ defmodule SummerChallenge.DataCase do
       import Ecto.Query
       import SummerChallenge.DataCase
 
+      alias SummerChallenge.Clock
       alias SummerChallenge.Repo
     end
   end
@@ -33,6 +41,15 @@ defmodule SummerChallenge.DataCase do
     SummerChallenge.DataCase.setup_sandbox(tags)
     :ok
   end
+
+  @doc """
+  Returns the frozen UTC datetime used as 'now' in all tests.
+
+  Delegates to `SummerChallenge.Clock.utc_now/0`, which in the test environment
+  is backed by `SummerChallenge.Clock.Frozen` and always returns a constant value.
+  """
+  @spec frozen_now() :: DateTime.t()
+  def frozen_now, do: SummerChallenge.Clock.utc_now()
 
   @doc """
   Sets up the sandbox based on the test tags.

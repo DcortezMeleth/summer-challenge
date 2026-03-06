@@ -82,7 +82,7 @@ defmodule SummerChallenge.SyncService do
 
   defp ensure_valid_token(%User{credential: credential} = user) do
     # buffer of 5 minutes
-    if DateTime.after?(credential.expires_at, DateTime.add(DateTime.utc_now(), 300)) do
+    if DateTime.after?(credential.expires_at, DateTime.add(SummerChallenge.Clock.utc_now(), 300)) do
       {:ok, %{access_token: credential.access_token}}
     else
       Logger.info("Refreshing token for user #{user.id}")
@@ -152,7 +152,7 @@ defmodule SummerChallenge.SyncService do
 
   defp update_last_synced(user) do
     user
-    |> Ecto.Changeset.change(%{last_synced_at: DateTime.utc_now()})
+    |> Ecto.Changeset.change(%{last_synced_at: SummerChallenge.Clock.utc_now()})
     |> Repo.update()
   end
 

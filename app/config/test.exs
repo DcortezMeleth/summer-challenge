@@ -36,6 +36,9 @@ config :summer_challenge, SummerChallengeWeb.Endpoint,
   secret_key_base: "F2oFDcpi61xlLy5h5fr4qQ7N1aprmXpKO4OMN+jvtwZEmCQ1bWMAyTwOReD9iJ+m",
   server: false
 
+# Use a frozen clock in tests for deterministic time-dependent behaviour
+config :summer_challenge, :clock, SummerChallenge.Clock.Frozen
+
 # Use mock for Strava client in tests
 config :summer_challenge, :strava_client, SummerChallenge.OAuth.StravaMock
 

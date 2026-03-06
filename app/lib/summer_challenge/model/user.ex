@@ -64,7 +64,7 @@ defmodule SummerChallenge.Model.User do
       if get_field(changeset, :joined_at) do
         changeset
       else
-        put_change(changeset, :joined_at, DateTime.utc_now())
+        put_change(changeset, :joined_at, SummerChallenge.Clock.utc_now())
       end
     end)
   end

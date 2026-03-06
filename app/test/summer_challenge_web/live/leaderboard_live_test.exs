@@ -58,7 +58,7 @@ defmodule SummerChallengeWeb.LeaderboardLiveTest do
       user = %User{
         id: Ecto.UUID.generate(),
         display_name: "Test Athlete",
-        joined_at: DateTime.utc_now()
+        joined_at: Clock.utc_now()
       }
 
       conn =

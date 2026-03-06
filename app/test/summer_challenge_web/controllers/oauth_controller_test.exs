@@ -15,7 +15,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
       token = %OAuth2.AccessToken{
         access_token: "access_token",
         refresh_token: "refresh_token",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
+        expires_at: Clock.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
       }
 
       athlete = %{"id" => 111, "firstname" => "New", "lastname" => "User"}
@@ -41,7 +41,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
       token = %OAuth2.AccessToken{
         access_token: "access_token",
         refresh_token: "refresh_token",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
+        expires_at: Clock.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
       }
 
       StravaMock

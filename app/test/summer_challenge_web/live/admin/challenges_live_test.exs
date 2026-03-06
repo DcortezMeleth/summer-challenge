@@ -101,8 +101,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, _active} =
         Challenges.create_challenge(%{
           name: "Active Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -5, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 15, :day),
+          start_date: DateTime.add(Clock.utc_now(), -5, :day),
+          end_date: DateTime.add(Clock.utc_now(), 15, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -110,8 +110,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, _inactive} =
         Challenges.create_challenge(%{
           name: "Inactive Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 60, :day),
+          start_date: DateTime.add(Clock.utc_now(), 30, :day),
+          end_date: DateTime.add(Clock.utc_now(), 60, :day),
           allowed_sport_types: ["Ride"],
           status: "inactive"
         })
@@ -119,8 +119,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, past} =
         Challenges.create_challenge(%{
           name: "Past Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -5, :day),
+          start_date: DateTime.add(Clock.utc_now(), -30, :day),
+          end_date: DateTime.add(Clock.utc_now(), -5, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -166,8 +166,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, future} =
         Challenges.create_challenge(%{
           name: "Future Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 60, :day),
+          start_date: DateTime.add(Clock.utc_now(), 30, :day),
+          end_date: DateTime.add(Clock.utc_now(), 60, :day),
           allowed_sport_types: ["Run"],
           status: "inactive"
         })
@@ -176,8 +176,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, past} =
         Challenges.create_challenge(%{
           name: "Past Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -5, :day),
+          start_date: DateTime.add(Clock.utc_now(), -30, :day),
+          end_date: DateTime.add(Clock.utc_now(), -5, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -220,8 +220,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       conn = authenticate_conn(conn, admin_user)
       {:ok, view, _html} = live(conn, ~p"/admin/challenges/new")
 
-      start_date = DateTime.add(DateTime.utc_now(), 10, :day)
-      end_date = DateTime.add(DateTime.utc_now(), 40, :day)
+      start_date = DateTime.add(Clock.utc_now(), 10, :day)
+      end_date = DateTime.add(Clock.utc_now(), 40, :day)
 
       view
       |> form("#challenge-form", %{
@@ -252,8 +252,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
         |> form("#challenge-form", %{
           challenge: %{
             name: "",
-            start_date: format_datetime_local(DateTime.utc_now()),
-            end_date: format_datetime_local(DateTime.add(DateTime.utc_now(), 10, :day)),
+            start_date: format_datetime_local(Clock.utc_now()),
+            end_date: format_datetime_local(DateTime.add(Clock.utc_now(), 10, :day)),
             allowed_sport_types: ["Run"]
           }
         })
@@ -266,7 +266,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       conn = authenticate_conn(conn, admin_user)
       {:ok, view, _html} = live(conn, ~p"/admin/challenges/new")
 
-      start_date = DateTime.utc_now()
+      start_date = Clock.utc_now()
       end_date = DateTime.add(start_date, 5, :day)
 
       view
@@ -290,7 +290,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       conn = authenticate_conn(conn, admin_user)
       {:ok, view, _html} = live(conn, ~p"/admin/challenges/new")
 
-      start_date = DateTime.utc_now()
+      start_date = Clock.utc_now()
       end_date = DateTime.add(start_date, 10, :day)
 
       view
@@ -318,8 +318,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Original Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 40, :day),
+          start_date: DateTime.add(Clock.utc_now(), 10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 40, :day),
           allowed_sport_types: ["Run"],
           status: "inactive"
         })
@@ -384,8 +384,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, future_challenge} =
         Challenges.create_challenge(%{
           name: "Future Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 60, :day),
+          start_date: DateTime.add(Clock.utc_now(), 30, :day),
+          end_date: DateTime.add(Clock.utc_now(), 60, :day),
           allowed_sport_types: ["Run"],
           status: "inactive"
         })
@@ -406,8 +406,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, started_challenge} =
         Challenges.create_challenge(%{
           name: "Started Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -5, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 25, :day),
+          start_date: DateTime.add(Clock.utc_now(), -5, :day),
+          end_date: DateTime.add(Clock.utc_now(), 25, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -435,8 +435,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, past_challenge} =
         Challenges.create_challenge(%{
           name: "Past Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -5, :day),
+          start_date: DateTime.add(Clock.utc_now(), -30, :day),
+          end_date: DateTime.add(Clock.utc_now(), -5, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -460,8 +460,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       {:ok, ongoing_challenge} =
         Challenges.create_challenge(%{
           name: "Ongoing Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -5, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 25, :day),
+          start_date: DateTime.add(Clock.utc_now(), -5, :day),
+          end_date: DateTime.add(Clock.utc_now(), 25, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -529,8 +529,8 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       conn = authenticate_conn(conn, admin_user)
       {:ok, view, _html} = live(conn, ~p"/admin/challenges/#{source.id}/clone")
 
-      start_date = DateTime.add(DateTime.utc_now(), 90, :day)
-      end_date = DateTime.add(DateTime.utc_now(), 180, :day)
+      start_date = DateTime.add(Clock.utc_now(), 90, :day)
+      end_date = DateTime.add(Clock.utc_now(), 180, :day)
 
       view
       |> form("#challenge-form", %{
@@ -560,7 +560,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       display_name: "Admin User",
       strava_athlete_id: 999_999,
       is_admin: true,
-      joined_at: DateTime.utc_now()
+      joined_at: Clock.utc_now()
     })
   end
 
@@ -570,7 +570,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLiveTest do
       display_name: "Regular User",
       strava_athlete_id: 888_888,
       is_admin: false,
-      joined_at: DateTime.utc_now()
+      joined_at: Clock.utc_now()
     })
   end
 

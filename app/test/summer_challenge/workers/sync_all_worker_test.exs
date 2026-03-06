@@ -19,8 +19,8 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Test Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -7, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 7, :day),
+          start_date: DateTime.add(Clock.utc_now(), -7, :day),
+          end_date: DateTime.add(Clock.utc_now(), 7, :day),
           allowed_sport_types: ["Run", "Ride"],
           status: "active"
         })
@@ -32,14 +32,14 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
         user_id: user1.id,
         access_token: "token1",
         refresh_token: "refresh1",
-        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
+        expires_at: DateTime.add(Clock.utc_now(), 3600, :second)
       })
 
       Repo.insert!(%UserCredential{
         user_id: user2.id,
         access_token: "token2",
         refresh_token: "refresh2",
-        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
+        expires_at: DateTime.add(Clock.utc_now(), 3600, :second)
       })
 
       {:ok, challenge: challenge, user1: user1, user2: user2}
@@ -52,7 +52,7 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
            %{
              "id" => :rand.uniform(100_000),
              "type" => "Run",
-             "start_date" => DateTime.to_iso8601(DateTime.utc_now()),
+             "start_date" => DateTime.to_iso8601(Clock.utc_now()),
              "distance" => 5000,
              "moving_time" => 1800,
              "total_elevation_gain" => 100

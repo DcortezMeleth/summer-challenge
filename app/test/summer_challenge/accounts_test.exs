@@ -78,7 +78,7 @@ defmodule SummerChallenge.AccountsTest do
       token_data = %{
         access_token: "secret_access_token",
         refresh_token: "secret_refresh_token",
-        expires_at: DateTime.to_unix(DateTime.utc_now())
+        expires_at: DateTime.to_unix(Clock.utc_now())
       }
 
       assert :ok = Accounts.store_credentials(user.id, token_data)

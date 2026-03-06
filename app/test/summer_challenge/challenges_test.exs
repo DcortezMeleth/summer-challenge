@@ -120,8 +120,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, active} =
         Challenges.create_challenge(%{
           name: "Active Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 10, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -203,8 +203,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, _older_active} =
         Challenges.create_challenge(%{
           name: "Older Active",
-          start_date: DateTime.add(DateTime.utc_now(), -30, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -30, :day),
+          end_date: DateTime.add(Clock.utc_now(), 10, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -213,8 +213,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, newer_active} =
         Challenges.create_challenge(%{
           name: "Newer Active",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 20, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 20, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -310,8 +310,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Future Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 40, :day),
+          start_date: DateTime.add(Clock.utc_now(), 10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 40, :day),
           allowed_sport_types: ["Run"],
           status: "inactive"
         })
@@ -324,8 +324,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Started Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 20, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 20, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -339,8 +339,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Ended Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -40, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -40, :day),
+          end_date: DateTime.add(Clock.utc_now(), -10, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -353,8 +353,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Ongoing Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 20, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 20, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -366,8 +366,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Already Archived",
-          start_date: DateTime.add(DateTime.utc_now(), -40, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -40, :day),
+          end_date: DateTime.add(Clock.utc_now(), -10, :day),
           allowed_sport_types: ["Run"],
           status: "archived"
         })
@@ -463,8 +463,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Current Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 10, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -476,8 +476,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Future Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 40, :day),
+          start_date: DateTime.add(Clock.utc_now(), 10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 40, :day),
           allowed_sport_types: ["Run"],
           status: "inactive"
         })
@@ -489,8 +489,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Past Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -40, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -40, :day),
+          end_date: DateTime.add(Clock.utc_now(), -10, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -502,8 +502,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Archived Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -40, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -40, :day),
+          end_date: DateTime.add(Clock.utc_now(), -10, :day),
           allowed_sport_types: ["Run"],
           status: "archived"
         })
@@ -517,8 +517,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Future Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), 10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 40, :day),
+          start_date: DateTime.add(Clock.utc_now(), 10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 40, :day),
           allowed_sport_types: ["Run"],
           status: "inactive"
         })
@@ -530,8 +530,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Started Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 20, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 20, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -545,8 +545,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Ended Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -40, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -40, :day),
+          end_date: DateTime.add(Clock.utc_now(), -10, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -558,8 +558,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Ongoing Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -10, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 20, :day),
+          start_date: DateTime.add(Clock.utc_now(), -10, :day),
+          end_date: DateTime.add(Clock.utc_now(), 20, :day),
           allowed_sport_types: ["Run"],
           status: "active"
         })
@@ -571,8 +571,8 @@ defmodule SummerChallenge.ChallengesTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Already Archived",
-          start_date: DateTime.add(DateTime.utc_now(), -40, :day),
-          end_date: DateTime.add(DateTime.utc_now(), -10, :day),
+          start_date: DateTime.add(Clock.utc_now(), -40, :day),
+          end_date: DateTime.add(Clock.utc_now(), -10, :day),
           allowed_sport_types: ["Run"],
           status: "archived"
         })

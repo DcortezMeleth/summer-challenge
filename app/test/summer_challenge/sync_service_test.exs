@@ -31,7 +31,7 @@ defmodule SummerChallenge.SyncServiceTest do
         user_id: user.id,
         access_token: "old_access_token",
         refresh_token: "refresh_token",
-        expires_at: DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:microsecond)
+        expires_at: Clock.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:microsecond)
       })
 
       {:ok, user: user, challenge: challenge}
@@ -71,7 +71,7 @@ defmodule SummerChallenge.SyncServiceTest do
       user = Repo.preload(user, :credential)
 
       user.credential
-      |> Ecto.Changeset.change(%{expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)})
+      |> Ecto.Changeset.change(%{expires_at: DateTime.add(Clock.utc_now(), -3600, :second)})
       |> Repo.update!()
 
       # Reload user to get the updated credential
@@ -83,7 +83,7 @@ defmodule SummerChallenge.SyncServiceTest do
          %{
            "access_token" => "new_access_token",
            "refresh_token" => "new_refresh_token",
-           "expires_at" => DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
+           "expires_at" => Clock.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
          }}
       end)
       |> expect(:list_activities, fn %{access_token: "new_access_token"}, _params ->
@@ -208,8 +208,8 @@ defmodule SummerChallenge.SyncServiceTest do
       {:ok, challenge} =
         Challenges.create_challenge(%{
           name: "Active Challenge",
-          start_date: DateTime.add(DateTime.utc_now(), -7, :day),
-          end_date: DateTime.add(DateTime.utc_now(), 7, :day),
+          start_date: DateTime.add(Clock.utc_now(), -7, :day),
+          end_date: DateTime.add(Clock.utc_now(), 7, :day),
           allowed_sport_types: ["Run", "Ride"],
           status: "active"
         })
@@ -221,14 +221,14 @@ defmodule SummerChallenge.SyncServiceTest do
         user_id: user1.id,
         access_token: "token1",
         refresh_token: "refresh1",
-        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
+        expires_at: DateTime.add(Clock.utc_now(), 3600, :second)
       })
 
       Repo.insert!(%UserCredential{
         user_id: user2.id,
         access_token: "token2",
         refresh_token: "refresh2",
-        expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
+        expires_at: DateTime.add(Clock.utc_now(), 3600, :second)
       })
 
       {:ok, challenge: challenge, user1: user1, user2: user2}
@@ -241,7 +241,7 @@ defmodule SummerChallenge.SyncServiceTest do
            %{
              "id" => :rand.uniform(100_000),
              "type" => "Run",
-             "start_date" => DateTime.to_iso8601(DateTime.utc_now()),
+             "start_date" => DateTime.to_iso8601(Clock.utc_now()),
              "distance" => 5000,
              "moving_time" => 1800,
              "total_elevation_gain" => 100

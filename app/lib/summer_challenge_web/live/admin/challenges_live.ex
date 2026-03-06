@@ -399,7 +399,7 @@ defmodule SummerChallengeWeb.Admin.ChallengesLive do
   defp count_failed_jobs_24h do
     import Ecto.Query
 
-    twenty_four_hours_ago = DateTime.add(DateTime.utc_now(), -24 * 60 * 60)
+    twenty_four_hours_ago = DateTime.add(SummerChallenge.Clock.utc_now(), -24 * 60 * 60)
 
     SummerChallenge.Repo.one(
       from j in Oban.Job,
