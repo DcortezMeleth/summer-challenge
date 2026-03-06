@@ -88,11 +88,14 @@ defmodule SummerChallenge.Challenges do
 
     case active_challenge do
       nil ->
-        # No active challenges, get most recent inactive
+        # No active challenges - prefer the most recently ended over upcoming challenges
         recent_challenge =
           Challenge
           |> where([c], c.status != "archived")
-          |> order_by([c], desc: c.start_date)
+          |> order_by([c],
+            desc: fragment("CASE WHEN ? < ? THEN 1 ELSE 0 END", c.end_date, ^now),
+            desc: c.end_date
+          )
           |> limit(1)
           |> Repo.one()
 
