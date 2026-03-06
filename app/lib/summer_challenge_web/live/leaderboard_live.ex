@@ -121,12 +121,11 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         <.error_banner :if={@page.error_message} error_message={@page.error_message} />
 
         <.leaderboard_table
-          sport_label={@page.sport_label}
           rows={@page.rows}
           empty_message={@page.empty_message}
         />
 
-        <.team_standings_section :if={@team_rows != []} team_rows={@team_rows} sport_label={@page.sport_label} />
+        <.team_standings_section :if={@team_rows != []} team_rows={@team_rows} />
       </div>
     </main>
     """
@@ -138,7 +137,6 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       <h2 class="text-lg font-semibold text-ui-900 mb-3 flex items-center gap-2">
         <.icon name="hero-user-group" class="w-5 h-5 text-brand-600" />
         Team Standings
-        <span class="text-sm font-normal text-ui-500">· <%= @sport_label %></span>
       </h2>
 
       <div class="bg-white/90 shadow-sport rounded-2xl overflow-hidden ring-1 ring-ui-200">
@@ -169,17 +167,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
             <tbody class="bg-white divide-y divide-ui-100">
               <tr :for={row <- @team_rows} class="odd:bg-white even:bg-ui-50 hover:bg-brand-50/70 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap text-sm tabular-nums">
-                  <span class={[
-                    "inline-flex items-center justify-center h-7 min-w-7 px-2 rounded-full font-bold",
-                    case row.rank do
-                      1 -> "bg-amber-400 text-amber-900 ring-1 ring-amber-500/50 shadow-sm"
-                      2 -> "bg-slate-200 text-slate-600 ring-1 ring-slate-400/50"
-                      3 -> "bg-orange-100 text-orange-800 ring-1 ring-orange-400/50"
-                      _ -> "bg-ui-100 text-ui-900"
-                    end
-                  ]}>
-                    <%= row.rank %>
-                  </span>
+                  <.rank_badge rank={row.rank} />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-ui-900">
                   <div class="flex items-center gap-2">
@@ -205,6 +193,98 @@ defmodule SummerChallengeWeb.LeaderboardLive do
         </div>
       </div>
     </section>
+    """
+  end
+
+  defp leaderboard_table(assigns) do
+    ~H"""
+    <div class="bg-white/90 shadow-sport rounded-2xl overflow-hidden ring-1 ring-ui-200" role="region" aria-labelledby="leaderboard-heading">
+      <div class="overflow-x-auto">
+        <table class="min-w-[52rem] w-full divide-y divide-ui-200" aria-label="Individual Rankings">
+          <caption id="leaderboard-heading" class="text-lg font-semibold text-white py-4 px-6 text-left bg-gradient-to-r from-brand-900 to-brand-700">
+            Individual Rankings
+          </caption>
+          <thead class="bg-ui-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Rank
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Team
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Distance
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Time
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Elevation
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                Activities
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-ui-100">
+            <.individual_row :for={row <- @rows} row={row} />
+          </tbody>
+        </table>
+      </div>
+
+      <div :if={@rows == []} class="text-center py-12 px-6" role="status" aria-live="polite">
+        <p class="text-ui-600 text-sm">
+          <%= @empty_message %>
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp individual_row(assigns) do
+    ~H"""
+    <tr class="odd:bg-white even:bg-ui-50 hover:bg-brand-50/70 transition-colors">
+      <td class="px-6 py-4 whitespace-nowrap text-sm tabular-nums">
+        <.rank_badge rank={@row.rank} />
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-900">
+        <span class="font-semibold"><%= @row.display_name %></span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-ui-700">
+        <%= @row.team_name %>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Distance covered">
+        <%= @row.distance_label %>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Moving time">
+        <%= @row.moving_time_label %>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Elevation gain">
+        <%= @row.elev_gain_label %>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums" aria-label="Number of activities">
+        <%= @row.activity_count_label %>
+      </td>
+    </tr>
+    """
+  end
+
+  defp rank_badge(assigns) do
+    ~H"""
+    <span class={[
+      "inline-flex items-center justify-center h-7 min-w-7 px-2 rounded-full font-bold",
+      case @rank do
+        1 -> "bg-amber-400 text-amber-900 ring-1 ring-amber-500/50 shadow-sm"
+        2 -> "bg-slate-200 text-slate-600 ring-1 ring-slate-400/50"
+        3 -> "bg-orange-100 text-orange-800 ring-1 ring-orange-400/50"
+        _ -> "bg-ui-100 text-ui-900"
+      end
+    ]}>
+      <%= @rank %>
+    </span>
     """
   end
 
