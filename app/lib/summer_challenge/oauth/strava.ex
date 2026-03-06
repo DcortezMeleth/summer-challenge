@@ -6,20 +6,11 @@ defmodule SummerChallenge.OAuth.Strava do
   token exchange, and profile fetching.
   """
 
-  @behaviour API
+  @behaviour SummerChallenge.OAuth.Strava.API
 
   use OAuth2.Strategy
 
   alias OAuth2.Strategy.AuthCode
-
-  defmodule API do
-    @moduledoc "Behaviour for mocking Strava API calls in tests."
-    @callback authorize_url!(keyword()) :: String.t()
-    @callback get_token!(keyword()) :: OAuth2.AccessToken.t()
-    @callback get_athlete(OAuth2.AccessToken.t()) :: {:ok, map()} | {:error, term()}
-    @callback list_activities(OAuth2.AccessToken.t(), map()) :: {:ok, [map()]} | {:error, term()}
-    @callback refresh_token(String.t()) :: {:ok, map()} | {:error, term()}
-  end
 
   @doc """
   Returns the authorize URL for Strava OAuth.
@@ -43,7 +34,7 @@ defmodule SummerChallenge.OAuth.Strava do
   @doc """
   Returns the authorization URL with required scopes.
   """
-  @impl true
+  @impl SummerChallenge.OAuth.Strava.API
   def authorize_url!(params \\ []) do
     OAuth2.Client.authorize_url!(
       client(),
@@ -54,7 +45,7 @@ defmodule SummerChallenge.OAuth.Strava do
   @doc """
   Exchanges authorization code for access token.
   """
-  @impl true
+  @impl SummerChallenge.OAuth.Strava.API
   def get_token!(params \\ []) do
     # Use custom implementation to ensure proper form-encoded request
     exchange_token(params[:code])
@@ -101,7 +92,7 @@ defmodule SummerChallenge.OAuth.Strava do
   @doc """
   Fetches athlete profile from Strava API.
   """
-  @impl true
+  @impl SummerChallenge.OAuth.Strava.API
   def get_athlete(token) do
     client = client()
     url = "#{client.site}/api/v3/athlete"
@@ -130,7 +121,7 @@ defmodule SummerChallenge.OAuth.Strava do
   - `token`: OAuth2 access token
   - `params`: Query parameters (e.g., `after`, `before`, `page`, `per_page`)
   """
-  @impl true
+  @impl SummerChallenge.OAuth.Strava.API
   def list_activities(token, params \\ %{}) do
     client = client()
     url = "#{client.site}/api/v3/athlete/activities"
@@ -152,7 +143,7 @@ defmodule SummerChallenge.OAuth.Strava do
     end
   end
 
-  @impl true
+  @impl SummerChallenge.OAuth.Strava.API
   def refresh_token(refresh_token) do
     client = client()
     url = "#{client.site}#{client.token_url}"
