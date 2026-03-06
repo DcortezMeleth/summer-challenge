@@ -224,11 +224,12 @@ defmodule SummerChallenge.ChallengesTest do
     end
 
     test "returns most recent inactive challenge when no active challenges" do
+      # Both challenges are in the past; the one with the latest end_date is "most recent".
       {:ok, recent_inactive} =
         Challenges.create_challenge(%{
           name: "Recent Inactive",
-          start_date: ~U[2026-06-01 00:00:00Z],
-          end_date: ~U[2026-08-31 23:59:59Z],
+          start_date: ~U[2025-12-01 00:00:00Z],
+          end_date: ~U[2026-01-31 23:59:59Z],
           allowed_sport_types: ["Run"],
           status: "inactive"
         })

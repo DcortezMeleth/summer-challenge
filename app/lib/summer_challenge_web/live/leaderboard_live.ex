@@ -16,9 +16,11 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket = assign(socket, :sport, :running_outdoor)
+    socket =
+      socket
+      |> assign(:sport, :running_outdoor)
+      |> assign(:team_rows, [])
 
-    # Load default challenge
     selected_challenge_id =
       case Challenges.get_default_challenge() do
         {:ok, challenge} -> challenge.id
@@ -122,8 +124,86 @@ defmodule SummerChallengeWeb.LeaderboardLive do
           rows={@page.rows}
           empty_message={@page.empty_message}
         />
+
+        <.team_standings_section :if={@team_rows != []} team_rows={@team_rows} sport_label={@page.sport_label} />
       </div>
     </main>
+    """
+  end
+
+  defp team_standings_section(assigns) do
+    ~H"""
+    <section class="mt-8" aria-label="Team Standings">
+      <h2 class="text-lg font-semibold text-ui-900 mb-3 flex items-center gap-2">
+        <.icon name="hero-user-group" class="w-5 h-5 text-brand-600" />
+        Team Standings
+        <span class="text-sm font-normal text-ui-500">· <%= @sport_label %></span>
+      </h2>
+
+      <div class="bg-white/90 shadow-sport rounded-2xl overflow-hidden ring-1 ring-ui-200">
+        <div class="overflow-x-auto">
+          <table class="min-w-[40rem] w-full divide-y divide-ui-200" aria-label="Team Standings">
+            <thead class="bg-ui-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                  Rank
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                  Team
+                </th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                  Distance
+                </th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                  Time
+                </th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                  Elevation
+                </th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-ui-600 uppercase tracking-wider">
+                  Activities
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-ui-100">
+              <tr :for={row <- @team_rows} class="odd:bg-white even:bg-ui-50 hover:bg-brand-50/70 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm tabular-nums">
+                  <span class={[
+                    "inline-flex items-center justify-center h-7 min-w-7 px-2 rounded-full font-bold",
+                    case row.rank do
+                      1 -> "bg-amber-400 text-amber-900 ring-1 ring-amber-500/50 shadow-sm"
+                      2 -> "bg-slate-200 text-slate-600 ring-1 ring-slate-400/50"
+                      3 -> "bg-orange-100 text-orange-800 ring-1 ring-orange-400/50"
+                      _ -> "bg-ui-100 text-ui-900"
+                    end
+                  ]}>
+                    <%= row.rank %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-ui-900">
+                  <div class="flex items-center gap-2">
+                    <.icon name="hero-user-group" class="w-4 h-4 text-brand-500 flex-shrink-0" />
+                    <%= row.team_name %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums">
+                  <%= row.distance_label %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums">
+                  <%= row.moving_time_label %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums">
+                  <%= row.elev_gain_label %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-sky-700 font-medium text-right tabular-nums">
+                  <%= row.activity_count_label %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
     """
   end
 
@@ -183,11 +263,15 @@ defmodule SummerChallengeWeb.LeaderboardLive do
 
   defp handle_sport_loading(socket, sport_category, challenge_id, available_sports) do
     case load_leaderboard_data(sport_category, challenge_id, available_sports) do
-      {:ok, page_data} ->
-        assign_sport_page(socket, page_data, sport_category, available_sports)
+      {:ok, page_data, team_rows} ->
+        socket
+        |> assign_sport_page(page_data, sport_category, available_sports)
+        |> assign(:team_rows, team_rows)
 
       {:error, reason} ->
-        assign_error_page(socket, sport_category, reason, available_sports)
+        socket
+        |> assign_error_page(sport_category, reason, available_sports)
+        |> assign(:team_rows, [])
     end
   end
 
@@ -219,6 +303,7 @@ defmodule SummerChallengeWeb.LeaderboardLive do
     |> assign(:page, build_no_challenge_page())
     |> assign(:sport, :running_outdoor)
     |> assign(:available_sports, [:running_outdoor, :cycling_outdoor])
+    |> assign(:team_rows, [])
   end
 
   @spec load_challenge_sports(binary() | nil) :: {:ok, [atom()]} | {:error, :no_challenge}
@@ -268,24 +353,44 @@ defmodule SummerChallengeWeb.LeaderboardLive do
   defp format_sport_name(sport), do: sport_category_to_label(sport)
 
   @spec load_leaderboard_data(atom(), binary() | nil, [atom()]) ::
-          {:ok, LeaderboardVM.page()} | {:error, term()}
+          {:ok, LeaderboardVM.page(), [map()]} | {:error, term()}
   defp load_leaderboard_data(sport_category, challenge_id, available_sports) do
     case Leaderboards.get_public_leaderboard(sport_category, challenge_id: challenge_id) do
       {:ok, %{entries: entries, last_sync_at: last_sync_at}} ->
-        # Map DTOs to view models and build page data
         rows = Enum.map(entries, &LeaderboardVM.row/1)
         sport_label = sport_category_to_label(sport_category)
-
-        # Generate tabs dynamically based on available sports
         tabs = build_sport_tabs(available_sports, sport_category)
-
         last_sync_label = SummerChallengeWeb.Formatters.format_warsaw_datetime(last_sync_at)
-
         page = LeaderboardVM.page(sport_category, sport_label, tabs, last_sync_label, rows, nil)
-        {:ok, page}
+
+        team_rows = load_team_rows(sport_category, challenge_id)
+
+        {:ok, page, team_rows}
 
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  @spec load_team_rows(atom(), binary() | nil) :: [map()]
+  defp load_team_rows(sport_category, challenge_id) do
+    case Leaderboards.get_team_leaderboard(sport_category, challenge_id: challenge_id) do
+      {:ok, %{entries: entries}} ->
+        Enum.map(entries, fn entry ->
+          %{
+            rank: entry.rank,
+            team_name: entry.team.name,
+            distance_label: SummerChallengeWeb.Formatters.format_km(entry.totals.distance_m),
+            moving_time_label:
+              SummerChallengeWeb.Formatters.format_duration(entry.totals.moving_time_s),
+            elev_gain_label:
+              SummerChallengeWeb.Formatters.format_meters(entry.totals.elev_gain_m),
+            activity_count_label: Integer.to_string(entry.totals.activity_count)
+          }
+        end)
+
+      {:error, _} ->
+        []
     end
   end
 
