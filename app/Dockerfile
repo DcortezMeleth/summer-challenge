@@ -3,10 +3,7 @@ FROM elixir:1.19-otp-28 AS builder
 
 WORKDIR /build
 
-# Install Node.js for asset pipeline (esbuild, tailwind)
 RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -30,8 +27,6 @@ COPY rel rel
 
 RUN mix compile
 
-# Install JS dependencies and build assets
-RUN npm install --prefix assets
 RUN mix assets.deploy
 
 RUN mix release
