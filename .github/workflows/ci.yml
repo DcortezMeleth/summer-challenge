@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: summer_challenge
+          POSTGRES_PASSWORD: summer_challenge
+          POSTGRES_DB: summer_challenge_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      MIX_ENV: test
+      DB_USERNAME: summer_challenge
+      DB_PASSWORD: summer_challenge
+      DB_HOSTNAME: localhost
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.19.5'
+          otp-version: '28.0'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: app/deps
+          key: deps-${{ hashFiles('app/mix.lock') }}
+          restore-keys: deps-
+
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: app/_build/test
+          key: build-test-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/lib/**') }}
+          restore-keys: build-test-${{ hashFiles('app/mix.lock') }}-
+
+      - name: Install Elixir dependencies
+        run: mix deps.get
+
+      - name: Install JS dependencies
+        run: npm install --prefix assets
+
+      - name: Set up assets (Tailwind, esbuild)
+        run: mix assets.setup
+
+      - name: Run precommit checks
+        run: mix precommit
+
+  docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          push: false
+          tags: summer-challenge:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
