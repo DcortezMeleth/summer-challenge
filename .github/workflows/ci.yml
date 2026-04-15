@@ -112,6 +112,11 @@ jobs:
       - name: Set build metadata
         run: echo "BUILD_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
+      - name: Boot accessories
+        run: kamal accessory boot db
+        working-directory: app
+        continue-on-error: true
+
       - name: Deploy
         run: kamal deploy
         working-directory: app
