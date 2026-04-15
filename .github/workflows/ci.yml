@@ -41,7 +41,7 @@ jobs:
       DB_HOSTNAME: localhost
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
@@ -50,14 +50,14 @@ jobs:
           otp-version: '28.0'
 
       - name: Cache deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: app/deps
           key: deps-${{ hashFiles('app/mix.lock') }}
           restore-keys: deps-
 
       - name: Cache build
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: app/_build/test
           key: build-test-${{ hashFiles('app/mix.lock') }}-${{ hashFiles('app/lib/**') }}
@@ -80,7 +80,7 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
