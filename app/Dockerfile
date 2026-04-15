@@ -43,8 +43,14 @@ RUN apt-get update && apt-get install -y \
     openssl \
     ca-certificates \
     locales \
+    && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen \
+    && locale-gen \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m appuser
+
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 COPY --from=builder --chown=appuser:appuser /build/_build/prod/rel/summer_challenge ./
 
