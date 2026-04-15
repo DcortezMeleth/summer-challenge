@@ -105,8 +105,9 @@ jobs:
       - name: Set up GCP registry credentials
         run: |
           mkdir -p ~/.gcp
-          echo '${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}' > ~/.gcp/summer-challenge-registry-key.json
-          chmod 600 ~/.gcp/summer-challenge-registry-key.json
+          echo '${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}' | base64 | tr -d '\n' > ~/.gcp/summer-challenge-registry-key.b64
+          chmod 600 ~/.gcp/summer-challenge-registry-key.b64
+          echo "GCP_ARTIFACT_REGISTRY_KEY_BASE64=$(cat ~/.gcp/summer-challenge-registry-key.b64)" >> $GITHUB_ENV
 
       - name: Set build metadata
         run: echo "BUILD_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
@@ -121,7 +122,7 @@ jobs:
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
           PHX_HOST: ${{ secrets.PHX_HOST }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          GCP_ARTIFACT_REGISTRY_KEY: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
+          GCP_ARTIFACT_REGISTRY_KEY_BASE64: ${{ env.GCP_ARTIFACT_REGISTRY_KEY_BASE64 }}
           BUILD_RUN_NUMBER: ${{ github.run_number }}
           BUILD_GIT_SHA: ${{ github.sha }}
           BUILD_TIMESTAMP: ${{ env.BUILD_TIMESTAMP }}

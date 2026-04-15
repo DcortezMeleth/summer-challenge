@@ -4,9 +4,9 @@ image: europe-central2-docker.pkg.dev/sport-challenge-489807/summer-challenge/we
 
 registry:
   server: europe-central2-docker.pkg.dev
-  username: _json_key
+  username: _json_key_base64
   password:
-    - GCP_ARTIFACT_REGISTRY_KEY
+    - GCP_ARTIFACT_REGISTRY_KEY_BASE64
 
 servers:
   web:
