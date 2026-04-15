@@ -1,6 +1,6 @@
 service: summer-challenge
 
-image: europe-central2-docker.pkg.dev/sport-challenge-489807/summer-challenge/web-app
+image: sport-challenge-489807/summer-challenge/web-app
 
 registry:
   server: europe-central2-docker.pkg.dev
