@@ -1,0 +1,59 @@
+service: summer-challenge
+
+image: europe-central2-docker.pkg.dev/sport-challenge-489807/summer-challenge/web-app
+
+registry:
+  server: europe-central2-docker.pkg.dev
+  username: _json_key
+  password:
+    - GCP_ARTIFACT_REGISTRY_KEY
+
+servers:
+  web:
+    - 34.118.49.37
+
+proxy:
+  host: <%= ENV["PHX_HOST"] %>
+  ssl: false
+  app_port: 4000
+  healthcheck:
+    interval: 10
+    path: /up
+    timeout: 300
+
+builder:
+  arch: amd64
+  cache:
+    type: registry
+    options: mode=max
+
+env:
+  clear:
+    PHX_HOST: <%= ENV["PHX_HOST"] %>
+    BUILD_RUN_NUMBER: "<%= ENV["BUILD_RUN_NUMBER"] || "" %>"
+    BUILD_GIT_SHA: "<%= ENV["BUILD_GIT_SHA"] || ENV["GITHUB_SHA"] || "" %>"
+    BUILD_TIMESTAMP: "<%= ENV["BUILD_TIMESTAMP"] || "" %>"
+  secret:
+    - SECRET_KEY_BASE
+    - DATABASE_URL
+    - STRAVA_CLIENT_ID
+    - STRAVA_CLIENT_SECRET
+
+ssh:
+  user: deploy
+  keys:
+    - ~/.ssh/summer-challenge-deploy
+
+accessories:
+  db:
+    image: postgres:17-alpine
+    host: 34.118.49.37
+    port: 5432
+    env:
+      clear:
+        POSTGRES_DB: summer_challenge_prod
+        POSTGRES_USER: postgres
+      secret:
+        - POSTGRES_PASSWORD
+    volumes:
+      - summer_challenge_db:/var/lib/postgresql/data
