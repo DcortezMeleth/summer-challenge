@@ -9,6 +9,7 @@ defmodule SummerChallenge.Workers.StartupSyncCheck do
 
   import Ecto.Query
 
+  alias SummerChallenge.Challenges
   alias SummerChallenge.Model.User
   alias SummerChallenge.Repo
   alias SummerChallenge.Workers.SyncAllWorker
@@ -22,6 +23,16 @@ defmodule SummerChallenge.Workers.StartupSyncCheck do
   after Oban has started.
   """
   def run do
+    case Challenges.get_default_challenge() do
+      {:error, :no_challenges} ->
+        Logger.info("Startup sync check: no challenges configured yet, skipping catch-up enqueue")
+
+      {:ok, _} ->
+        maybe_enqueue_catch_up_sync()
+    end
+  end
+
+  defp maybe_enqueue_catch_up_sync do
     last_synced_at = Repo.one(from u in User, select: max(u.last_synced_at))
 
     if sync_needed?(last_synced_at) do

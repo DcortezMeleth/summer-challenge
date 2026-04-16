@@ -72,11 +72,11 @@ defmodule SummerChallenge.Workers.SyncAllWorkerTest do
       assert Enum.all?(activities, &(&1.challenge_id == challenge.id))
     end
 
-    test "handles errors gracefully when no challenge exists" do
+    test "skips gracefully when no challenge exists" do
       # Delete all challenges
       Repo.delete_all(SummerChallenge.Model.Challenge)
 
-      assert {:error, :no_challenges} = perform_job(SyncAllWorker, %{})
+      assert :ok = perform_job(SyncAllWorker, %{})
     end
 
     test "returns stats even when some users fail" do

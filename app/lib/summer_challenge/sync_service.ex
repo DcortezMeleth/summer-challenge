@@ -31,6 +31,10 @@ defmodule SummerChallenge.SyncService do
           error: Enum.count(results, &match?({:error, _}, &1))
         }
 
+      {:error, :no_challenges} ->
+        Logger.info("Skipping full sync: no challenge configured yet.")
+        {:skip, :no_challenges}
+
       {:error, reason} ->
         Logger.error("Failed to start sync: challenge not found. Reason: #{inspect(reason)}")
         {:error, reason}

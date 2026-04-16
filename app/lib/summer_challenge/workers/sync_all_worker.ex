@@ -19,6 +19,10 @@ defmodule SummerChallenge.Workers.SyncAllWorker do
     Logger.info("Starting scheduled sync for all users")
 
     case SyncService.sync_all() do
+      {:skip, :no_challenges} ->
+        Logger.info("Scheduled sync skipped: no challenges configured yet")
+        :ok
+
       %{total: total, success: success, error: error} = result ->
         Logger.info("Sync completed: #{success}/#{total} successful, #{error} errors")
 

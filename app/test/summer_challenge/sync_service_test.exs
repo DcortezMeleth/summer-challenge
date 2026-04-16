@@ -261,13 +261,13 @@ defmodule SummerChallenge.SyncServiceTest do
       assert Enum.all?(activities, &(&1.challenge_id == challenge.id))
     end
 
-    test "returns error when no default challenge exists" do
+    test "skips sync when no default challenge exists" do
       # Delete all challenges
       Repo.delete_all(SummerChallenge.Model.Challenge)
 
       result = SyncService.sync_all()
 
-      assert {:error, :no_challenges} = result
+      assert {:skip, :no_challenges} = result
     end
   end
 end

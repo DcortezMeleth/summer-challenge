@@ -39,6 +39,9 @@ config :summer_challenge, SummerChallengeWeb.Endpoint,
 # Use a frozen clock in tests for deterministic time-dependent behaviour
 config :summer_challenge, :clock, SummerChallenge.Clock.Frozen
 
+# Avoid DB access from unsupervised Task (Sandbox ownership)
+config :summer_challenge, :run_startup_sync_check, false
+
 # Use mock for Strava client in tests
 config :summer_challenge, :strava_client, SummerChallenge.OAuth.StravaMock
 

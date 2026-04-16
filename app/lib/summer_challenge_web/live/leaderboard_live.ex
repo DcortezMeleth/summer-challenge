@@ -507,8 +507,9 @@ defmodule SummerChallengeWeb.LeaderboardLive do
       tabs: [],
       last_sync_label: "Unknown",
       rows: [],
-      empty_message: "No challenges available.",
-      error_message: "No challenges are currently configured. Please contact an administrator."
+      empty_message: "Welcome — leaderboards will appear here once a challenge is live.",
+      error_message:
+        "There is no active challenge yet. Check back soon, or ask your organizer when the next challenge starts."
     }
   end
 end

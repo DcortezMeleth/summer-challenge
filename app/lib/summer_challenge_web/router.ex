@@ -18,6 +18,11 @@ defmodule SummerChallengeWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Liveness check for reverse proxy / Kamal (no session, minimal work)
+  scope "/", SummerChallengeWeb do
+    get "/up", HealthController, :up
+  end
+
   # Public routes - no authentication required
   scope "/", SummerChallengeWeb do
     pipe_through :browser
