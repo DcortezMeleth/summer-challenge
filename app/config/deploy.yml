@@ -29,7 +29,7 @@ builder:
 
 env:
   clear:
-    PHX_HOST: <%= ENV["PHX_HOST"] %>
+    PHX_HOST: "<%= ENV["PHX_HOST"] %>"
     BUILD_RUN_NUMBER: "<%= ENV["BUILD_RUN_NUMBER"] || "" %>"
     BUILD_GIT_SHA: "<%= ENV["BUILD_GIT_SHA"] || ENV["GITHUB_SHA"] || "" %>"
     BUILD_TIMESTAMP: "<%= ENV["BUILD_TIMESTAMP"] || "" %>"
