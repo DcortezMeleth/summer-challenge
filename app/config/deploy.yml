@@ -48,6 +48,8 @@ accessories:
   db:
     image: postgres:17-alpine
     host: 34.118.49.37
+    # Must match the app role (`kamal` is default); required for Docker DNS name `summer-challenge-db`.
+    network: kamal
     port: 5432
     env:
       clear:

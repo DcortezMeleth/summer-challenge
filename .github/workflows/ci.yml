@@ -112,10 +112,23 @@ jobs:
       - name: Set build metadata
         run: echo "BUILD_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
-      - name: Boot accessories
-        run: kamal accessory boot db
+      # Recreate the DB container on the `kamal` network so it matches the app (same bridge DNS as
+      # hostname `summer-challenge-db`). `boot` skips when a container already exists, which leaves
+      # a legacy accessory off-network and causes :nxdomain from the app.
+      - name: Ensure database accessory (Kamal network)
+        run: kamal accessory reboot db
         working-directory: app
-        continue-on-error: true
+        env:
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          GCP_ARTIFACT_REGISTRY_KEY_BASE64: ${{ env.GCP_ARTIFACT_REGISTRY_KEY_BASE64 }}
+          PHX_HOST: ${{ vars.PHX_HOST }}
+
+      - name: Wait for Postgres after accessory restart
+        run: sleep 10
 
       - name: Deploy
         run: kamal deploy
@@ -144,7 +157,7 @@ jobs:
 
       - name: Check app health
         run: |
-          curl -sf http://${{ secrets.PHX_HOST }}/up || echo "Health check failed (may still be starting)"
+          curl -sf http://${{ vars.PHX_HOST }}/up || echo "Health check failed (may still be starting)"
 
       - name: Deployment summary
         if: always()
@@ -153,4 +166,4 @@ jobs:
           echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **SHA:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** http://${{ secrets.PHX_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** http://${{ vars.PHX_HOST }}" >> $GITHUB_STEP_SUMMARY
