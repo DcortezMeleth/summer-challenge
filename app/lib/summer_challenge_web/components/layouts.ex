@@ -30,6 +30,7 @@ defmodule SummerChallengeWeb.Layouts do
         <.live_title suffix=" · Phoenix Framework">
           <%= assigns[:page_title] || "Summer Challenge" %>
         </.live_title>
+        <link rel="icon" type="image/png" href={~p"/favicon.png"} />
         <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
         <script defer phx-track-static src={~p"/assets/app.js"}>
         </script>

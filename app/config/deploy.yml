@@ -14,7 +14,7 @@ servers:
 
 proxy:
   host: <%= ENV["PHX_HOST"] %>
-  ssl: false
+  ssl: true
   app_port: 4000
   healthcheck:
     interval: 10
