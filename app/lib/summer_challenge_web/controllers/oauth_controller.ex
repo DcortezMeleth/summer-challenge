@@ -61,22 +61,14 @@ defmodule SummerChallengeWeb.OAuthController do
 
   @spec exchange_code_for_token(String.t()) :: {:ok, map()} | {:error, term()}
   defp exchange_code_for_token(code) do
-    require Logger
-    # Debug: Log the configuration being used
-    client_id = Application.get_env(:summer_challenge, :strava_client_id)
-    client_secret = Application.get_env(:summer_challenge, :strava_client_secret)
-    Logger.info("OAuth Debug - Client ID: #{client_id}, Secret length: #{String.length(client_secret)}")
+    # Exchange authorization code for access token.
+    # The token response from Strava includes the full athlete object (with email),
+    # which is the only reliable source — /api/v3/athlete does not return email.
+    {token, athlete} = strava_client().get_token!(code: code)
 
-    # Exchange authorization code for access token
-    token = strava_client().get_token!(code: code)
-
-    # Fetch athlete profile
-    case strava_client().get_athlete(token) do
-      {:ok, athlete} ->
-        {:ok, %{token: token, athlete: athlete}}
-
-      {:error, reason} ->
-        {:error, "Failed to fetch athlete profile: #{reason}"}
+    case athlete do
+      nil -> {:error, "Athlete data missing from token response"}
+      _ -> {:ok, %{token: token, athlete: athlete}}
     end
   rescue
     e in OAuth2.Error ->

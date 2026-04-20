@@ -21,8 +21,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
       athlete = %{"id" => 111, "firstname" => "New", "lastname" => "User"}
 
       StravaMock
-      |> expect(:get_token!, fn [code: ^code] -> token end)
-      |> expect(:get_athlete, fn ^token -> {:ok, athlete} end)
+      |> expect(:get_token!, fn [code: ^code] -> {token, athlete} end)
 
       conn = get(conn, ~p"/auth/strava/callback", code: code, state: "ignored_in_mvp")
 
@@ -45,8 +44,7 @@ defmodule SummerChallengeWeb.OAuthControllerTest do
       }
 
       StravaMock
-      |> expect(:get_token!, fn [code: ^code] -> token end)
-      |> expect(:get_athlete, fn ^token -> {:ok, athlete} end)
+      |> expect(:get_token!, fn [code: ^code] -> {token, athlete} end)
 
       conn = get(conn, ~p"/auth/strava/callback", code: code, state: "ignored_in_mvp")
 

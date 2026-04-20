@@ -79,8 +79,9 @@ defmodule SummerChallenge.OAuth.Strava do
 
     case Req.post(url, form: body, headers: headers) do
       {:ok, %Req.Response{status: 200, body: token_data}} ->
-        # Convert response to OAuth2.AccessToken struct
-        OAuth2.AccessToken.new(token_data)
+        token = OAuth2.AccessToken.new(token_data)
+        athlete = Map.get(token_data, "athlete")
+        {token, athlete}
 
       {:ok, %Req.Response{body: error_data}} ->
         raise OAuth2.Error, reason: "Server responded with error: #{inspect(error_data)}"
