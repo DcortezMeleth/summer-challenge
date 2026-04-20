@@ -250,7 +250,10 @@ defmodule SummerChallenge.Accounts do
 
       user ->
         user
-        |> Ecto.Changeset.change(%{profile_image_url: profile_image_url})
+        |> Ecto.Changeset.change(%{
+          profile_image_url: profile_image_url,
+          is_admin: check_admin_status(athlete)
+        })
         |> Repo.update()
         |> case do
           {:ok, updated_user} ->
