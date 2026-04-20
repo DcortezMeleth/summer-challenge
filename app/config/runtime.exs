@@ -68,7 +68,19 @@ if config_env() == :prod do
   # Comma-separated Strava login emails that receive `users.is_admin` on OAuth (see Accounts).
   config :summer_challenge, :admin_emails, System.get_env("ADMIN_EMAILS", "")
   config :summer_challenge, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
-  config :summer_challenge, :strava_redirect_uri, "https://#{host}/auth/strava/callback"
+
+  strava_client_id =
+    System.get_env("STRAVA_CLIENT_ID") ||
+      raise "environment variable STRAVA_CLIENT_ID is missing."
+
+  strava_client_secret =
+    System.get_env("STRAVA_CLIENT_SECRET") ||
+      raise "environment variable STRAVA_CLIENT_SECRET is missing."
+
+  config :summer_challenge,
+    strava_client_id: strava_client_id,
+    strava_client_secret: strava_client_secret,
+    strava_redirect_uri: "https://#{host}/auth/strava/callback"
 
   # ## SSL Support
   #
