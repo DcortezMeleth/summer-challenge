@@ -159,7 +159,7 @@ jobs:
 
       - name: Check app health
         run: |
-          curl -sf http://${{ vars.PHX_HOST }}/up || echo "Health check failed (may still be starting)"
+          curl -sfL https://${{ vars.PHX_HOST }}/up || echo "Health check failed (may still be starting)"
 
       - name: Deployment summary
         if: always()
@@ -168,4 +168,4 @@ jobs:
           echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **SHA:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** http://${{ vars.PHX_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ vars.PHX_HOST }}" >> $GITHUB_STEP_SUMMARY
