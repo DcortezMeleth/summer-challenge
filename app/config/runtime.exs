@@ -65,8 +65,8 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  # Comma-separated Strava login emails that receive `users.is_admin` on OAuth (see Accounts).
-  config :summer_challenge, :admin_emails, System.get_env("ADMIN_EMAILS", "")
+  # Comma-separated Strava athlete IDs that receive `users.is_admin` on OAuth (see Accounts).
+  config :summer_challenge, :admin_athlete_ids, System.get_env("ADMIN_ATHLETE_IDS", "")
   config :summer_challenge, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   strava_client_id =

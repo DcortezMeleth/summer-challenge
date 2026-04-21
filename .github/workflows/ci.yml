@@ -126,7 +126,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           GCP_ARTIFACT_REGISTRY_KEY_BASE64: ${{ env.GCP_ARTIFACT_REGISTRY_KEY_BASE64 }}
           PHX_HOST: ${{ vars.PHX_HOST }}
-          ADMIN_EMAILS: ${{ vars.ADMIN_EMAILS }}
+          ADMIN_ATHLETE_IDS: ${{ vars.ADMIN_ATHLETE_IDS }}
 
       - name: Wait for Postgres after accessory restart
         run: sleep 10
@@ -142,7 +142,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           GCP_ARTIFACT_REGISTRY_KEY_BASE64: ${{ env.GCP_ARTIFACT_REGISTRY_KEY_BASE64 }}
           PHX_HOST: ${{ vars.PHX_HOST }}
-          ADMIN_EMAILS: ${{ vars.ADMIN_EMAILS }}
+          ADMIN_ATHLETE_IDS: ${{ vars.ADMIN_ATHLETE_IDS }}
           BUILD_RUN_NUMBER: ${{ github.run_number }}
           BUILD_GIT_SHA: ${{ github.sha }}
           BUILD_TIMESTAMP: ${{ env.BUILD_TIMESTAMP }}

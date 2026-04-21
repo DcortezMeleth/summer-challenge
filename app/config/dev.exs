@@ -71,7 +71,7 @@ config :summer_challenge,
   strava_client_id: System.get_env("STRAVA_CLIENT_ID"),
   strava_client_secret: System.get_env("STRAVA_CLIENT_SECRET"),
   strava_redirect_uri: System.get_env("STRAVA_REDIRECT_URI") || "http://localhost:4000/auth/strava/callback",
-  admin_emails: System.get_env("ADMIN_EMAILS") || ""
+  admin_athlete_ids: System.get_env("ADMIN_ATHLETE_IDS") || ""
 
 # Import secret configuration file if it exists (gitignored)
 # Disable swoosh api client as it is only required for production adapters.

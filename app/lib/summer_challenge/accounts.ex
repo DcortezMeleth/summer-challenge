@@ -295,21 +295,18 @@ defmodule SummerChallenge.Accounts do
   defp check_admin_status(athlete) do
     require Logger
 
-    raw = Application.get_env(:summer_challenge, :admin_emails, "")
-
-    admin_emails =
-      raw
+    admin_ids =
+      :summer_challenge
+      |> Application.get_env(:admin_athlete_ids, "")
+      |> to_string()
       |> String.split(",", trim: true)
       |> Enum.map(&String.trim/1)
-      |> Enum.map(&String.downcase/1)
 
-    athlete_email = athlete["email"] |> to_string() |> String.downcase()
-
-    result = athlete_email in admin_emails
+    athlete_id = to_string(athlete["id"])
+    result = athlete_id in admin_ids
 
     Logger.info(
-      "Admin check — athlete_id=#{athlete["id"]} email=#{inspect(athlete_email)} " <>
-        "admin_emails=#{inspect(admin_emails)} result=#{result}"
+      "Admin check — athlete_id=#{athlete_id} admin_ids=#{inspect(admin_ids)} result=#{result}"
     )
 
     result
