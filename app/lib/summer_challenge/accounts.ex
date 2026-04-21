@@ -293,13 +293,26 @@ defmodule SummerChallenge.Accounts do
 
   @spec check_admin_status(map()) :: boolean()
   defp check_admin_status(athlete) do
+    require Logger
+
+    raw = Application.get_env(:summer_challenge, :admin_emails, "")
+
     admin_emails =
-      :summer_challenge
-      |> Application.get_env(:admin_emails, "")
+      raw
       |> String.split(",", trim: true)
       |> Enum.map(&String.trim/1)
+      |> Enum.map(&String.downcase/1)
 
-    athlete["email"] in admin_emails
+    athlete_email = athlete["email"] |> to_string() |> String.downcase()
+
+    result = athlete_email in admin_emails
+
+    Logger.info(
+      "Admin check — athlete_id=#{athlete["id"]} email=#{inspect(athlete_email)} " <>
+        "admin_emails=#{inspect(admin_emails)} result=#{result}"
+    )
+
+    result
   end
 
   # Private functions
